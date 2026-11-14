@@ -1,0 +1,6 @@
+import { it,expect } from 'vitest';
+import { initialMapState,mapReducer } from './state';
+it('selects the correct target and enters flying then inspecting',()=>{const flying=mapReducer(initialMapState,{type:'select',id:'epsilon_indi_b'});expect(flying.mode).toBe('flying');expect(mapReducer(flying,{type:'arrive',flight:flying.flight})).toMatchObject({mode:'inspecting',targetId:'epsilon_indi_b'});});
+it('ignores stale arrivals when another field is selected',()=>{const first=mapReducer(initialMapState,{type:'select',id:'m101'});const next=mapReducer(first,{type:'select',id:'barnard'});expect(mapReducer(next,{type:'arrive',flight:first.flight})).toEqual(next);});
+it('returns globally without keeping a stale selected target',()=>{const first=mapReducer(initialMapState,{type:'select',id:'m101'});expect(mapReducer(first,{type:'back'})).toMatchObject({mode:'global',targetId:null});expect(mapReducer(first,{type:'interrupt'})).toMatchObject({mode:'global',targetId:null});});
+it('uses explicit tokens after user pan interrupts and later selections',()=>{const first=mapReducer(initialMapState,{type:'select',id:'m101',flight:9});expect(mapReducer(first,{type:'arrive',flight:9}).mode).toBe('inspecting');});

@@ -1,0 +1,10 @@
+import { it,expect,vi,afterEach } from 'vitest';
+import catalog from '../../public/data/catalog.json';
+import { validateCatalog,loadCatalog } from './catalog';
+afterEach(()=>vi.unstubAllGlobals());
+it('loads the three genuinely processed fields',()=>{const value=validateCatalog(catalog);expect(value.targets.map(t=>t.id).sort()).toEqual(['barnard','epsilon_indi_b','m101']);expect(value.targets.find(t=>t.id==='epsilon_indi_b')?.classification).toBe('exploratory');expect(value.targets.find(t=>t.id==='barnard')?.classification).toBe('diagnostic');});
+it('rejects invalid coordinates and duplicate target IDs',()=>{const value=structuredClone(catalog);value.targets[0].center.raDeg=361;expect(()=>validateCatalog(value)).toThrow('ICRS');const duplicate=structuredClone(catalog);duplicate.targets.push(duplicate.targets[0]);expect(()=>validateCatalog(duplicate)).toThrow('unique');});
+it('rejects host filesystem paths or path traversal',()=>{for(const path of ['C:/Users/data.fits','../private.fits','/absolute.fits']){const value=structuredClone(catalog);value.targets[0].assets.fits=path;expect(()=>validateCatalog(value)).toThrow('relative');}});
+it('reports HTTP errors from the local catalog',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false,status:404}));await expect(loadCatalog()).rejects.toThrow('HTTP 404');});
+it('fetches and validates an existing local catalog',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:true,json:async()=>catalog}));expect((await loadCatalog()).targets).toHaveLength(3);});
+it('rejects empty and unsupported catalogs',()=>{expect(()=>validateCatalog({version:2,targets:[]})).toThrow();expect(()=>validateCatalog(null)).toThrow();});

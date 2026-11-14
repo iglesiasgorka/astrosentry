@@ -1,0 +1,993 @@
+{
+  "version": 1,
+  "coordinateFrame": "ICRS",
+  "targets": [
+    {
+      "id": "epsilon_indi_b",
+      "name": "Epsilon Indi B",
+      "objectType": "Unresolved brown dwarf binary",
+      "center": {
+        "raDeg": 331.09633125951194,
+        "decDeg": -56.80053487932291
+      },
+      "dimensions": {
+        "width": 88,
+        "height": 88
+      },
+      "pixelScaleArcsec": 6.2,
+      "wcsHeader": {
+        "WCSAXES": 2,
+        "CRPIX1": 44.5,
+        "CRPIX2": 44.5,
+        "CDELT1": -0.0017222222222222,
+        "CDELT2": 0.0017222222222222,
+        "CUNIT1": "deg",
+        "CUNIT2": "deg",
+        "CTYPE1": "RA---TAN",
+        "CTYPE2": "DEC--TAN",
+        "CRVAL1": 331.09633125951,
+        "CRVAL2": -56.800534879323,
+        "LONPOLE": 180.0,
+        "LATPOLE": -56.800534879323,
+        "MJDREF": 0.0,
+        "RADESYS": "ICRS"
+      },
+      "footprint": [
+        [
+          331.2350041604346,
+          -56.87623581288373
+        ],
+        [
+          330.95765835858543,
+          -56.87623581288373
+        ],
+        [
+          330.9582177811572,
+          -56.72468078779772
+        ],
+        [
+          331.2344447378628,
+          -56.72468078779772
+        ]
+      ],
+      "angularSizeDeg": {
+        "width": 0.15155546718883983,
+        "height": 0.15155546718886773
+      },
+      "geometryValidation": {
+        "centerErrorArcsec": 3.82838236664188e-09,
+        "cornerRoundtripErrorPixels": 1.1310682091489285e-11,
+        "northUp": true,
+        "eastLeft": true,
+        "footprintConvention": "Outer pixel edges, ordered bottom-left, bottom-right, top-right, top-left in FITS coordinates."
+      },
+      "classification": "exploratory",
+      "observation": {
+        "id": "2025W18_1B_0081_2",
+        "timestampUtc": "2025-04-29T01:34:17.379",
+        "startUtc": "2025-04-29T01:33:19.820",
+        "timestampKind": "FITS observation midpoint, UTC",
+        "detector": "SPHEREx-D6",
+        "release": "dr1",
+        "processingVersion": "l2b-v27-2026-196",
+        "wavelengthUm": 4.430915081148809,
+        "bandwidthUm": 0.036554935416411326,
+        "mjd": 60794.065478921,
+        "wavelengthReference": "Existing target-position spectral metadata."
+      },
+      "assets": {
+        "fits": "epsilon_indi_b/observation.fits",
+        "png": "epsilon_indi_b/frame.png",
+        "alignedFits": "epsilon_indi_b/aligned.fits"
+      },
+      "display": {
+        "vmin": 0.19463808084139544,
+        "vmax": 0.6858769888711637,
+        "stretch": "asinh",
+        "common": true,
+        "pngAsinhParameter": 0.1,
+        "invalidColor": "#683a68",
+        "units": "MJy / sr",
+        "sourceHdu": "DISPLAY",
+        "limitsSource": "Existing sequence_manifest display_stretch",
+        "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+      },
+      "warnings": [
+        "PSF, local response and backgrounds are not matched; no detection significance is established.",
+        "Prediction omits annual parallax, perspective and orbital motion.",
+        "Unresolved binary: a measured centroid may be a combined, wavelength-dependent photocenter.",
+        "Exploratory apparent photocenter displacement measured from two real SPHEREx observations. Unvalidated instrumental and astrometric systematics prevent a significant-motion detection claim.",
+        "Formal fit errors differ from total uncertainty; reference RMS is diagnostic, not detection significance."
+      ],
+      "provenance": {
+        "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2025W18_1B_0081_2D6.fits",
+        "sourceSha256": "abc6aa70a0443d310ca969c28d119a58aca0fede68accec3798455a5f5a9590c",
+        "webFitsKind": "Primary-HDU float32 display derivative; same dimensions and TAN WCS, no resampling.",
+        "exactPngCopied": true
+      },
+      "sequence": {
+        "version": 1,
+        "classification": "exploratory",
+        "frames": [
+          {
+            "id": "2025W18_1B_0081_2",
+            "observation": {
+              "id": "2025W18_1B_0081_2",
+              "timestampUtc": "2025-04-29T01:34:17.379",
+              "startUtc": "2025-04-29T01:33:19.820",
+              "timestampKind": "FITS observation midpoint, UTC",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-196",
+              "wavelengthUm": 4.430915081148809,
+              "bandwidthUm": 0.036554935416411326,
+              "mjd": 60794.065478921,
+              "wavelengthReference": "Existing target-position spectral metadata."
+            },
+            "expectedPosition": {
+              "raDeg": 331.09530244093537,
+              "decDeg": -56.80018647985912,
+              "xFits": 43.82710088572014,
+              "yFits": 43.702294005478166,
+              "xImage": 43.82710088572014,
+              "yImage": 43.297705994521834
+            },
+            "measuredPosition": {
+              "raDeg": 331.09567906830165,
+              "decDeg": -56.80032968724511,
+              "xFits": 43.7073558084615,
+              "yFits": 43.61914279960393,
+              "xImage": 43.7073558084615,
+              "yImage": 43.38085720039607
+            },
+            "formalCentroidErrorOriginalPixels": 0.017995534411888357,
+            "formalCentroidErrorArcsec": 0.1112983192769324,
+            "warnings": [],
+            "measurementReason": null,
+            "assets": {
+              "fits": "epsilon_indi_b/frames/2025W18_1B_0081_2.fits",
+              "png": "epsilon_indi_b/frames/2025W18_1B_0081_2.png",
+              "masks": "epsilon_indi_b/frames/2025W18_1B_0081_2.masks.json"
+            },
+            "display": {
+              "vmin": 0.19463808084139544,
+              "vmax": 0.6858769888711637,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Existing sequence_manifest display_stretch",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "masks": {
+              "displayValidFraction": 0.8401342975206612,
+              "scienceValidFraction": 0.784220041322314,
+              "semantics": "displayValid is finite DISPLAY coverage; scienceValid is the distinct conservative aligned COVERAGE mask, not the display mask.",
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2025W18_1B_0081_2D6.fits",
+              "sourceSha256": "abc6aa70a0443d310ca969c28d119a58aca0fede68accec3798455a5f5a9590c",
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W18_1B/l2b-v27-2026-196/6/level2_2025W18_1B_0081_2D6_spx_l2b-v27-2026-196.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
+              "exactPngCopied": true
+            }
+          },
+          {
+            "id": "2025W39_2A_0693_3",
+            "observation": {
+              "id": "2025W39_2A_0693_3",
+              "timestampUtc": "2025-09-28T23:09:16.769",
+              "startUtc": "2025-09-28T23:08:19.210",
+              "timestampKind": "FITS observation midpoint, UTC",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-239",
+              "wavelengthUm": 4.423466874710214,
+              "bandwidthUm": 0.03729629983897572,
+              "mjd": 60946.964777416,
+              "wavelengthReference": "Existing target-position spectral metadata."
+            },
+            "expectedPosition": {
+              "raDeg": 331.0961484666115,
+              "decDeg": -56.80047297936587,
+              "xFits": 43.55811642995167,
+              "yFits": 43.535941832971886,
+              "xImage": 43.55811642995167,
+              "yImage": 43.464058167028114
+            },
+            "measuredPosition": {
+              "raDeg": 331.0963118860249,
+              "decDeg": -56.80073505919809,
+              "xFits": 43.506159484467865,
+              "yFits": 43.38376652322224,
+              "xImage": 43.506159484467865,
+              "yImage": 43.61623347677776
+            },
+            "formalCentroidErrorOriginalPixels": 0.019424713266443894,
+            "formalCentroidErrorArcsec": 0.12037972711503178,
+            "warnings": [],
+            "measurementReason": null,
+            "assets": {
+              "fits": "epsilon_indi_b/frames/2025W39_2A_0693_3.fits",
+              "png": "epsilon_indi_b/frames/2025W39_2A_0693_3.png",
+              "masks": "epsilon_indi_b/frames/2025W39_2A_0693_3.masks.json"
+            },
+            "display": {
+              "vmin": 0.19463808084139544,
+              "vmax": 0.6858769888711637,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Existing sequence_manifest display_stretch",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "masks": {
+              "displayValidFraction": 0.8044938016528925,
+              "scienceValidFraction": 0.6952479338842975,
+              "semantics": "displayValid is finite DISPLAY coverage; scienceValid is the distinct conservative aligned COVERAGE mask, not the display mask.",
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2025W39_2A_0693_3D6.fits",
+              "sourceSha256": "741a9d3620bdf6fca32e0475d58c19d7ccf29f485b3f0cab69af92ef540b0db2",
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W39_2A/l2b-v27-2026-239/6/level2_2025W39_2A_0693_3D6_spx_l2b-v27-2026-239.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
+              "exactPngCopied": true
+            }
+          }
+        ],
+        "display": {
+          "vmin": 0.19463808084139544,
+          "vmax": 0.6858769888711637,
+          "stretch": "asinh",
+          "common": true,
+          "pngAsinhParameter": 0.1,
+          "invalidColor": "#683a68",
+          "units": "MJy / sr",
+          "sourceHdu": "DISPLAY",
+          "limitsSource": "Existing sequence_manifest display_stretch",
+          "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+        },
+        "warnings": [
+          "PSF, local response and backgrounds are not matched; no detection significance is established.",
+          "Prediction omits annual parallax, perspective and orbital motion.",
+          "Unresolved binary: a measured centroid may be a combined, wavelength-dependent photocenter.",
+          "Exploratory apparent photocenter displacement measured from two real SPHEREx observations. Unvalidated instrumental and astrometric systematics prevent a significant-motion detection claim.",
+          "Formal fit errors differ from total uncertainty; reference RMS is diagnostic, not detection significance."
+        ],
+        "motion": {
+          "measuredDisplacementArcsec": 1.91981828441444,
+          "expectedDisplacementArcsec": 1.9608639024807166,
+          "measuredDisplacementPixels": 0.3096481103960746,
+          "expectedDisplacementPixels": 0.31626837139148395,
+          "formalEndpointErrorArcsec": 0.16394692608938877,
+          "timeSeparationDays": 152.89929849537037,
+          "expectedEastNorthArcsec": [
+            1.6676881286697247,
+            -1.0314085269563151
+          ],
+          "measuredEastNorthArcsec": [
+            1.247403308747415,
+            -1.4593447949232319
+          ],
+          "referenceRmsArcsec": 1.0112156360950635,
+          "referenceCount": 5,
+          "formalErrorWarning": "Formal fit errors are incomplete and exclude instrumental, reference-frame, PSF and photocenter systematics.",
+          "referenceWarning": "Reference RMS is a diagnostic, not a statistical motion-significance denominator.",
+          "significantDetectionClaimed": false,
+          "limitation": "Linear proper motion only: annual parallax, perspective acceleration, orbital effects and observer location are omitted. Formal centroid errors exclude systematics."
+        },
+        "interpretation": "Exploratory apparent photocenter displacement measured from two real SPHEREx observations. Unvalidated instrumental and astrometric systematics prevent a significant-motion detection claim.",
+        "predictionModel": "Linear catalog proper motion; annual parallax, perspective and orbital effects omitted.",
+        "astrometricReference": {
+          "key": "epsilon_indi_b",
+          "name": "Epsilon Indi B",
+          "query_name": "eps Ind B",
+          "object_type": "Unresolved brown dwarf binary",
+          "expected_phenomenon": "Proper motion; Ba/Bb are not expected to be resolved by SPHEREx.",
+          "main_id": "* eps Ind B",
+          "identifiers": [
+            "TIC 231700016",
+            "GJ 845 B",
+            "GJ 845 C",
+            "Gaia DR3 6412596012146801152",
+            "V* CI Ind",
+            "* eps Ind B",
+            "2MASS J22041052-5646577",
+            "CNS5 5452",
+            "[B2006] J220410.5-564657",
+            "WDS J22034-5647Ba,Bb",
+            "WISEP J220415.66-564723.5",
+            "** VLK    1",
+            "WDS J22034-5647B",
+            "** SOZ    1B",
+            "WISE J220415.65-564723.6",
+            "Gaia DR2 6412596012146094848",
+            "WISEA J220415.75-564724.4"
+          ],
+          "ra_deg": 331.04414658852124,
+          "dec_deg": -56.782844195116105,
+          "reference_epoch_jyear": 2000.0,
+          "frame": "ICRS",
+          "reference_epoch_source": "https://simbad.u-strasbg.fr/Pages/guide/sim-fsam.htx",
+          "coordinate_bibcode": "2020yCat.1350....0G",
+          "pm_ra_cosdec_mas_yr": 3981.977,
+          "pm_dec_mas_yr": -2466.832,
+          "proper_motion_bibcode": "2020yCat.1350....0G",
+          "pm_error_major_mas_yr": 0.6019999980926514,
+          "pm_error_minor_mas_yr": 0.6259999871253967,
+          "parallax_mas": 270.658,
+          "parallax_bibcode": "2020yCat.1350....0G",
+          "simbad_type": "BD*",
+          "source": "SIMBAD Harvard mirror via astroquery",
+          "resolved_at_utc": "2026-11-14T09:22:59.257",
+          "epoch_note": "SIMBAD basic positions are propagated to ICRS epoch J2000, distinct from the source catalog epoch (Gaia EDR3 J2016)."
+        },
+        "fixedGrid": {
+          "wcsHeader": {
+            "WCSAXES": 2,
+            "CRPIX1": 44.5,
+            "CRPIX2": 44.5,
+            "CDELT1": -0.0017222222222222,
+            "CDELT2": 0.0017222222222222,
+            "CUNIT1": "deg",
+            "CUNIT2": "deg",
+            "CTYPE1": "RA---TAN",
+            "CTYPE2": "DEC--TAN",
+            "CRVAL1": 331.09633125951,
+            "CRVAL2": -56.800534879323,
+            "LONPOLE": 180.0,
+            "LATPOLE": -56.800534879323,
+            "MJDREF": 0.0,
+            "RADESYS": "ICRS"
+          },
+          "dimensions": {
+            "width": 88,
+            "height": 88
+          },
+          "pixelScaleArcsec": 6.2,
+          "pngConvention": "yImage = height - 1 - yFits; north up, east left; no recentering"
+        },
+        "sourceManifest": "outputs/spx002b/epsilon_indi_b/sequence_manifest.json"
+      }
+    },
+    {
+      "id": "m101",
+      "name": "M101",
+      "objectType": "Galaxy / registration field",
+      "center": {
+        "raDeg": 210.80227,
+        "decDeg": 54.34895
+      },
+      "dimensions": {
+        "width": 59,
+        "height": 59
+      },
+      "pixelScaleArcsec": 6.2,
+      "wcsHeader": {
+        "WCSAXES": 2,
+        "CRPIX1": 30.0,
+        "CRPIX2": 30.0,
+        "CDELT1": -0.0017222222222222,
+        "CDELT2": 0.0017222222222222,
+        "CUNIT1": "deg",
+        "CUNIT2": "deg",
+        "CTYPE1": "RA---TAN",
+        "CTYPE2": "DEC--TAN",
+        "CRVAL1": 210.80227,
+        "CRVAL2": 54.34895,
+        "LONPOLE": 180.0,
+        "LATPOLE": 54.34895,
+        "MJDREF": 0.0,
+        "RADESYS": "ICRS"
+      },
+      "footprint": [
+        [
+          210.88933018679114,
+          54.298113112743415
+        ],
+        [
+          210.71520981320884,
+          54.298113112743415
+        ],
+        [
+          210.71499429346002,
+          54.399724079630744
+        ],
+        [
+          210.88954570653996,
+          54.399724079630744
+        ]
+      ],
+      "angularSizeDeg": {
+        "width": 0.10161108447953356,
+        "height": 0.10161108447950927
+      },
+      "geometryValidation": {
+        "centerErrorArcsec": 0.0,
+        "cornerRoundtripErrorPixels": 9.217251184966121e-12,
+        "northUp": true,
+        "eastLeft": true,
+        "footprintConvention": "Outer pixel edges, ordered bottom-left, bottom-right, top-right, top-left in FITS coordinates."
+      },
+      "classification": "registration example",
+      "observation": {
+        "id": "2025W19_2B_0346_1",
+        "timestampUtc": "2025-05-10T17:05:35.300",
+        "startUtc": "2025-05-10T17:04:37.741",
+        "timestampKind": "Observation midpoint, UTC",
+        "detector": "SPHEREx-D2",
+        "release": "dr1",
+        "processingVersion": "l2b-v27-2026-198",
+        "wavelengthUm": 1.5064212841578182,
+        "bandwidthUm": 0.036952739361587945,
+        "mjd": 60805.712214117,
+        "wavelengthReference": "Fixed requested ICRS field center."
+      },
+      "assets": {
+        "fits": "m101/observation.fits",
+        "png": "m101/frame.png",
+        "alignedFits": "m101/aligned.fits"
+      },
+      "display": {
+        "vmin": 0.5534864437666706,
+        "vmax": 5.389842936577865,
+        "stretch": "asinh",
+        "common": true,
+        "pngAsinhParameter": 0.1,
+        "invalidColor": "#683a68",
+        "units": "MJy / sr",
+        "sourceHdu": "DISPLAY",
+        "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+        "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+      },
+      "warnings": [
+        "A/B pass the SPX-001 heuristic but have different local wavelengths and DR1/QR3 provenance; quantitative temporal comparability is not certified.",
+        "Registration/exploration example; no object motion is measured.",
+        "Each displayed SPHEREx frame is one individual observation; the context survey is a different data product.",
+        "The selected observations belong to different releases (DR1 and QR3).",
+        "Spectral compatibility is exploratory; quantitative temporal change is not validated."
+      ],
+      "provenance": {
+        "sourceAlignedFits": "outputs/spx002/m101/aligned/2025W19_2B_0346_1.fits",
+        "sourceSha256": "856a5ae7e677f75d17fa5928e8b094190932c173e577fb0d32bf5ebfec766518",
+        "webFitsKind": "Primary-HDU float32 display derivative; same dimensions and TAN WCS, no resampling.",
+        "exactPngCopied": false
+      },
+      "sequence": {
+        "version": 1,
+        "classification": "registration example",
+        "frames": [
+          {
+            "id": "2025W19_2B_0346_1",
+            "observation": {
+              "id": "2025W19_2B_0346_1",
+              "timestampUtc": "2025-05-10T17:05:35.300",
+              "startUtc": "2025-05-10T17:04:37.741",
+              "timestampKind": "Observation midpoint, UTC",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-198",
+              "wavelengthUm": 1.5064212841578182,
+              "bandwidthUm": 0.036952739361587945,
+              "mjd": 60805.712214117,
+              "wavelengthReference": "Fixed requested ICRS field center."
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "formalCentroidErrorArcsec": null,
+            "warnings": [],
+            "measurementReason": null,
+            "assets": {
+              "fits": "m101/frames/2025W19_2B_0346_1.fits",
+              "png": "m101/frames/2025W19_2B_0346_1.png",
+              "masks": "m101/frames/2025W19_2B_0346_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.5534864437666706,
+              "vmax": 5.389842936577865,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "masks": {
+              "displayValidFraction": 0.811548405630566,
+              "scienceValidFraction": 0.7963228957196208,
+              "semantics": "displayValid is finite DISPLAY coverage; scienceValid is the distinct conservative aligned COVERAGE mask, not the display mask.",
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceAlignedFits": "outputs/spx002/m101/aligned/2025W19_2B_0346_1.fits",
+              "sourceSha256": "856a5ae7e677f75d17fa5928e8b094190932c173e577fb0d32bf5ebfec766518",
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_2B/l2b-v27-2026-198/2/level2_2025W19_2B_0346_1D2_spx_l2b-v27-2026-198.fits?center=210.80227,54.34895d&size=0.1",
+              "exactPngCopied": false
+            }
+          },
+          {
+            "id": "2026W26_1A_0500_1",
+            "observation": {
+              "id": "2026W26_1A_0500_1",
+              "timestampUtc": "2026-06-24T03:19:57.622",
+              "startUtc": "2026-06-24T03:19:00.063",
+              "timestampKind": "Observation midpoint, UTC",
+              "detector": "SPHEREx-D2",
+              "release": "qr3",
+              "processingVersion": "l2b_retry-v27-2026-274",
+              "wavelengthUm": 1.489985951056156,
+              "bandwidthUm": 0.036459778324684514,
+              "mjd": 61215.138861363,
+              "wavelengthReference": "Fixed requested ICRS field center."
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "formalCentroidErrorArcsec": null,
+            "warnings": [],
+            "measurementReason": null,
+            "assets": {
+              "fits": "m101/frames/2026W26_1A_0500_1.fits",
+              "png": "m101/frames/2026W26_1A_0500_1.png",
+              "masks": "m101/frames/2026W26_1A_0500_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.5534864437666706,
+              "vmax": 5.389842936577865,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "masks": {
+              "displayValidFraction": 0.8124102269462798,
+              "scienceValidFraction": 0.8081011203677104,
+              "semantics": "displayValid is finite DISPLAY coverage; scienceValid is the distinct conservative aligned COVERAGE mask, not the display mask.",
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceAlignedFits": "outputs/spx002/m101/aligned/2026W26_1A_0500_1.fits",
+              "sourceSha256": "3b499716022a8a911a6cb88b4ea88c8c82957a1d12a75bae54e5477750f10827",
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W26_1A/l2b_retry-v27-2026-274/2/level2_2026W26_1A_0500_1D2_spx_l2b_retry-v27-2026-274.fits?center=210.80227,54.34895d&size=0.1",
+              "exactPngCopied": false
+            }
+          }
+        ],
+        "display": {
+          "vmin": 0.5534864437666706,
+          "vmax": 5.389842936577865,
+          "stretch": "asinh",
+          "common": true,
+          "pngAsinhParameter": 0.1,
+          "invalidColor": "#683a68",
+          "units": "MJy / sr",
+          "sourceHdu": "DISPLAY",
+          "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+          "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+        },
+        "warnings": [
+          "A/B pass the SPX-001 heuristic but have different local wavelengths and DR1/QR3 provenance; quantitative temporal comparability is not certified.",
+          "Registration/exploration example; no object motion is measured.",
+          "Each displayed SPHEREx frame is one individual observation; the context survey is a different data product.",
+          "The selected observations belong to different releases (DR1 and QR3).",
+          "Spectral compatibility is exploratory; quantitative temporal change is not validated."
+        ],
+        "motion": null,
+        "interpretation": "Registration/exploration example across distinct releases; no quantitative temporal change or object motion has been validated.",
+        "predictionModel": null,
+        "astrometricReference": null,
+        "fixedGrid": {
+          "wcsHeader": {
+            "WCSAXES": 2,
+            "CRPIX1": 30.0,
+            "CRPIX2": 30.0,
+            "CDELT1": -0.0017222222222222,
+            "CDELT2": 0.0017222222222222,
+            "CUNIT1": "deg",
+            "CUNIT2": "deg",
+            "CTYPE1": "RA---TAN",
+            "CTYPE2": "DEC--TAN",
+            "CRVAL1": 210.80227,
+            "CRVAL2": 54.34895,
+            "LONPOLE": 180.0,
+            "LATPOLE": 54.34895,
+            "MJDREF": 0.0,
+            "RADESYS": "ICRS"
+          },
+          "dimensions": {
+            "width": 59,
+            "height": 59
+          },
+          "pixelScaleArcsec": 6.2,
+          "pngConvention": "yImage = height - 1 - yFits; north up, east left; no recentering"
+        },
+        "sourceManifest": "outputs/spx002/m101/alignment_report.json"
+      }
+    },
+    {
+      "id": "barnard",
+      "name": "Barnard's Star",
+      "objectType": "High proper motion M dwarf",
+      "center": {
+        "raDeg": 269.4463051939393,
+        "decDeg": 4.767723737902654
+      },
+      "dimensions": {
+        "width": 88,
+        "height": 88
+      },
+      "pixelScaleArcsec": 6.2,
+      "wcsHeader": {
+        "WCSAXES": 2,
+        "CRPIX1": 44.5,
+        "CRPIX2": 44.5,
+        "CDELT1": -0.0017222222222222,
+        "CDELT2": 0.0017222222222222,
+        "CUNIT1": "deg",
+        "CUNIT2": "deg",
+        "CTYPE1": "RA---TAN",
+        "CTYPE2": "DEC--TAN",
+        "CRVAL1": 269.44630519394,
+        "CRVAL2": 4.7677237379027,
+        "LONPOLE": 180.0,
+        "LATPOLE": 4.7677237379027,
+        "MJDREF": 0.0,
+        "RADESYS": "ICRS"
+      },
+      "footprint": [
+        [
+          269.52233765372074,
+          4.691941891556946
+        ],
+        [
+          269.3702727341593,
+          4.691941891556946
+        ],
+        [
+          269.37025595817005,
+          4.8434972252739295
+        ],
+        [
+          269.52235442971,
+          4.8434972252739295
+        ]
+      ],
+      "angularSizeDeg": {
+        "width": 0.15155546718887303,
+        "height": 0.15155546718885582
+      },
+      "geometryValidation": {
+        "centerErrorArcsec": 2.655908976690652e-09,
+        "cornerRoundtripErrorPixels": 1.9292066187342514e-11,
+        "northUp": true,
+        "eastLeft": true,
+        "footprintConvention": "Outer pixel edges, ordered bottom-left, bottom-right, top-right, top-left in FITS coordinates."
+      },
+      "classification": "diagnostic",
+      "observation": {
+        "id": "2025W35_2A_0221_4",
+        "timestampUtc": "2025-08-29T15:52:09.634",
+        "startUtc": "2025-08-29T15:51:12.075",
+        "timestampKind": "Observation midpoint, UTC",
+        "detector": "SPHEREx-D2",
+        "release": "dr1",
+        "processingVersion": "l2b-v27-2026-231",
+        "wavelengthUm": 1.4605628627044278,
+        "bandwidthUm": 0.0354183592534741,
+        "mjd": 60916.661222613,
+        "wavelengthReference": "Predicted catalog target position at the observation midpoint."
+      },
+      "assets": {
+        "fits": "barnard/observation.fits",
+        "png": "barnard/frame.png",
+        "alignedFits": "barnard/aligned.fits"
+      },
+      "display": {
+        "vmin": 0.23273281642185592,
+        "vmax": 9.100361676111445,
+        "stretch": "asinh",
+        "common": true,
+        "pngAsinhParameter": 0.1,
+        "invalidColor": "#683a68",
+        "units": "MJy / sr",
+        "sourceHdu": "DISPLAY",
+        "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+        "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+      },
+      "warnings": [
+        "No reliable observed motion can be measured in these cutouts: the target cores are invalid. The expected track is a prediction, not an observation. D6 did not supply a validated replacement pair.",
+        "Spectral diagnostic only: target cores fail quality; no reliable centroids.",
+        "Target core is invalid; no reliable observed motion or target centroid exists."
+      ],
+      "provenance": {
+        "sourceAlignedFits": "outputs/spx002/barnard/aligned/2025W35_2A_0221_4.fits",
+        "sourceSha256": "8106c80e7ac433860547e55b574adfcc2b71050ef9d2834d66bfe8edf5e293e0",
+        "webFitsKind": "Primary-HDU float32 display derivative; same dimensions and TAN WCS, no resampling.",
+        "exactPngCopied": false
+      },
+      "sequence": {
+        "version": 1,
+        "classification": "diagnostic",
+        "frames": [
+          {
+            "id": "2025W35_2A_0221_4",
+            "observation": {
+              "id": "2025W35_2A_0221_4",
+              "timestampUtc": "2025-08-29T15:52:09.634",
+              "startUtc": "2025-08-29T15:51:12.075",
+              "timestampKind": "Observation midpoint, UTC",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-231",
+              "wavelengthUm": 1.4605628627044278,
+              "bandwidthUm": 0.0354183592534741,
+              "mjd": 60916.661222613,
+              "wavelengthReference": "Predicted catalog target position at the observation midpoint."
+            },
+            "expectedPosition": {
+              "raDeg": 269.44634394287493,
+              "decDeg": 4.767224581345844,
+              "xFits": 43.47757845319759,
+              "yFits": 43.21016716117943,
+              "xImage": 43.47757845319759,
+              "yImage": 43.78983283882057
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "formalCentroidErrorArcsec": null,
+            "warnings": [
+              "Insufficient unflagged pixels or contaminated 3x3 target core."
+            ],
+            "measurementReason": "Insufficient unflagged pixels or contaminated 3x3 target core.",
+            "assets": {
+              "fits": "barnard/frames/2025W35_2A_0221_4.fits",
+              "png": "barnard/frames/2025W35_2A_0221_4.png",
+              "masks": "barnard/frames/2025W35_2A_0221_4.masks.json"
+            },
+            "display": {
+              "vmin": 0.23273281642185592,
+              "vmax": 9.100361676111445,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "masks": {
+              "displayValidFraction": 0.9573863636363636,
+              "scienceValidFraction": 0.9223915289256198,
+              "semantics": "displayValid is finite DISPLAY coverage; scienceValid is the distinct conservative aligned COVERAGE mask, not the display mask.",
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceAlignedFits": "outputs/spx002/barnard/aligned/2025W35_2A_0221_4.fits",
+              "sourceSha256": "8106c80e7ac433860547e55b574adfcc2b71050ef9d2834d66bfe8edf5e293e0",
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_2A/l2b-v27-2026-231/2/level2_2025W35_2A_0221_4D2_spx_l2b-v27-2026-231.fits?center=269.4463051939393,4.767723737902654d&size=0.15",
+              "exactPngCopied": false
+            }
+          },
+          {
+            "id": "2026W11_2A_0501_1",
+            "observation": {
+              "id": "2026W11_2A_0501_1",
+              "timestampUtc": "2026-03-15T00:47:02.657",
+              "startUtc": "2026-03-15T00:46:05.098",
+              "timestampKind": "Observation midpoint, UTC",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-234",
+              "wavelengthUm": 1.4452362917816781,
+              "bandwidthUm": 0.03543597091687923,
+              "mjd": 61114.032669638,
+              "wavelengthReference": "Predicted catalog target position at the observation midpoint."
+            },
+            "expectedPosition": {
+              "raDeg": 269.4462231962237,
+              "decDeg": 4.768780014771303,
+              "xFits": 43.54744676012834,
+              "yFits": 44.113322055655445,
+              "xImage": 43.54744676012834,
+              "yImage": 42.886677944344555
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "formalCentroidErrorArcsec": null,
+            "warnings": [
+              "Insufficient unflagged pixels or contaminated 3x3 target core."
+            ],
+            "measurementReason": "Insufficient unflagged pixels or contaminated 3x3 target core.",
+            "assets": {
+              "fits": "barnard/frames/2026W11_2A_0501_1.fits",
+              "png": "barnard/frames/2026W11_2A_0501_1.png",
+              "masks": "barnard/frames/2026W11_2A_0501_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.23273281642185592,
+              "vmax": 9.100361676111445,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "masks": {
+              "displayValidFraction": 0.9600981404958677,
+              "scienceValidFraction": 0.9149018595041323,
+              "semantics": "displayValid is finite DISPLAY coverage; scienceValid is the distinct conservative aligned COVERAGE mask, not the display mask.",
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceAlignedFits": "outputs/spx002/barnard/aligned/2026W11_2A_0501_1.fits",
+              "sourceSha256": "72f1dfe71d8f79c5047d940a83c6f03a08ec4dbe9b17542dd838b40438155491",
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_2A/l2b-v27-2026-234/2/level2_2026W11_2A_0501_1D2_spx_l2b-v27-2026-234.fits?center=269.4463051939393,4.767723737902654d&size=0.15",
+              "exactPngCopied": false
+            }
+          }
+        ],
+        "display": {
+          "vmin": 0.23273281642185592,
+          "vmax": 9.100361676111445,
+          "stretch": "asinh",
+          "common": true,
+          "pngAsinhParameter": 0.1,
+          "invalidColor": "#683a68",
+          "units": "MJy / sr",
+          "sourceHdu": "DISPLAY",
+          "limitsSource": "Common 0.5/99.5 percentiles across the selected pair's finite DISPLAY pixels",
+          "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+        },
+        "warnings": [
+          "No reliable observed motion can be measured in these cutouts: the target cores are invalid. The expected track is a prediction, not an observation. D6 did not supply a validated replacement pair.",
+          "Spectral diagnostic only: target cores fail quality; no reliable centroids.",
+          "Target core is invalid; no reliable observed motion or target centroid exists."
+        ],
+        "motion": {
+          "measuredDisplacementArcsec": null,
+          "expectedDisplacementArcsec": 5.616290947521711,
+          "measuredDisplacementPixels": null,
+          "expectedDisplacementPixels": 0.9058533787149861,
+          "formalEndpointErrorArcsec": null,
+          "timeSeparationDays": 197.37144702546297,
+          "expectedEastNorthArcsec": null,
+          "measuredEastNorthArcsec": null,
+          "referenceRmsArcsec": 0.4342089433775705,
+          "referenceCount": 30,
+          "formalErrorWarning": "Formal fit errors are incomplete and exclude instrumental, reference-frame, PSF and photocenter systematics.",
+          "referenceWarning": "Reference RMS is a diagnostic, not a statistical motion-significance denominator.",
+          "significantDetectionClaimed": false,
+          "limitation": "Linear proper motion only: annual parallax, perspective acceleration, orbital effects and observer location are omitted. Formal centroid errors exclude systematics."
+        },
+        "interpretation": "Diagnostic comparison: invalid and saturated target cores prevent a reliable measured displacement. Expected positions are predictions only.",
+        "predictionModel": "Linear tangent proper motion from documented SIMBAD ICRS J2000. No annual parallax or perspective acceleration.",
+        "astrometricReference": {
+          "key": "barnard",
+          "name": "Barnard's Star",
+          "query_name": "Barnard star",
+          "object_type": "High proper motion M dwarf",
+          "expected_phenomenon": "Proper motion; annual parallax is distinct from the linear prediction.",
+          "main_id": "NAME Barnard's star",
+          "identifiers": [
+            "TIC 325554331",
+            "MCC 799",
+            "StKM 2-1355",
+            "GJ 699",
+            "HIP 87937",
+            "Gaia DR3 4472832130942575872",
+            "PLX 4098",
+            "LSPM J1757+0441",
+            "ASCC 1153178",
+            "UCAC2  33428712",
+            "2MASS J17574849+0441405",
+            "USNO-B1.0 0946-00315199",
+            "8pc 549.01",
+            "AC2000  146626",
+            "BD+04  3561a",
+            "CCDM J17578+0441A",
+            "CSI+04-17554",
+            "CSV   7737",
+            "Ci 20 1069",
+            "G 140-24",
+            "GAT   12",
+            "GCRV 10392",
+            "GSC 00425-00184",
+            "GSC 00425-02502",
+            "HIC  87937",
+            "CNS5 4449",
+            "IRAS 17553+0438",
+            "JP11    18",
+            "LFT 1385",
+            "LHS    57",
+            "LTT 15309",
+            "NLTT 45718",
+            "NSV  9910",
+            "TYC  425-2502-1",
+            "UBV   15269",
+            "USNO 347",
+            "USNO 876",
+            "V* V2500 Oph",
+            "VVO   6",
+            "Zkh 269",
+            "[RHG95]  2849",
+            "WISEA J175747.94+044323.8",
+            "PLX 4098.00",
+            "1E 1755.3+0438",
+            "NAME Barnard's star",
+            "NAME Barnard Star",
+            "UCAC4 474-068224",
+            "PM J17578+0441N",
+            "GEN# +0.00403561",
+            "uvby98 000403561",
+            "WEB 14849",
+            "Gaia DR2 4472832130942575872",
+            "Karmn J17578+046"
+          ],
+          "ra_deg": 269.4520769586187,
+          "dec_deg": 4.693364966576667,
+          "reference_epoch_jyear": 2000.0,
+          "frame": "ICRS",
+          "reference_epoch_source": "https://simbad.u-strasbg.fr/Pages/guide/sim-fsam.htx",
+          "coordinate_bibcode": "2020yCat.1350....0G",
+          "pm_ra_cosdec_mas_yr": -801.551,
+          "pm_dec_mas_yr": 10362.394,
+          "proper_motion_bibcode": "2020yCat.1350....0G",
+          "pm_error_major_mas_yr": 0.03200000151991844,
+          "pm_error_minor_mas_yr": 0.035999998450279236,
+          "parallax_mas": 546.9759,
+          "parallax_bibcode": "2020yCat.1350....0G",
+          "simbad_type": "BY*",
+          "source": "SIMBAD Harvard mirror via astroquery",
+          "resolved_at_utc": "2026-11-14T09:22:59.254",
+          "epoch_note": "SIMBAD basic positions are propagated to ICRS epoch J2000, distinct from the source catalog epoch (Gaia EDR3 J2016)."
+        },
+        "fixedGrid": {
+          "wcsHeader": {
+            "WCSAXES": 2,
+            "CRPIX1": 44.5,
+            "CRPIX2": 44.5,
+            "CDELT1": -0.0017222222222222,
+            "CDELT2": 0.0017222222222222,
+            "CUNIT1": "deg",
+            "CUNIT2": "deg",
+            "CTYPE1": "RA---TAN",
+            "CTYPE2": "DEC--TAN",
+            "CRVAL1": 269.44630519394,
+            "CRVAL2": 4.7677237379027,
+            "LONPOLE": 180.0,
+            "LATPOLE": 4.7677237379027,
+            "MJDREF": 0.0,
+            "RADESYS": "ICRS"
+          },
+          "dimensions": {
+            "width": 88,
+            "height": 88
+          },
+          "pixelScaleArcsec": 6.2,
+          "pngConvention": "yImage = height - 1 - yFits; north up, east left; no recentering"
+        },
+        "sourceManifest": "outputs/spx002/barnard/alignment_report.json"
+      }
+    }
+  ],
+  "notes": [
+    "Global HiPS context and individual SPHEREx observations are distinct image layers.",
+    "Two already processed real epochs per field; fixed WCS, common display limits, no interpolated epochs."
+  ]
+}

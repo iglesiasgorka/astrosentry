@@ -984,6 +984,371 @@
         },
         "sourceManifest": "outputs/spx002/barnard/alignment_report.json"
       }
+    },
+    {
+      "id": "rw_aur",
+      "name": "RW Aurigae",
+      "objectType": "Young variable multiple system",
+      "center": {
+        "raDeg": 76.956586186615,
+        "decDeg": 30.401292289217
+      },
+      "dimensions": {
+        "width": 88,
+        "height": 88
+      },
+      "pixelScaleArcsec": 6.2,
+      "wcsHeader": {
+        "WCSAXES": 2,
+        "CRPIX1": 44.5,
+        "CRPIX2": 44.5,
+        "CDELT1": -0.0017222222222222,
+        "CDELT2": 0.0017222222222222,
+        "CUNIT1": "deg",
+        "CUNIT2": "deg",
+        "CTYPE1": "RA---TAN",
+        "CTYPE2": "DEC--TAN",
+        "CRVAL1": 76.956586186615,
+        "CRVAL2": 30.401292289217,
+        "LONPOLE": 180.0,
+        "LATPOLE": 30.401292289217,
+        "MJDREF": 0.0,
+        "RADESYS": "ICRS"
+      },
+      "footprint": [
+        [
+          77.04437605726153,
+          30.325485243402593
+        ],
+        [
+          76.86879631596847,
+          30.325485243402593
+        ],
+        [
+          76.86865996254521,
+          30.47704053241157
+        ],
+        [
+          77.04451241068479,
+          30.47704053241157
+        ]
+      ],
+      "angularSizeDeg": {
+        "width": 0.15155546718886329,
+        "height": 0.15155546718886773
+      },
+      "geometryValidation": {
+        "centerErrorArcsec": 2.289999370653732e-11,
+        "cornerRoundtripErrorPixels": 1.1509388692528011e-11,
+        "northUp": true,
+        "eastLeft": true,
+        "footprintConvention": "Outer pixel edges, ordered bottom-left, bottom-right, top-right, top-left in FITS coordinates."
+      },
+      "classification": "diagnostic",
+      "observation": {
+        "id": "2025W36_1A_0606_1",
+        "timestampUtc": "2025-09-03T17:23:21.055",
+        "detector": "SPHEREx-D1",
+        "release": "dr1",
+        "processingVersion": "l2b-v27-2026-232",
+        "wavelengthUm": 0.8586688313787512,
+        "bandwidthUm": 0.02152069382643941
+      },
+      "assets": {
+        "fits": "rw_aur/frames/2025W36_1A_0606_1.fits",
+        "png": "rw_aur/frames/2025W36_1A_0606_1.png",
+        "masks": "rw_aur/frames/2025W36_1A_0606_1.masks.json"
+      },
+      "display": {
+        "vmin": 0.36668564611615123,
+        "vmax": 7.437093983660712,
+        "stretch": "asinh",
+        "common": true,
+        "pngAsinhParameter": 0.1,
+        "units": "MJy / sr"
+      },
+      "warnings": [
+        "No reliable SPHEREx variability is established by this bounded experiment.",
+        "Known variability of the source does not validate these individual measurements.",
+        "Reject invalid or OVERFLOW-flagged aperture pixels; missing flux is never reconstructed.",
+        "In-aperture flux is not aperture-corrected total flux. PSF, subpixel, calibration and blending systematics remain unvalidated.",
+        "RW Aur is an unresolved multiple system; component fluxes are not deblended.",
+        "WCS-WAVE wavelengths are preliminary screening metadata, not full science response calibration; CWAVE/CBAND calibration and bandpass matching are not validated.",
+        "Formal independent-pixel errors omit covariance and calibration systematics; they are not total uncertainty."
+      ],
+      "sequence": {
+        "frames": [
+          {
+            "id": "2025W36_1A_0606_1",
+            "observation": {
+              "id": "2025W36_1A_0606_1",
+              "timestampUtc": "2025-09-03T17:23:21.055",
+              "detector": "SPHEREx-D1",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-232",
+              "wavelengthUm": 0.8586688313787512,
+              "bandwidthUm": 0.02152069382643941
+            },
+            "assets": {
+              "fits": "rw_aur/frames/2025W36_1A_0606_1.fits",
+              "png": "rw_aur/frames/2025W36_1A_0606_1.png",
+              "masks": "rw_aur/frames/2025W36_1A_0606_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.36668564611615123,
+              "vmax": 7.437093983660712,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr"
+            },
+            "warnings": [
+              "No reliable SPHEREx variability is established by this bounded experiment.",
+              "Known variability of the source does not validate these individual measurements.",
+              "Reject invalid or OVERFLOW-flagged aperture pixels; missing flux is never reconstructed.",
+              "In-aperture flux is not aperture-corrected total flux. PSF, subpixel, calibration and blending systematics remain unvalidated.",
+              "RW Aur is an unresolved multiple system; component fluxes are not deblended.",
+              "WCS-WAVE wavelengths are preliminary screening metadata, not full science response calibration; CWAVE/CBAND calibration and bandpass matching are not validated.",
+              "Formal independent-pixel errors omit covariance and calibration systematics; they are not total uncertainty."
+            ],
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "masks": {
+              "displayValidFraction": 0.943698347107438,
+              "scienceValidFraction": 0.8924328512396694
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W36_1A/l2b-v27-2026-232/1/level2_2025W36_1A_0606_1D1_spx_l2b-v27-2026-232.fits?center=76.95658618661507,30.401292289217036d&size=0.15",
+              "sourceSha256": "49ec1a72dc66c7a474c91f24990ea672da001abef7ac7f9e29280984cc91272e"
+            }
+          },
+          {
+            "id": "2026W10_1A_0445_3",
+            "observation": {
+              "id": "2026W10_1A_0445_3",
+              "timestampUtc": "2026-03-04T07:59:53.426",
+              "detector": "SPHEREx-D1",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-229",
+              "wavelengthUm": 0.8995340816174083,
+              "bandwidthUm": 0.02260053365891981
+            },
+            "assets": {
+              "fits": "rw_aur/frames/2026W10_1A_0445_3.fits",
+              "png": "rw_aur/frames/2026W10_1A_0445_3.png",
+              "masks": "rw_aur/frames/2026W10_1A_0445_3.masks.json"
+            },
+            "display": {
+              "vmin": 0.36668564611615123,
+              "vmax": 7.437093983660712,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr"
+            },
+            "warnings": [
+              "No reliable SPHEREx variability is established by this bounded experiment.",
+              "Known variability of the source does not validate these individual measurements.",
+              "Reject invalid or OVERFLOW-flagged aperture pixels; missing flux is never reconstructed.",
+              "In-aperture flux is not aperture-corrected total flux. PSF, subpixel, calibration and blending systematics remain unvalidated.",
+              "RW Aur is an unresolved multiple system; component fluxes are not deblended.",
+              "WCS-WAVE wavelengths are preliminary screening metadata, not full science response calibration; CWAVE/CBAND calibration and bandpass matching are not validated.",
+              "Formal independent-pixel errors omit covariance and calibration systematics; they are not total uncertainty."
+            ],
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "masks": {
+              "displayValidFraction": 0.9289772727272727,
+              "scienceValidFraction": 0.8443956611570248
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W10_1A/l2b-v27-2026-229/1/level2_2026W10_1A_0445_3D1_spx_l2b-v27-2026-229.fits?center=76.95658618661507,30.401292289217036d&size=0.15",
+              "sourceSha256": "a070927bb143384259b261c4fbb6b0911cd029d4565e49fb9084ac1fe4c2ae70"
+            }
+          },
+          {
+            "id": "2026W11_1A_0645_1",
+            "observation": {
+              "id": "2026W11_1A_0645_1",
+              "timestampUtc": "2026-03-12T00:03:57.874",
+              "detector": "SPHEREx-D1",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-232",
+              "wavelengthUm": 0.8519206484741799,
+              "bandwidthUm": 0.021114377530258677
+            },
+            "assets": {
+              "fits": "rw_aur/frames/2026W11_1A_0645_1.fits",
+              "png": "rw_aur/frames/2026W11_1A_0645_1.png",
+              "masks": "rw_aur/frames/2026W11_1A_0645_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.36668564611615123,
+              "vmax": 7.437093983660712,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr"
+            },
+            "warnings": [
+              "No reliable SPHEREx variability is established by this bounded experiment.",
+              "Known variability of the source does not validate these individual measurements.",
+              "Reject invalid or OVERFLOW-flagged aperture pixels; missing flux is never reconstructed.",
+              "In-aperture flux is not aperture-corrected total flux. PSF, subpixel, calibration and blending systematics remain unvalidated.",
+              "RW Aur is an unresolved multiple system; component fluxes are not deblended.",
+              "WCS-WAVE wavelengths are preliminary screening metadata, not full science response calibration; CWAVE/CBAND calibration and bandpass matching are not validated.",
+              "Formal independent-pixel errors omit covariance and calibration systematics; they are not total uncertainty."
+            ],
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "masks": {
+              "displayValidFraction": 0.9309142561983471,
+              "scienceValidFraction": 0.8813274793388429
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_1A/l2b-v27-2026-232/1/level2_2026W11_1A_0645_1D1_spx_l2b-v27-2026-232.fits?center=76.95658618661507,30.401292289217036d&size=0.15",
+              "sourceSha256": "3511a27134aab07da296bfa7ddb53aeb35cdcc55698c8a4d4078d2e6663e135e"
+            }
+          }
+        ],
+        "display": {
+          "vmin": 0.36668564611615123,
+          "vmax": 7.437093983660712,
+          "stretch": "asinh",
+          "common": true,
+          "pngAsinhParameter": 0.1,
+          "units": "MJy / sr"
+        },
+        "motion": null,
+        "warnings": [
+          "No reliable SPHEREx variability is established by this bounded experiment.",
+          "Known variability of the source does not validate these individual measurements.",
+          "Reject invalid or OVERFLOW-flagged aperture pixels; missing flux is never reconstructed.",
+          "In-aperture flux is not aperture-corrected total flux. PSF, subpixel, calibration and blending systematics remain unvalidated.",
+          "RW Aur is an unresolved multiple system; component fluxes are not deblended.",
+          "WCS-WAVE wavelengths are preliminary screening metadata, not full science response calibration; CWAVE/CBAND calibration and bandpass matching are not validated.",
+          "Formal independent-pixel errors omit covariance and calibration systematics; they are not total uncertainty."
+        ],
+        "classification": "diagnostic",
+        "interpretation": "Diagnostic brightness comparison: 0 spectrally comparable accepted epochs; no validated variability claim. Rejected aperture fluxes remain null.",
+        "predictionModel": null,
+        "astrometricReference": null
+      },
+      "brightness": {
+        "classification": "diagnostic",
+        "interpretation": "Diagnostic brightness comparison: 0 spectrally comparable accepted epochs; no validated variability claim. Rejected aperture fluxes remain null.",
+        "method": "Original IMAGE aperture r=2 native pixels; sigma-clipped SOURCE-masked annulus 4\u20137 pixels; full SIP WCS spherical pixel solid angles; original VARIANCE.",
+        "units": "microJy (in-aperture flux density)",
+        "points": [
+          {
+            "id": "2025W36_1A_0606_1",
+            "timestampUtc": "2025-09-03T17:23:21.055",
+            "mjd": 60921.724549245,
+            "wavelengthUm": 0.8586688313787512,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "TRANSIENT": 1,
+              "OVERFLOW": 1,
+              "SUR_ERROR": 1,
+              "SOURCE": 9,
+              "BLOOM": 2
+            },
+            "apertureValidFraction": 0.9047619047619048
+          },
+          {
+            "id": "2026W10_1A_0445_3",
+            "timestampUtc": "2026-03-04T07:59:53.426",
+            "mjd": 61103.333257242,
+            "wavelengthUm": 0.8995340816174083,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "SOURCE": 9
+            },
+            "apertureValidFraction": 0.9444444444444444
+          },
+          {
+            "id": "2026W11_1A_0645_1",
+            "timestampUtc": "2026-03-12T00:03:57.874",
+            "mjd": 61111.002753168,
+            "wavelengthUm": 0.8519206484741799,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "OVERFLOW": 1,
+              "SOURCE": 9
+            },
+            "apertureValidFraction": 0.9523809523809523
+          }
+        ],
+        "warnings": [
+          "No reliable SPHEREx variability is established by this bounded experiment.",
+          "Known variability of the source does not validate these individual measurements.",
+          "Reject invalid or OVERFLOW-flagged aperture pixels; missing flux is never reconstructed.",
+          "In-aperture flux is not aperture-corrected total flux. PSF, subpixel, calibration and blending systematics remain unvalidated.",
+          "RW Aur is an unresolved multiple system; component fluxes are not deblended.",
+          "WCS-WAVE wavelengths are preliminary screening metadata, not full science response calibration; CWAVE/CBAND calibration and bandpass matching are not validated.",
+          "Formal independent-pixel errors omit covariance and calibration systematics; they are not total uncertainty."
+        ],
+        "references": [
+          {
+            "id": "R1",
+            "acceptedEpochs": 1,
+            "relativeScatter": null,
+            "spectrallyMatched": false
+          },
+          {
+            "id": "R2",
+            "acceptedEpochs": 2,
+            "relativeScatter": null,
+            "spectrallyMatched": false
+          },
+          {
+            "id": "R3",
+            "acceptedEpochs": 3,
+            "relativeScatter": null,
+            "spectrallyMatched": false
+          },
+          {
+            "id": "R4",
+            "acceptedEpochs": 1,
+            "relativeScatter": null,
+            "spectrallyMatched": false
+          },
+          {
+            "id": "R5",
+            "acceptedEpochs": 3,
+            "relativeScatter": null,
+            "spectrallyMatched": false
+          }
+        ],
+        "normalization": null
+      }
     }
   ],
   "notes": [

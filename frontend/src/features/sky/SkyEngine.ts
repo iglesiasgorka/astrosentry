@@ -44,7 +44,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
     const frame=target.sequence?.frames[index];
     if(index<0||(!frame&&index!==0))throw new Error('The requested real observation does not exist.');
     const key=`${target.id}:${frame?.id??target.observation.id}`;
-    const existing=layers.get(key);if(existing)return existing;
+    const existing=layers.get(key);if(existing){layers.delete(key);layers.set(key,existing);return existing;}
     const entry:Layer={image:null,ready:false,promise:Promise.resolve(),center:null,loadMs:null,layerName:`local-${target.id}-${index}`};
     layers.set(key,entry);
     const start=performance.now(),display=target.sequence?.display??target.display;
@@ -72,7 +72,10 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
               entry.image.setColormap('grayscale',{stretch:'asinh'});
               const cuts=entry.image.getCuts();
               if(cuts[0]!==display.vmin||cuts[1]!==display.vmax)throw new Error('Common intensity cuts were not applied.');
-              entry.center=[ra,dec];entry.ready=true;entry.loadMs=performance.now()-start;done();
+              entry.center=[ra,dec];entry.ready=true;entry.loadMs=performance.now()-start;
+              // Bound native GPU layers independently of the number of catalog fields.
+              for(const [oldKey,old] of layers){if(layers.size<=12)break;if(old!==entry&&old.ready&&old.image!==activeImage){aladin.removeImageLayer(old.layerName);layers.delete(oldKey);}}
+              done();
             }catch(error){done(error);}
           },errorCallback:(error:unknown)=>done(error||new Error('The local FITS could not load.'))});
         try{aladin.setOverlayImageLayer(entry.image,entry.layerName);}catch(error){done(error);}
@@ -158,7 +161,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   const diagnostics=engine.getDiagnostics;
   engine.getDiagnostics=()=>({...diagnostics(),initializationMs});
   // Three first-frame layers at most. Hidden native layers stay cached for reuse.
-  const warm=window.setTimeout(()=>{void (async()=>{for(const target of targets){if(disposed)return;try{await ensureFrame(target,0).promise;}catch{/* Retried with an explicit error on selection. */}}})();},1000);
+  const warm=window.setTimeout(()=>{void (async()=>{for(const target of targets.slice(0,3)){if(disposed)return;try{await ensureFrame(target,0).promise;}catch{/* Retried with an explicit error on selection. */}}})();},1000);
   const dispose=engine.dispose;engine.dispose=()=>{clearTimeout(warm);dispose();};
   emit();return engine;
 }

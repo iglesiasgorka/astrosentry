@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spherex-explorer"
+version = "0.1.0"
+description = "Reproducible exploration of real SPHEREx spectral image cutouts"
+requires-python = ">=3.11"
+dependencies = [
+    "astropy>=7,<9",
+    "astroquery>=0.4.11,<0.5",
+    "numpy>=2,<3",
+    "matplotlib>=3.9,<4",
+    "requests>=2.32,<3",
+    "reproject>=0.18,<0.22",
+    "scipy>=1.15,<2",
+    "pillow>=11,<14",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

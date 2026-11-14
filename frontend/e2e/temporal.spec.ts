@@ -2,9 +2,9 @@ import {test,expect,type Page} from '@playwright/test';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {LonLat} from '../src/types/sky';
-const directory=fileURLToPath(new URL('../../outputs/spx003b/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx004a/regression/',import.meta.url));
 await mkdir(directory,{recursive:true});
-const samples=JSON.parse(await readFile(directory+'registration_samples.json','utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
+const samples=JSON.parse(await readFile(new URL('../../outputs/spx004a/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function arrived(page:Page,id:string){await page.waitForFunction(id=>window.__analysis?.targetId===id&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded,id,{timeout:30000});}
 async function frameReady(page:Page,index:number){await page.waitForFunction(index=>window.__sky?.engine.getCutoutStatus().loaded&&window.__sky.engine.getCutoutStatus().frameIndex===index,index);await page.waitForTimeout(250);}
@@ -73,7 +73,7 @@ test('playback cancels on navigation and failures never pretend to show another 
   await page.route('https://**/*',route=>route.abort());await ready(page);await page.emulateMedia({reducedMotion:'reduce'});
   await page.getByRole('button',{name:'Fly to Epsilon Indi B',exact:true}).click();await arrived(page,'epsilon_indi_b');
   await page.getByRole('button',{name:'Play observations',exact:true}).click();
-  await page.getByRole('button',{name:'3 prepared fields'}).click();await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/M101/}).click();await arrived(page,'m101');
+  await page.getByRole('button',{name:'4 prepared fields'}).click();await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/M101/}).click();await arrived(page,'m101');
   expect(await page.evaluate(()=>window.__analysis!.mode)).toBe('paused');expect(await page.evaluate(()=>window.__analysis!.index)).toBe(0);
   await page.getByRole('button',{name:'Play observations',exact:true}).click();await page.getByRole('button',{name:'Minimize analysis',exact:true}).click();expect(await page.evaluate(()=>window.__analysis!.mode)).toBe('paused');
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:directory+'mobile_minimized.png'});

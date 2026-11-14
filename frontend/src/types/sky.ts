@@ -15,6 +15,8 @@ export interface Motion {
   referenceRmsArcsec:number|null;referenceCount:number|null;formalErrorWarning?:string;referenceWarning?:string;
 }
 export interface TemporalSequence {frames:SequenceFrame[];display:Display;motion:Motion|null;warnings:string[];classification:string;interpretation:string;predictionModel:string|null;astrometricReference:unknown}
+export interface BrightnessPoint {id:string;timestampUtc:string;mjd:number;wavelengthUm:number|null;qualityAccepted:boolean;comparisonAccepted:boolean;fluxMicroJy:number|null;formalErrorMicroJy:number|null;relativeFlux:number|null;relativeFormalError:number|null;relativeChangePercent:number|null;reason:string;coreFlags:Record<string,number>;apertureValidFraction:number|null}
+export interface BrightnessData {classification:string;interpretation:string;method:string;units:string;points:BrightnessPoint[];warnings:string[];references:{id:string;acceptedEpochs:number;relativeScatter:number|null;spectrallyMatched:boolean}[];normalization:unknown}
 export interface SkyTarget {
   id: string;
   name: string;
@@ -31,6 +33,7 @@ export interface SkyTarget {
   display: Display;
   warnings: string[];
   sequence?:TemporalSequence;
+  brightness?:BrightnessData;
 }
 export interface SkyCatalog { version: number; targets: SkyTarget[] }
 export interface Camera { center: LonLat; fov: number }

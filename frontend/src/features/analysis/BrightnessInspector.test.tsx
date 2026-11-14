@@ -1,0 +1,11 @@
+import {it,expect} from 'vitest';
+import {renderToStaticMarkup} from 'react-dom/server';
+import catalog from '../../../public/data/catalog.json';
+import type {SkyTarget} from '../../types/sky';
+import {BrightnessInspector,brightnessDomain,brightnessTime,acceptedBrightness} from './BrightnessInspector';
+const target=()=>structuredClone(catalog.targets.find(t=>t.id==='rw_aur')) as unknown as SkyTarget;
+it('loads more than two real epochs and never invents rejected flux points',()=>{const t=target();expect(t.sequence!.frames).toHaveLength(3);expect(acceptedBrightness(t.brightness!)).toHaveLength(0);const html=renderToStaticMarkup(<BrightnessInspector target={t} index={1} onSelect={()=>{}} onClose={()=>{}}/>);expect(html).toContain('No accepted brightness measurements');expect(html).not.toContain('class="brightness-point"');expect(html).toContain('DIAGNOSTIC')});
+it('uses actual time spacing rather than equal epoch slots',()=>{const data=target().brightness!,[a,b]=brightnessDomain(data);const f=(brightnessTime(data.points[1])-a)/(b-a);expect(f).toBeGreaterThan(.9);expect(f).not.toBe(.5)});
+it('keeps graph epoch selection aligned with the selected frame',()=>{const t=target();const html=renderToStaticMarkup(<BrightnessInspector target={t} index={2} onSelect={()=>{}} onClose={()=>{}}/>);expect(html).toContain(t.sequence!.frames[2].observation.timestampUtc.replace('T',' '));expect(html).toContain('aria-label="Select brightness epoch 3:');expect(html).toContain('aria-pressed="true"')});
+it('renders real supplied measurements with formal error bars in a test fixture only',()=>{const t=target();t.brightness!.points.forEach((p,i)=>{p.comparisonAccepted=true;p.qualityAccepted=true;p.fluxMicroJy=100+i;p.formalErrorMicroJy=2;});const html=renderToStaticMarkup(<BrightnessInspector target={t} index={0} onSelect={()=>{}} onClose={()=>{}}/>);expect(html).toContain('brightness-errorbar');expect(acceptedBrightness(t.brightness!)).toHaveLength(3)});
+it('handles unavailable data without fictional points',()=>{const t=target();t.brightness!.classification='unavailable';t.brightness!.points=[];expect(brightnessDomain(t.brightness!)).toEqual([0,1]);const html=renderToStaticMarkup(<BrightnessInspector target={t} index={0} onSelect={()=>{}} onClose={()=>{}}/>);expect(html).toContain('UNAVAILABLE');expect(html).not.toContain('class="brightness-point"')});

@@ -12,7 +12,8 @@ SPHEREx Explorer enables users to discover regions of the sky, navigate through 
 - Temporal exploration with Play/Pause, epoch selection, and Blink A/B.
 - Motion Inspector with expected and measured source positions.
 - Scientific metadata, data-quality indicators, and uncertainty warnings.
-- Three prepared astronomical fields: Epsilon Indi B, M101, and Barnard's Star.
+- Four prepared fields: Epsilon Indi B, M101, Barnard's Star, and RW Aurigae.
+- Diagnostic Brightness Inspector with real observation dates and explicit photometry rejection reasons.
 
 ## Technology Stack
 
@@ -81,10 +82,16 @@ frontend/
 | Epsilon Indi B | Exploratory apparent photocenter displacement |
 | M101 | Fixed-sky registration and temporal comparison |
 | Barnard's Star | Diagnostic example of instrumental saturation |
+| RW Aurigae | Three-epoch brightness diagnostic; no accepted variability measurements |
 
 The Epsilon Indi B example shows an apparent displacement of approximately 1.920 arcseconds over 152.9 days. This result is exploratory and does not constitute a statistically significant motion detection.
 
 Barnard's Star has no reliable measured displacement in the prepared observations because its core contains invalid or saturated pixels.
+
+The RW Aurigae example reports rejected original-pixel aperture measurements. Its
+Brightness Inspector shows real observation dates, flags and limitations without
+inventing flux points or a variability curve. A bounded R Draconis/RW Aurigae
+experiment did not obtain a reliable comparable photometric sequence.
 
 ## Development
 
@@ -128,4 +135,6 @@ SPHEREx Explorer is an independent hackathon project using real astronomical dat
 
 ## Current Status
 
-The interactive sky map and three-field temporal exploration MVP are implemented. Additional scientific discovery tools and extended sky exploration are under development.
+The four-field temporal explorer includes exploratory motion and diagnostic
+brightness inspection. No validated variability detection is claimed. Additional
+scientific tools remain subject to data-quality and uncertainty review.

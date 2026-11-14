@@ -1,0 +1,7 @@
+[
+  {"key": "barnard", "name": "Barnard's Star", "query_name": "Barnard star", "object_type": "High proper motion M dwarf", "expected_phenomenon": "Proper motion; annual parallax is distinct from the linear prediction."},
+  {"key": "epsilon_indi_b", "name": "Epsilon Indi B", "query_name": "eps Ind B", "object_type": "Unresolved brown dwarf binary", "expected_phenomenon": "Proper motion; Ba/Bb are not expected to be resolved by SPHEREx."},
+  {"key": "wise0855", "name": "WISE 0855-0714", "query_name": "WISE J085510.83-071442.5", "object_type": "Cold brown dwarf", "expected_phenomenon": "Proper motion; likely much more favorable signal in long wavelength detectors."},
+  {"key": "rw_aur", "name": "RW Aurigae", "query_name": "RW Aur", "object_type": "Young variable multiple system", "expected_phenomenon": "Brightness and circumstellar variability; not a primary proper motion demonstration."},
+  {"key": "r_dra", "name": "R Draconis", "query_name": "R Dra", "object_type": "Mira variable", "expected_phenomenon": "Pulsational brightness variability; not a primary proper motion demonstration."}
+]

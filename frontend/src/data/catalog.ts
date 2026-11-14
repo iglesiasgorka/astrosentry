@@ -39,6 +39,12 @@ export function validateCatalog(value: unknown): SkyCatalog {
     if (!finite(t.angularSizeDeg?.width) || !finite(t.angularSizeDeg?.height) || t.angularSizeDeg.width <= 0 || t.angularSizeDeg.height <= 0) throw new Error('Invalid WCS field extent.');
     if (!t.observation?.id || !t.observation.timestampUtc || !Array.isArray(t.warnings) || typeof t.classification !== 'string') throw new Error('Observation provenance is incomplete.');
     if(t.sequence)validateSequence(t.sequence,t);
+    if(t.brightness){const b=t.brightness;
+      if(!Array.isArray(b.points)||b.points.length!==t.sequence?.frames.length||!Array.isArray(b.references)||!Array.isArray(b.warnings))throw new Error('Incomplete brightness manifest.');
+      b.points.forEach((p,i)=>{if(p.id!==t.sequence!.frames[i].id||p.timestampUtc!==t.sequence!.frames[i].observation.timestampUtc)throw new Error('Brightness epochs must match the temporal frames.');
+        if(p.comparisonAccepted&&(!p.qualityAccepted||!finite(p.fluxMicroJy)||!finite(p.formalErrorMicroJy)||p.formalErrorMicroJy<0))throw new Error('Accepted brightness requires a real flux and formal uncertainty.');
+      });
+    }
   }
   return input as SkyCatalog;
 }

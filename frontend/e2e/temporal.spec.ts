@@ -2,9 +2,9 @@ import {test,expect,type Page} from '@playwright/test';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {LonLat} from '../src/types/sky';
-const directory=fileURLToPath(new URL('../../outputs/spx004b/regression/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx005/regression/',import.meta.url));
 await mkdir(directory,{recursive:true});
-const samples=JSON.parse(await readFile(new URL('../../outputs/spx004b/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
+const samples=JSON.parse(await readFile(new URL('../../outputs/spx005/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function arrived(page:Page,id:string){await page.waitForFunction(id=>window.__analysis?.targetId===id&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded,id,{timeout:30000});}
 async function frameReady(page:Page,index:number){await page.waitForFunction(index=>{const sky=window.__sky!,analysis=window.__analysis!;const target=sky.targets.find(t=>t.id===analysis.targetId)!;return sky.engine.getCutoutStatus().loaded&&sky.engine.getCutoutStatus().frameId===analysis.frameIds[index];},index);await page.waitForTimeout(250);}

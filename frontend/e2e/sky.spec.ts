@@ -3,9 +3,9 @@ import { readFile,writeFile,mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { LonLat } from '../src/types/sky';
 
-const output=fileURLToPath(new URL('../../outputs/spx004b/regression/legacy/',import.meta.url));
+const output=fileURLToPath(new URL('../../outputs/spx005/regression/legacy/',import.meta.url));
 await mkdir(output,{recursive:true});
-const temporalSamples=JSON.parse(await readFile(new URL('../../outputs/spx004b/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
+const temporalSamples=JSON.parse(await readFile(new URL('../../outputs/spx005/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
 const samples=Object.fromEntries(Object.entries(temporalSamples).map(([id,frames])=>[id,frames[0]]));
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function arrived(page:Page,id:string){await page.waitForFunction(key=>window.__sky?.state.mode==='inspecting'&&window.__sky.engine.getCutoutStatus().id===key&&window.__sky.engine.getCutoutStatus().loaded,id,{timeout:25000});await page.waitForTimeout(400);}

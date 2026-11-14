@@ -52,6 +52,10 @@ export interface SkyEngine {
   unproject(point: LonLat): LonLat | null;
   subscribe(listener: () => void): () => void;
   setSurvey(id: string): Promise<void>;
+  setSpectralFrame(index:number):Promise<void>;
+  getSpectralStatus():SpectralStatus;
+  subscribeSpectral(listener:()=>void):()=>void;
+  cancelSpectralChange():void;
   showCutout(target: SkyTarget): Promise<void>;
   prepareSequence(target:SkyTarget,indices?:number[]):Promise<void>;
   showFrame(target:SkyTarget,index:number,display?:Display):Promise<void>;
@@ -63,3 +67,4 @@ export interface SkyEngine {
   getCutoutStatus(): { id: string | null; loaded: boolean; nativeCenter: LonLat | null; frameId?:string|null;frameIndex?:number;cuts?:number[]|null;kind?:'epoch'|'difference';differenceId?:string|null };
   dispose(): void;
 }
+import type {SpectralStatus} from '../features/sky/spectralSwitch';

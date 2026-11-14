@@ -1,21 +1,22 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import type {SkyEngine,SkyTarget} from '../../types/sky';
 import catalog from '../../../public/data/catalog.json';
-const fake=vi.hoisted(()=>({order:[] as string[],images:[] as any[],camera:vi.fn(),resolveProperties:null as null|(()=>void)}));
+import metadata from './spherex-cube.json';
+const fake=vi.hoisted(()=>({order:[] as string[],images:[] as any[],frequencies:[] as number[],camera:vi.fn(),resolveProperties:null as null|(()=>void)}));
 vi.mock('aladin-lite',()=>({default:{init:Promise.resolve(),
   aladin:()=>({addOverlay:vi.fn(),addColormap:vi.fn(),getRaDec:()=>[331,-56],getFov:()=>[1,1],getSize:()=>[1400,1000],on:vi.fn(),gotoRaDec:fake.camera,setFoV:vi.fn(),
     setBaseImageLayer:(layer:any)=>{fake.order.push('background');queueMicrotask(()=>layer.options.successCallback(layer));},
     setOverlayImageLayer:(image:any)=>{fake.order.push('fits');queueMicrotask(()=>image.options.successCallback(331,-56));},removeImageLayer:vi.fn()}),
   graphicOverlay:()=>({addFootprints:vi.fn(),hide:vi.fn(),show:vi.fn()}),polygon:()=>({}),
-  imageHiPS:(_url:string,options:any)=>({options,query:Promise.resolve(),setFrequency:vi.fn()}),
+  imageHiPS:(_url:string,options:any)=>({options,query:Promise.resolve(),setFrequency:vi.fn(({value}:{value:number})=>fake.frequencies.push(value))}),
   image:(_url:string,options:any)=>{let cuts=[options.minCut||-999,options.maxCut||999],opacity=options.opacity||1,stretch=options.stretch;
     const image={options,getCuts:()=>cuts,setCuts:(a:number,b:number)=>{cuts=[a,b]},setColormap:vi.fn((_name:string,options:any)=>{stretch=options.stretch}),getColorCfg:()=>({stretch}),getOpacity:()=>opacity,setOpacity:(value:number)=>{opacity=value}};
     fake.images.push(image);return image;},
 }}));
 import {createSkyEngine} from './SkyEngine';
-const properties='hips_cube_depth=102\nem_min=0.0000007\nem_max=0.000005\ndata_cube_crval3_arr='+Array.from({length:102},(_,i)=>1+i/100).join(' ');
+const properties='hips_cube_depth=102\ndata_cube_bunit3=um\nem_min='+metadata.emMinMeters+'\nem_max='+metadata.emMaxMeters+'\ndata_cube_crval3_arr='+Array.from({length:102},(_,i)=>metadata.channels.find(c=>c.frameIndex===i)?.wavelengthUm??0).join(' ');
 let engine:SkyEngine;
-beforeEach(()=>{fake.order.length=0;fake.images.length=0;fake.camera.mockReset();
+beforeEach(()=>{fake.order.length=0;fake.images.length=0;fake.frequencies.length=0;fake.camera.mockReset();
   vi.stubGlobal('window',{location:{href:'http://localhost/'},setTimeout});
   vi.stubGlobal('requestAnimationFrame',()=>1);vi.stubGlobal('cancelAnimationFrame',vi.fn());
   vi.stubGlobal('ResizeObserver',class{observe(){}disconnect(){}});
@@ -68,5 +69,24 @@ describe('native layer lifecycle regression checks',()=>{
     await engine.prepareSequence(field,[0,1,2,3,4,5]);
     const visible=engine.getDiagnostics().layers.filter(layer=>layer.opacity!==0);
     expect(visible).toHaveLength(1);expect(visible[0].key).toContain(field.sequence!.frames[0].id);
+  });
+  it('changes only the existing HiPS frequency while preserving local cuts, layer identity and camera',async()=>{
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[target()],vi.fn());await engine.setSurvey('spherex');await engine.showFrame(target(),0);
+    const before=engine.getCutoutStatus(),images=fake.images.length;
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,arrayBuffer:async()=>new Uint8Array([137,80,78,71,13,10,26,10]).buffer})));
+    await engine.setSpectralFrame(76);expect(engine.getSpectralStatus().appliedFrame).toBe(76);
+    expect(fake.frequencies).toHaveLength(2);expect(fake.order.filter(item=>item==='background')).toHaveLength(1);
+    expect(fake.images).toHaveLength(images);expect(engine.getCutoutStatus()).toEqual(before);expect(fake.camera).not.toHaveBeenCalled();
+    engine.hideCutout();await engine.showFrame(target(),0);expect(engine.getSpectralStatus().appliedFrame).toBe(76);
+  });
+  it('rejects a non-PNG channel preflight and keeps the previous map frequency',async()=>{
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[target()],vi.fn());await engine.setSurvey('spherex');
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,arrayBuffer:async()=>new TextEncoder().encode('HTML error').buffer})));
+    await engine.setSpectralFrame(8);expect(engine.getSpectralStatus()).toMatchObject({phase:'error',appliedFrame:29});expect(fake.frequencies).toHaveLength(1);
+  });
+  it('restores spectral controls when a failed 2MASS switch retains the SPHEREx background',async()=>{
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[target()],vi.fn());await engine.setSurvey('spherex');
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:false,status:503})));await engine.setSurvey('2mass');
+    expect(engine.getSpectralStatus()).toMatchObject({available:true,appliedFrame:29});
   });
 });

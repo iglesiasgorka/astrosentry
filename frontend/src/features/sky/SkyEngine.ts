@@ -1,6 +1,7 @@
 import type { Camera, Display, EngineSnapshot, LonLat, PreparedDifference, SkyEngine, SkyTarget, SurveyStatus } from '../../types/sky';
 import { assetUrl } from '../../data/catalog';
-import { SPHEREX_URL, TWO_MASS_URL, parseProperties, cubeFrame } from './surveys';
+import { SPHEREX_URL, TWO_MASS_URL, parseProperties, cubeFrame,verifyCubeMetadata,channelProbeUrl } from './surveys';
+import {createSpectralSwitch} from './spectralSwitch';
 
 export const HOME_CAMERA: Camera = { center:[270,0], fov:360 };
 
@@ -28,6 +29,23 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   let releaseInitialBackground!:()=>void,backgroundSlotReserved=false;
   const initialBackground=new Promise<void>(resolve=>{releaseInitialBackground=resolve;});
   let activeSurvey:SurveyStatus|null=null;
+  let cubeLayer:any=null,cubeProperties:Record<string,string>|null=null;
+  const spectralListeners=new Set<()=>void>();
+  const spectral=createSpectralSwitch(async(index,signal)=>{
+    // Hold the previous native channel while checking one known coarse PNG.
+    // This checks availability, not complete detail at the current field of view.
+    const response=await fetch(channelProbeUrl(index),{signal:AbortSignal.any([signal,AbortSignal.timeout(12000)]),cache:'force-cache'});
+    if(!response.ok)throw new Error(`HiPS channel returned HTTP ${response.status}.`);
+    const signature=new Uint8Array(await response.arrayBuffer()).slice(0,8);
+    if(![137,80,78,71,13,10,26,10].every((v,i)=>signature[i]===v))throw new Error('HiPS channel did not return a PNG tile.');
+  },index=>{
+    if(!cubeLayer||!cubeProperties)throw new Error('The SPHEREx cube is not initialized.');
+    cubeLayer.setFrequency({value:cubeFrame(cubeProperties,index).frequencyHz,unit:'Hz'});
+  },status=>{
+    if(disposed)return;
+    if(activeSurvey?.id==='spherex'&&status.appliedFrame!==null&&cubeProperties){activeSurvey={...activeSurvey,wavelengthUm:cubeFrame(cubeProperties,status.appliedFrame).wavelengthUm};surveyChanged(activeSurvey);}
+    spectralListeners.forEach(listener=>listener());
+  });
   const listeners=new Set<()=>void>();
   const footprint=A.graphicOverlay({color:'#68d6e7',lineWidth:1.6});
   aladin.addOverlay(footprint);
@@ -102,6 +120,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   };
   const setSurvey=async(id:string)=>{
     const token=++surveyToken;
+    spectral.disable();
     const attempt=async(surveyId:string)=>{
       const cube=surveyId==='spherex';
       const url=cube?SPHEREX_URL:TWO_MASS_URL;
@@ -110,7 +129,8 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
       if(!response.ok)throw new Error(`HiPS metadata returned HTTP ${response.status}`);
       const properties=parseProperties(await response.text());
       if(disposed||token!==surveyToken)return;
-      const selected=cube?cubeFrame(properties):null;
+      if(cube)verifyCubeMetadata(properties);
+      const selected=cube?cubeFrame(properties,spectral.snapshot().appliedFrame??29):null;
       // Let Aladin request its progressive tile pyramid immediately. An extra serial
       // tile preflight previously delayed first paint and duplicated the first tile.
       if(disposed||token!==surveyToken)return;
@@ -127,7 +147,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
         const timeout=window.setTimeout(()=>{if(!settled){settled=true;reject(new Error('HiPS layer did not initialize.'));}},12000);
         const done=(error?:unknown)=>{if(settled)return;settled=true;clearTimeout(timeout);if(error)reject(error);else resolve();};
         const layer=A.imageHiPS(url,{imgFormat:cube?'png':'jpeg',name:cube?'SPHEREx DR1':'2MASS K',
-          successCallback:(hips:any)=>{if(disposed||token!==surveyToken){done();return;}try{if(selected)hips.setFrequency({value:selected.frequencyHz,unit:'Hz'});done();}catch(e){done(e);}},
+          successCallback:(hips:any)=>{if(disposed||token!==surveyToken){done();return;}try{if(selected){hips.setFrequency({value:selected.frequencyHz,unit:'Hz'});cubeLayer=hips;cubeProperties=properties;}done();}catch(e){done(e);}},
           errorCallback:(e:unknown)=>done(e||new Error('HiPS layer unavailable'))});
         aladin.setBaseImageLayer(layer);
         backgroundSlotReserved=true;
@@ -136,6 +156,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
         if(layer.query?.catch)layer.query.catch((e:unknown)=>done(e));
       });
       if(!disposed&&token===surveyToken){activeSurvey={id:surveyId,name:cube?'SPHEREx DR1 all-sky':'2MASS K',wavelengthUm:selected?.wavelengthUm??2.16,state:'ready'};surveyChanged(activeSurvey);}
+      if(!disposed&&token===surveyToken&&selected)spectral.initialize(selected.index);
       if(restore&&!disposed&&token===surveyToken)await showFrame(restore,restoreIndex);
     };
     try{await attempt(id);}catch(error){
@@ -143,7 +164,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
       if(id==='spherex'){
         try{await attempt('2mass');if(token===surveyToken)surveyChanged({id:'2mass',name:'2MASS K',wavelengthUm:2.16,state:'ready',message:'SPHEREx background unavailable. Showing 2MASS context; local cutouts remain SPHEREx.'});}
         catch{surveyChanged({id:'none',name:'Background unavailable',state:'error',message:'Remote sky tiles could not load. Local SPHEREx fields are still available.'});}
-      }else if(activeSurvey)surveyChanged({...activeSurvey,message:'2MASS could not load. Keeping the previous sky background.'});
+      }else if(activeSurvey){if(activeSurvey.id==='spherex'&&cubeLayer)spectral.initialize(spectral.snapshot().appliedFrame??29);surveyChanged({...activeSurvey,message:'2MASS could not load. Keeping the previous sky background.'});}
       else surveyChanged({id:'none',name:'Background unavailable',state:'error',message:'2MASS could not load. Local SPHEREx fields are still available.'});
     }finally{releaseInitialBackground();}
   };
@@ -155,6 +176,9 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
     unproject:point=>{const p=aladin.pix2world(...point);return p&&p.every(Number.isFinite)?Array.from(p) as LonLat:null;},
     subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener);},
     setSurvey,
+    setSpectralFrame:index=>spectral.select(index),getSpectralStatus:spectral.snapshot,
+    cancelSpectralChange:spectral.cancel,
+    subscribeSpectral:listener=>{spectralListeners.add(listener);return()=>spectralListeners.delete(listener);},
     showCutout:target=>showFrame(target,0),showFrame,
     showDifference:async(target,difference)=>{
       if(!residualPalette)throw new Error('The native diverging palette is unavailable.');
@@ -170,7 +194,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
     hideCutout,
     setCutoutVisible:visible=>{activeImage?.setOpacity(visible?1:0);emit();},
     getCutoutStatus:()=>({id:activeId,loaded:imageLoaded,nativeCenter,frameId,frameIndex,cuts:activeImage?.getCuts()??null,kind:activeKind,differenceId}),
-    dispose:()=>{disposed=true;releaseInitialBackground();cutoutToken++;surveyToken++;cancelAnimationFrame(raf);resize.disconnect();listeners.clear();
+    dispose:()=>{disposed=true;spectral.disable();spectralListeners.clear();releaseInitialBackground();cutoutToken++;surveyToken++;cancelAnimationFrame(raf);resize.disconnect();listeners.clear();
       aladin.on('positionChanged',()=>{});aladin.on('zoomChanged',()=>{});
       if(typeof aladin.remove==='function')aladin.remove();else host.replaceChildren();},
   };

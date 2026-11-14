@@ -11,6 +11,6 @@ export function DifferencePanel({target,difference,layer,visible,onVisible,onBac
     <div className="layer-control"><span className={`status-dot ${layer}`}/><span>{layer==='ready'?'WCS-registered residual FITS':layer==='loading'?'Loading residual…':'Residual unavailable'}</span>{layer==='ready'&&<button className="text-button" onClick={onVisible}>{visible?'Hide layer':'Show layer'}</button>}</div>
     {layer==='error'&&<div className="honest-fallback"><img src={assetUrl(difference.assets.png)} alt="Unregistered residual inspection only"/><p>Local inspection only. The residual map layer did not load.</p></div>}
     <details className="science-warnings"><summary>Method, quality & limitations</summary><ul>{difference.warnings.map(w=><li key={w}>{w}</li>)}</ul><p>A dipole is not automatically motion or a new source.</p></details>
-    <button className="back-button" onClick={onBack}>↖ Back to Sky</button>
+    <button className="back-button" onClick={onBack}><span aria-hidden="true">↖</span> Back to Sky</button>
   </section>;
 }

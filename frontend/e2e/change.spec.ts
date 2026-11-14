@@ -1,7 +1,7 @@
 import {test,expect,type Page} from '@playwright/test';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const directory=fileURLToPath(new URL('../../outputs/spx004b/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx005/',import.meta.url));
 await mkdir(directory,{recursive:true});
 const samples=JSON.parse(await readFile(directory+'registration_samples.json','utf8'));
 const residualSamples=JSON.parse(await readFile(directory+'residual_samples.json','utf8'));

@@ -7,6 +7,8 @@ SPHEREx Explorer enables users to discover regions of the sky, navigate through 
 ## Features
 
 - Interactive all-sky map using real SPHEREx DR1 HiPS imagery.
+- Spectral Explorer on the home map: 100 official infrared channels, with real
+  wavelength labels, keyboard access and bounded progressive channel changes.
 - Smooth FlyTo navigation to selected astronomical targets.
 - Native WCS-registered FITS image layers.
 - Temporal exploration with Play/Pause, epoch selection, and Blink A/B.
@@ -60,6 +62,19 @@ The prepared web datasets are included in `frontend/public/data/`.
 You do not need to install Python, download original SPHEREx FITS files, or regenerate the scientific data to run and modify the frontend.
 
 The global sky map is loaded from the official SPHEREx HiPS service. The prepared temporal observations are served locally.
+
+The home-page wavelength slider changes the global DR1 spectral mosaic while
+preserving the map center, zoom and prepared fields. It starts at frame 29
+(1.481 μm), skips the two officially blank frames 50 and 51, and uses the real
+nonlinear wavelength table. A channel is requested after dragging ends, or after
+a short keyboard debounce. The previous channel remains during an availability
+check; detail can still load progressively after the new channel is applied.
+
+The slider hides during individual-observation analysis and returns with the
+chosen channel on Back to Sky. It is unavailable for the 2MASS background.
+Spectral mosaic changes are visualization, not a time sequence, quantitative
+source photometry or a calibrated extracted spectrum. They do not change the
+wavelengths or intensity limits of individual temporal FITS observations.
 
 ## Project Structure
 
@@ -153,7 +168,8 @@ SPHEREx Explorer is an independent hackathon project using real astronomical dat
 
 ## Current Status
 
-The four-field temporal explorer includes an extended observation browser,
+Space, time and wavelength exploration share one astronomical map. The
+four-field temporal explorer includes an extended observation browser,
 exploratory motion, a prepared signed difference and diagnostic brightness
 inspection. No validated variability detection is claimed. Additional
 scientific tools remain subject to data-quality and uncertainty review.

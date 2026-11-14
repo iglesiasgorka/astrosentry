@@ -4,6 +4,7 @@ This verifies a displayed signed surface-brightness pattern, not significance,
 photometric calibration, PSF matching or a new motion/variability measurement.
 """
 import json
+import argparse
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -14,7 +15,9 @@ PROJECT=Path(__file__).resolve().parents[1]
 
 
 def main():
-    directory=PROJECT/'outputs/spx004b';report={}
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--directory',type=Path,default=PROJECT/'outputs/spx004b')
+    directory=parser.parse_args().directory;report={}
     for suffix in ['', '_panned','_resized']:
         name='difference'+suffix
         metadata=json.loads((directory/(name+'_screen.json')).read_text(encoding='utf-8'))

@@ -1,0 +1,615 @@
+{
+  "source": "https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube/properties",
+  "verifiedDate": "2026-11-14",
+  "propertiesSha256": "65f3bda2c1ba582989da7e2e5324fd8b7ad50823580554aae432be45ae05745f",
+  "depth": 102,
+  "excludedFrames": [
+    50,
+    51
+  ],
+  "wavelengthUnit": "um",
+  "emMinMeters": 7.43e-07,
+  "emMaxMeters": 5.009e-06,
+  "channels": [
+    {
+      "frameIndex": 0,
+      "band": 1,
+      "channel": 1,
+      "wavelengthUm": 0.753
+    },
+    {
+      "frameIndex": 1,
+      "band": 1,
+      "channel": 2,
+      "wavelengthUm": 0.771
+    },
+    {
+      "frameIndex": 2,
+      "band": 1,
+      "channel": 3,
+      "wavelengthUm": 0.79
+    },
+    {
+      "frameIndex": 3,
+      "band": 1,
+      "channel": 4,
+      "wavelengthUm": 0.809
+    },
+    {
+      "frameIndex": 4,
+      "band": 1,
+      "channel": 5,
+      "wavelengthUm": 0.828
+    },
+    {
+      "frameIndex": 5,
+      "band": 1,
+      "channel": 6,
+      "wavelengthUm": 0.848
+    },
+    {
+      "frameIndex": 6,
+      "band": 1,
+      "channel": 7,
+      "wavelengthUm": 0.868
+    },
+    {
+      "frameIndex": 7,
+      "band": 1,
+      "channel": 8,
+      "wavelengthUm": 0.889
+    },
+    {
+      "frameIndex": 8,
+      "band": 1,
+      "channel": 9,
+      "wavelengthUm": 0.91
+    },
+    {
+      "frameIndex": 9,
+      "band": 1,
+      "channel": 10,
+      "wavelengthUm": 0.932
+    },
+    {
+      "frameIndex": 10,
+      "band": 1,
+      "channel": 11,
+      "wavelengthUm": 0.955
+    },
+    {
+      "frameIndex": 11,
+      "band": 1,
+      "channel": 12,
+      "wavelengthUm": 0.978
+    },
+    {
+      "frameIndex": 12,
+      "band": 1,
+      "channel": 13,
+      "wavelengthUm": 1.001
+    },
+    {
+      "frameIndex": 13,
+      "band": 1,
+      "channel": 14,
+      "wavelengthUm": 1.025
+    },
+    {
+      "frameIndex": 14,
+      "band": 1,
+      "channel": 15,
+      "wavelengthUm": 1.05
+    },
+    {
+      "frameIndex": 15,
+      "band": 1,
+      "channel": 16,
+      "wavelengthUm": 1.075
+    },
+    {
+      "frameIndex": 16,
+      "band": 1,
+      "channel": 17,
+      "wavelengthUm": 1.102
+    },
+    {
+      "frameIndex": 17,
+      "band": 2,
+      "channel": 1,
+      "wavelengthUm": 1.113
+    },
+    {
+      "frameIndex": 18,
+      "band": 2,
+      "channel": 2,
+      "wavelengthUm": 1.139
+    },
+    {
+      "frameIndex": 19,
+      "band": 2,
+      "channel": 3,
+      "wavelengthUm": 1.167
+    },
+    {
+      "frameIndex": 20,
+      "band": 2,
+      "channel": 4,
+      "wavelengthUm": 1.195
+    },
+    {
+      "frameIndex": 21,
+      "band": 2,
+      "channel": 5,
+      "wavelengthUm": 1.224
+    },
+    {
+      "frameIndex": 22,
+      "band": 2,
+      "channel": 6,
+      "wavelengthUm": 1.254
+    },
+    {
+      "frameIndex": 23,
+      "band": 2,
+      "channel": 7,
+      "wavelengthUm": 1.284
+    },
+    {
+      "frameIndex": 24,
+      "band": 2,
+      "channel": 8,
+      "wavelengthUm": 1.315
+    },
+    {
+      "frameIndex": 25,
+      "band": 2,
+      "channel": 9,
+      "wavelengthUm": 1.346
+    },
+    {
+      "frameIndex": 26,
+      "band": 2,
+      "channel": 10,
+      "wavelengthUm": 1.378
+    },
+    {
+      "frameIndex": 27,
+      "band": 2,
+      "channel": 11,
+      "wavelengthUm": 1.412
+    },
+    {
+      "frameIndex": 28,
+      "band": 2,
+      "channel": 12,
+      "wavelengthUm": 1.446
+    },
+    {
+      "frameIndex": 29,
+      "band": 2,
+      "channel": 13,
+      "wavelengthUm": 1.481
+    },
+    {
+      "frameIndex": 30,
+      "band": 2,
+      "channel": 14,
+      "wavelengthUm": 1.517
+    },
+    {
+      "frameIndex": 31,
+      "band": 2,
+      "channel": 15,
+      "wavelengthUm": 1.554
+    },
+    {
+      "frameIndex": 32,
+      "band": 2,
+      "channel": 16,
+      "wavelengthUm": 1.592
+    },
+    {
+      "frameIndex": 33,
+      "band": 2,
+      "channel": 17,
+      "wavelengthUm": 1.631
+    },
+    {
+      "frameIndex": 34,
+      "band": 3,
+      "channel": 1,
+      "wavelengthUm": 1.656
+    },
+    {
+      "frameIndex": 35,
+      "band": 3,
+      "channel": 2,
+      "wavelengthUm": 1.695
+    },
+    {
+      "frameIndex": 36,
+      "band": 3,
+      "channel": 3,
+      "wavelengthUm": 1.735
+    },
+    {
+      "frameIndex": 37,
+      "band": 3,
+      "channel": 4,
+      "wavelengthUm": 1.775
+    },
+    {
+      "frameIndex": 38,
+      "band": 3,
+      "channel": 5,
+      "wavelengthUm": 1.818
+    },
+    {
+      "frameIndex": 39,
+      "band": 3,
+      "channel": 6,
+      "wavelengthUm": 1.861
+    },
+    {
+      "frameIndex": 40,
+      "band": 3,
+      "channel": 7,
+      "wavelengthUm": 1.905
+    },
+    {
+      "frameIndex": 41,
+      "band": 3,
+      "channel": 8,
+      "wavelengthUm": 1.949
+    },
+    {
+      "frameIndex": 42,
+      "band": 3,
+      "channel": 9,
+      "wavelengthUm": 1.995
+    },
+    {
+      "frameIndex": 43,
+      "band": 3,
+      "channel": 10,
+      "wavelengthUm": 2.041
+    },
+    {
+      "frameIndex": 44,
+      "band": 3,
+      "channel": 11,
+      "wavelengthUm": 2.089
+    },
+    {
+      "frameIndex": 45,
+      "band": 3,
+      "channel": 12,
+      "wavelengthUm": 2.139
+    },
+    {
+      "frameIndex": 46,
+      "band": 3,
+      "channel": 13,
+      "wavelengthUm": 2.189
+    },
+    {
+      "frameIndex": 47,
+      "band": 3,
+      "channel": 14,
+      "wavelengthUm": 2.24
+    },
+    {
+      "frameIndex": 48,
+      "band": 3,
+      "channel": 15,
+      "wavelengthUm": 2.292
+    },
+    {
+      "frameIndex": 49,
+      "band": 3,
+      "channel": 16,
+      "wavelengthUm": 2.345
+    },
+    {
+      "frameIndex": 52,
+      "band": 4,
+      "channel": 2,
+      "wavelengthUm": 2.506
+    },
+    {
+      "frameIndex": 53,
+      "band": 4,
+      "channel": 3,
+      "wavelengthUm": 2.575
+    },
+    {
+      "frameIndex": 54,
+      "band": 4,
+      "channel": 4,
+      "wavelengthUm": 2.646
+    },
+    {
+      "frameIndex": 55,
+      "band": 4,
+      "channel": 5,
+      "wavelengthUm": 2.719
+    },
+    {
+      "frameIndex": 56,
+      "band": 4,
+      "channel": 6,
+      "wavelengthUm": 2.794
+    },
+    {
+      "frameIndex": 57,
+      "band": 4,
+      "channel": 7,
+      "wavelengthUm": 2.871
+    },
+    {
+      "frameIndex": 58,
+      "band": 4,
+      "channel": 8,
+      "wavelengthUm": 2.951
+    },
+    {
+      "frameIndex": 59,
+      "band": 4,
+      "channel": 9,
+      "wavelengthUm": 3.033
+    },
+    {
+      "frameIndex": 60,
+      "band": 4,
+      "channel": 10,
+      "wavelengthUm": 3.118
+    },
+    {
+      "frameIndex": 61,
+      "band": 4,
+      "channel": 11,
+      "wavelengthUm": 3.204
+    },
+    {
+      "frameIndex": 62,
+      "band": 4,
+      "channel": 12,
+      "wavelengthUm": 3.293
+    },
+    {
+      "frameIndex": 63,
+      "band": 4,
+      "channel": 13,
+      "wavelengthUm": 3.383
+    },
+    {
+      "frameIndex": 64,
+      "band": 4,
+      "channel": 14,
+      "wavelengthUm": 3.476
+    },
+    {
+      "frameIndex": 65,
+      "band": 4,
+      "channel": 15,
+      "wavelengthUm": 3.57
+    },
+    {
+      "frameIndex": 66,
+      "band": 4,
+      "channel": 16,
+      "wavelengthUm": 3.667
+    },
+    {
+      "frameIndex": 67,
+      "band": 4,
+      "channel": 17,
+      "wavelengthUm": 3.768
+    },
+    {
+      "frameIndex": 68,
+      "band": 5,
+      "channel": 1,
+      "wavelengthUm": 3.833
+    },
+    {
+      "frameIndex": 69,
+      "band": 5,
+      "channel": 2,
+      "wavelengthUm": 3.867
+    },
+    {
+      "frameIndex": 70,
+      "band": 5,
+      "channel": 3,
+      "wavelengthUm": 3.901
+    },
+    {
+      "frameIndex": 71,
+      "band": 5,
+      "channel": 4,
+      "wavelengthUm": 3.935
+    },
+    {
+      "frameIndex": 72,
+      "band": 5,
+      "channel": 5,
+      "wavelengthUm": 3.97
+    },
+    {
+      "frameIndex": 73,
+      "band": 5,
+      "channel": 6,
+      "wavelengthUm": 4.005
+    },
+    {
+      "frameIndex": 74,
+      "band": 5,
+      "channel": 7,
+      "wavelengthUm": 4.04
+    },
+    {
+      "frameIndex": 75,
+      "band": 5,
+      "channel": 8,
+      "wavelengthUm": 4.076
+    },
+    {
+      "frameIndex": 76,
+      "band": 5,
+      "channel": 9,
+      "wavelengthUm": 4.112
+    },
+    {
+      "frameIndex": 77,
+      "band": 5,
+      "channel": 10,
+      "wavelengthUm": 4.148
+    },
+    {
+      "frameIndex": 78,
+      "band": 5,
+      "channel": 11,
+      "wavelengthUm": 4.184
+    },
+    {
+      "frameIndex": 79,
+      "band": 5,
+      "channel": 12,
+      "wavelengthUm": 4.22
+    },
+    {
+      "frameIndex": 80,
+      "band": 5,
+      "channel": 13,
+      "wavelengthUm": 4.257
+    },
+    {
+      "frameIndex": 81,
+      "band": 5,
+      "channel": 14,
+      "wavelengthUm": 4.294
+    },
+    {
+      "frameIndex": 82,
+      "band": 5,
+      "channel": 15,
+      "wavelengthUm": 4.331
+    },
+    {
+      "frameIndex": 83,
+      "band": 5,
+      "channel": 16,
+      "wavelengthUm": 4.368
+    },
+    {
+      "frameIndex": 84,
+      "band": 5,
+      "channel": 17,
+      "wavelengthUm": 4.405
+    },
+    {
+      "frameIndex": 85,
+      "band": 6,
+      "channel": 1,
+      "wavelengthUm": 4.435
+    },
+    {
+      "frameIndex": 86,
+      "band": 6,
+      "channel": 2,
+      "wavelengthUm": 4.467
+    },
+    {
+      "frameIndex": 87,
+      "band": 6,
+      "channel": 3,
+      "wavelengthUm": 4.5
+    },
+    {
+      "frameIndex": 88,
+      "band": 6,
+      "channel": 4,
+      "wavelengthUm": 4.533
+    },
+    {
+      "frameIndex": 89,
+      "band": 6,
+      "channel": 5,
+      "wavelengthUm": 4.566
+    },
+    {
+      "frameIndex": 90,
+      "band": 6,
+      "channel": 6,
+      "wavelengthUm": 4.6
+    },
+    {
+      "frameIndex": 91,
+      "band": 6,
+      "channel": 7,
+      "wavelengthUm": 4.635
+    },
+    {
+      "frameIndex": 92,
+      "band": 6,
+      "channel": 8,
+      "wavelengthUm": 4.669
+    },
+    {
+      "frameIndex": 93,
+      "band": 6,
+      "channel": 9,
+      "wavelengthUm": 4.704
+    },
+    {
+      "frameIndex": 94,
+      "band": 6,
+      "channel": 10,
+      "wavelengthUm": 4.739
+    },
+    {
+      "frameIndex": 95,
+      "band": 6,
+      "channel": 11,
+      "wavelengthUm": 4.773
+    },
+    {
+      "frameIndex": 96,
+      "band": 6,
+      "channel": 12,
+      "wavelengthUm": 4.808
+    },
+    {
+      "frameIndex": 97,
+      "band": 6,
+      "channel": 13,
+      "wavelengthUm": 4.843
+    },
+    {
+      "frameIndex": 98,
+      "band": 6,
+      "channel": 14,
+      "wavelengthUm": 4.879
+    },
+    {
+      "frameIndex": 99,
+      "band": 6,
+      "channel": 15,
+      "wavelengthUm": 4.915
+    },
+    {
+      "frameIndex": 100,
+      "band": 6,
+      "channel": 16,
+      "wavelengthUm": 4.951
+    },
+    {
+      "frameIndex": 101,
+      "band": 6,
+      "channel": 17,
+      "wavelengthUm": 4.988
+    }
+  ]
+}

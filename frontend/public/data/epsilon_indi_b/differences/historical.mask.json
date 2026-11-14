@@ -1,0 +1,10 @@
+{
+  "encoding": "packed-bits-base64",
+  "bitOrder": "little",
+  "shape": [
+    88,
+    88
+  ],
+  "origin": "FITS bottom-left; row-major y,x",
+  "valid": "AAAAAPDzH4AfAAAAAAAA/vMfwD8AAAAAAAD+0Q/wfwAAAAAAcB/KH/x/AAAAAAD8D94f8/8AAAAAAPcP5v/z/wAAAAAA4n/2f/v/AQAAAATAb/gf+P8DAAAABuLn+R/w/wMAAIAD9m//D/D/BwAAAJb/f/4D8P8PAAAY/v//BwP8/w8AAB7///EDcf//HwCAe/9/wAcD/v8fAMDz/f/AHwP+/z8A8Hvwf+D/A/z/fwD8P/D/4P8B3P9/ANc/wP/g/wMO/+8AwT/A//nPJwz+5wCAf/B//99HBP/vAYD/+X/8/38P//8Dgf98//nz/6P//wPH/3+W//P/B///B/3//4P/P/8P//8H/P//8f84/wf//w/8///3z/n/A87/D/+///+f//8HnP8f/xx//vP//4f9/x//Df/457//////H/8P//n/D/z///89/+//+/8P/P8ffjD////55wf8/x88cP3///nnD/zwDzxw/P9/zv8/fuAPPHCf/3/e//9/4A98fJ////H//3/gD/x/3wz/4fyP//F//n9/DP7h/o////////8H/oD/h/////+/fw7+AP+f/////z9/HvjBeP////////838CEw////////fmPwB1D///v///88MuA/gP//4////nwz4D/4///hP3/8/0+A//j//+N/P/j3HwD/3/8/+P9//Cf+A/SfLzzw////X/4B4N8HPOD//4/P/wHgjwc48P//D5/fAfDPB3jw//8Pf48D8P8H/PH//78/3gPw/wf8/////z/8A/j8H/jj//+fPv4B/vw/iMH//5/+/wH6/38Pwf//j/z/APj//wfh//8E/P8B////D+T//wD4n4P///8P/v//A/g81////wf+//+D8Pn/8P//D/7//+8w/v/gz/lf/////wCA///f+f////3/AAC///n+/////P8AgB/5Ofj//////wCAp/g/8P//////AIDn/T/g//////+A/p//H/D/////zwA/Xv4P8PH//z/PAH5/8JP48///P38A/n/wAf5z////PwD8Z/AF7j///98PAHzm/QPOP/8fDwcAeP75A/7//w8OAQBw/vkA7///BwwAAPD//5Dn//8PHAAA4P5/MO+f/wcEAABgPnwQ9z//DwAAAMA9fKDn//9/AAAAgBx44DH//j8AAACAHljgM/98DwAAAAAfyPD//z4CAAAAAP/c9fv/HwAAAAAA/v//+f8/AAAAAAD8///7/w8AAAAAAPz5//n/BwAAAAAA+Pn/+/8BAAAAAAD4//n+fwAAAAA="
+}

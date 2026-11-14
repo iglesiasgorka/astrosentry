@@ -15,11 +15,29 @@ export function validateSequence(sequence:TemporalSequence,target:SkyTarget):voi
     if(!frame.id||ids.has(frame.id)||!Number.isFinite(timestamp)||timestamp<=previous)throw new Error('Temporal observations must be unique and chronological.');
     ids.add(frame.id);previous=timestamp;
     if(!relative(frame.assets?.fits)||!relative(frame.assets?.png)||!relative(frame.assets?.masks))throw new Error('Temporal resources must use local relative paths.');
-    if(!frame.display||frame.display.vmin!==display.vmin||frame.display.vmax!==display.vmax||frame.display.stretch!==display.stretch)throw new Error('Per-frame auto scaling is forbidden.');
+    const allowedDisplays=sequence.groups?.filter(g=>g.frameIds.includes(frame.id)).map(g=>g.display)??[display];
+    if(!frame.display||!allowedDisplays.some(d=>frame.display.vmin===d.vmin&&frame.display.vmax===d.vmax&&frame.display.stretch===d.stretch))throw new Error('Per-frame auto scaling is forbidden.');
     if(!validPosition(frame.expectedPosition)||!validPosition(frame.measuredPosition))throw new Error('Invalid sky positions or FITS/PNG pixel convention.');
     if(!Array.isArray(frame.warnings))throw new Error('Temporal quality metadata are missing.');
     if(target.id==='barnard'&&frame.measuredPosition!==null)throw new Error('The diagnostic Barnard sequence has no reliable measured positions.');
   }
+  if(sequence.groups){
+    if(!sequence.groups.length||!sequence.groups.some(g=>g.id===sequence.defaultGroupId)||new Set(sequence.groups.map(g=>g.id)).size!==sequence.groups.length)throw new Error('Invalid comparison groups.');
+    for(const group of sequence.groups){
+      if(!group.frameIds.length||new Set(group.frameIds).size!==group.frameIds.length||group.frameIds.some(id=>!ids.has(id))||!finite(group.display.vmin)||!finite(group.display.vmax)||group.display.vmax<=group.display.vmin||!group.display.common)throw new Error('Invalid group members or shared intensity limits.');
+      const members=sequence.frames.filter(f=>group.frameIds.includes(f.id));
+      if(group.comparison&&members.length>1){const first=members[0].observation;
+        if(members.some(f=>f.observation.detector!==first.detector||f.observation.release!==first.release))throw new Error('A comparison group mixes detectors or releases.');
+        const wavelengths=members.map(f=>f.observation.wavelengthUm),bandwidths=members.map(f=>f.observation.bandwidthUm);
+        if(!wavelengths.every(finite)||!bandwidths.every(finite)||Math.max(...wavelengths)-Math.min(...wavelengths)>.5*Math.min(...bandwidths))throw new Error('Spectrally incompatible comparison group.');
+      }
+    }
+  }
+  for(const difference of sequence.differences??[]){
+    if(!ids.has(difference.aId)||!ids.has(difference.bId)||difference.aId===difference.bId||!relative(difference.assets.fits)||!relative(difference.assets.png)||!relative(difference.assets.mask)||difference.display.vmin!==-difference.display.vmax||difference.display.vmax<=0||difference.display.stretch!=='linear')throw new Error('Invalid prepared signed difference.');
+    if(!sequence.groups?.some(g=>g.comparison&&g.frameIds.includes(difference.aId)&&g.frameIds.includes(difference.bId)))throw new Error('Difference pair must belong to a compatible group.');
+  }
+  if(sequence.historicalPair&&(!ids.has(sequence.historicalPair.aId)||!ids.has(sequence.historicalPair.bId)))throw new Error('Historical motion pair is missing.');
   if(target.id==='m101'&&sequence.motion!==null)throw new Error('M101 is a registration example, without motion measurements.');
 }
 

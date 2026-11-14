@@ -3,13 +3,13 @@ import type {SkyEngine,SkyTarget} from '../../types/sky';
 import catalog from '../../../public/data/catalog.json';
 const fake=vi.hoisted(()=>({order:[] as string[],images:[] as any[],camera:vi.fn(),resolveProperties:null as null|(()=>void)}));
 vi.mock('aladin-lite',()=>({default:{init:Promise.resolve(),
-  aladin:()=>({addOverlay:vi.fn(),getRaDec:()=>[331,-56],getFov:()=>[1,1],getSize:()=>[1400,1000],on:vi.fn(),gotoRaDec:fake.camera,setFoV:vi.fn(),
+  aladin:()=>({addOverlay:vi.fn(),addColormap:vi.fn(),getRaDec:()=>[331,-56],getFov:()=>[1,1],getSize:()=>[1400,1000],on:vi.fn(),gotoRaDec:fake.camera,setFoV:vi.fn(),
     setBaseImageLayer:(layer:any)=>{fake.order.push('background');queueMicrotask(()=>layer.options.successCallback(layer));},
     setOverlayImageLayer:(image:any)=>{fake.order.push('fits');queueMicrotask(()=>image.options.successCallback(331,-56));},removeImageLayer:vi.fn()}),
   graphicOverlay:()=>({addFootprints:vi.fn(),hide:vi.fn(),show:vi.fn()}),polygon:()=>({}),
   imageHiPS:(_url:string,options:any)=>({options,query:Promise.resolve(),setFrequency:vi.fn()}),
-  image:(_url:string,options:any)=>{let cuts=[options.minCut||-999,options.maxCut||999],opacity=0;
-    const image={options,getCuts:()=>cuts,setCuts:(a:number,b:number)=>{cuts=[a,b]},setColormap:vi.fn(),getColorCfg:()=>({stretch:'asinh'}),getOpacity:()=>opacity,setOpacity:(value:number)=>{opacity=value}};
+  image:(_url:string,options:any)=>{let cuts=[options.minCut||-999,options.maxCut||999],opacity=options.opacity||1,stretch=options.stretch;
+    const image={options,getCuts:()=>cuts,setCuts:(a:number,b:number)=>{cuts=[a,b]},setColormap:vi.fn((_name:string,options:any)=>{stretch=options.stretch}),getColorCfg:()=>({stretch}),getOpacity:()=>opacity,setOpacity:(value:number)=>{opacity=value}};
     fake.images.push(image);return image;},
 }}));
 import {createSkyEngine} from './SkyEngine';
@@ -22,7 +22,9 @@ beforeEach(()=>{fake.order.length=0;fake.images.length=0;fake.camera.mockReset()
   vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,text:async()=>properties})));
 });
 afterEach(()=>{engine?.dispose();vi.unstubAllGlobals();});
-const target=()=>structuredClone(catalog.targets[0]) as unknown as SkyTarget;
+const target=()=>{const field=structuredClone(catalog.targets[0]) as unknown as SkyTarget;
+  const pair=field.sequence!.historicalPair;if(pair){field.sequence!.frames=field.sequence!.frames.filter(f=>f.id===pair.aId||f.id===pair.bId);delete field.sequence!.groups;delete field.sequence!.defaultGroupId;delete field.sequence!.historicalPair;delete field.sequence!.differences;}
+  return field;};
 describe('native layer lifecycle regression checks',()=>{
   it('reserves a slow background slot before preparing any FITS layer',async()=>{
     let release!:()=>void;const slow=new Promise<void>(resolve=>{release=resolve});
@@ -39,12 +41,32 @@ describe('native layer lifecycle regression checks',()=>{
   });
   it('reapplies a real zero cut after the native falsy-value default',async()=>{
     const field=target();field.sequence!.display.vmin=0;
-    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[field],vi.fn());await engine.setSurvey('spherex');await engine.showFrame(field,0);
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[field],vi.fn());await engine.setSurvey('spherex');await engine.showFrame(field,0,field.sequence!.display);
     expect(engine.getCutoutStatus().cuts![0]).toBe(0);
   });
   it('reports a missing epoch without loading a remote FITS proxy',async()=>{
     engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[target()],vi.fn());await engine.setSurvey('spherex');
     vi.stubGlobal('fetch',vi.fn(async()=>({ok:false,status:404})));
     await expect(engine.showFrame(target(),1)).rejects.toThrow('HTTP 404');expect(fake.images).toHaveLength(0);
+  });
+  it('shows a prepared signed residual with linear cuts and restores an epoch without moving the camera',async()=>{
+    const field=structuredClone(catalog.targets[0]) as unknown as SkyTarget,difference=field.sequence!.differences![0];
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[field],vi.fn());await engine.setSurvey('spherex');
+    await engine.showDifference(field,difference);expect(engine.getCutoutStatus().kind).toBe('difference');expect(engine.getCutoutStatus().frameId).toBeNull();
+    expect(engine.getCutoutStatus().cuts).toEqual([difference.display.vmin,difference.display.vmax]);expect(engine.getDiagnostics().layers[0].stretch).toBe('linear');
+    await engine.showFrame(field,0);expect(engine.getCutoutStatus().kind).toBe('epoch');expect(fake.camera).not.toHaveBeenCalled();
+  });
+  it('bounds native layers when visiting more than twelve local display assets',async()=>{
+    const field=target(),first=field.sequence!.frames[0];field.sequence!.frames=Array.from({length:15},(_,i)=>({...first,id:`synthetic-${i}`,assets:{...first.assets,fits:`epsilon_indi_b/test-${i}.fits`}}));
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[field],vi.fn());await engine.setSurvey('spherex');
+    await engine.prepareSequence(field);expect(engine.getDiagnostics().layers).toHaveLength(12);
+  });
+  it('newly prepared observations cannot cover the already selected native image',async()=>{
+    const field=structuredClone(catalog.targets[0]) as unknown as SkyTarget;
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[field],vi.fn());await engine.setSurvey('spherex');
+    await engine.prepareSequence(field);await engine.showFrame(field,0);
+    await engine.prepareSequence(field,[0,1,2,3,4,5]);
+    const visible=engine.getDiagnostics().layers.filter(layer=>layer.opacity!==0);
+    expect(visible).toHaveLength(1);expect(visible[0].key).toContain(field.sequence!.frames[0].id);
   });
 });

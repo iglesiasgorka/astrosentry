@@ -2,13 +2,14 @@ import {test,expect,type Page} from '@playwright/test';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {LonLat} from '../src/types/sky';
-const directory=fileURLToPath(new URL('../../outputs/spx004a/regression/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx004b/regression/',import.meta.url));
 await mkdir(directory,{recursive:true});
-const samples=JSON.parse(await readFile(new URL('../../outputs/spx004a/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
+const samples=JSON.parse(await readFile(new URL('../../outputs/spx004b/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function arrived(page:Page,id:string){await page.waitForFunction(id=>window.__analysis?.targetId===id&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded,id,{timeout:30000});}
-async function frameReady(page:Page,index:number){await page.waitForFunction(index=>window.__sky?.engine.getCutoutStatus().loaded&&window.__sky.engine.getCutoutStatus().frameIndex===index,index);await page.waitForTimeout(250);}
+async function frameReady(page:Page,index:number){await page.waitForFunction(index=>{const sky=window.__sky!,analysis=window.__analysis!;const target=sky.targets.find(t=>t.id===analysis.targetId)!;return sky.engine.getCutoutStatus().loaded&&sky.engine.getCutoutStatus().frameId===analysis.frameIds[index];},index);await page.waitForTimeout(250);}
 async function capture(page:Page,id:string,index:number,suffix=''){
+  const logicalIndex=index; index=await page.evaluate(({id,index})=>{const sky=window.__sky!;return sky.targets.find(t=>t.id===id)!.sequence!.frames.findIndex(f=>f.id===window.__analysis!.frameIds[index]);},{id,index});
   const data=await page.evaluate(({id,index,points})=>{const sky=window.__sky!,target=sky.targets.find(t=>t.id===id)!,frame=target.sequence!.frames[index];
     return {id,index,frame,camera:sky.engine.snapshot(),cutout:sky.engine.getCutoutStatus(),corners:target.footprint.map(p=>sky.engine.project(p)),samples:points.map(point=>({...point,screen:sky.engine.project(point.sky)}))};
   },{id,index,points:samples[id][index]});
@@ -19,7 +20,7 @@ async function capture(page:Page,id:string,index:number,suffix=''){
 }
 async function verifyMarks(page:Page){
   const differences=await page.evaluate(()=>{const sky=window.__sky!,target=sky.targets.find(t=>t.id===window.__analysis!.targetId)!;
-    return target.sequence!.frames.flatMap((frame,index)=>['expected','measured'].flatMap(kind=>{const position=kind==='expected'?frame.expectedPosition:frame.measuredPosition;if(!position)return [];
+    return window.__analysis!.motionFrameIds.map(id=>target.sequence!.frames.find(f=>f.id===id)!).flatMap((frame,index)=>['expected','measured'].flatMap(kind=>{const position=kind==='expected'?frame.expectedPosition:frame.measuredPosition;if(!position)return [];
       const expected=sky.engine.project([position.raDeg,position.decDeg])!,group=document.querySelector<SVGGElement>(`[data-mark="${kind}-${index}"]`)!;
       const matrix=group.transform.baseVal.consolidate()!.matrix;return [Math.hypot(matrix.e-expected[0],matrix.f-expected[1])];}));
   });expect(differences.length).toBeGreaterThan(0);expect(Math.max(...differences)).toBeLessThan(.05);
@@ -40,10 +41,10 @@ test('six actual epochs play and blink on one fixed WCS map with scientific insp
     await page.getByRole('button',{name:'Previous observation',exact:true}).click();await frameReady(page,0);
     await page.getByLabel('Playback speed',{exact:true}).selectOption('400');
     await page.getByRole('button',{name:'Play observations',exact:true}).click();
-    await expect.poll(()=>page.evaluate(()=>window.__analysis!.index)).toBe(1);
+    await expect.poll(()=>page.evaluate(()=>window.__analysis!.index===window.__analysis!.b)).toBe(true);
     await page.getByRole('button',{name:'Pause playback',exact:true}).click();
     const paused=await page.evaluate(()=>window.__analysis!.index);await page.waitForTimeout(600);expect(await page.evaluate(()=>window.__analysis!.index)).toBe(paused);
-    await page.getByLabel('Observation A',{exact:true}).selectOption('1');await page.getByLabel('Observation B',{exact:true}).selectOption('0');
+    await page.getByLabel('Observation A',{exact:true}).selectOption(String(await page.evaluate(()=>window.__analysis!.b)));await page.getByLabel('Observation B',{exact:true}).selectOption('0');
     await page.getByRole('button',{name:'Blink A/B',exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.__analysis!.index)).toBe(0);
     await page.getByRole('button',{name:'Stop blink',exact:true}).click();
     expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(camera);

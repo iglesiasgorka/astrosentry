@@ -172,7 +172,140 @@
               "sourceSha256": "abc6aa70a0443d310ca969c28d119a58aca0fede68accec3798455a5f5a9590c",
               "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W18_1B/l2b-v27-2026-196/6/level2_2025W18_1B_0081_2D6_spx_l2b-v27-2026-196.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
               "exactPngCopied": true
-            }
+            },
+            "visitId": "d6-visit-1",
+            "inspectionOnly": false,
+            "comparisonGroupIds": [
+              "d6-historical"
+            ]
+          },
+          {
+            "id": "2025W18_1B_0175_1",
+            "observation": {
+              "id": "2025W18_1B_0175_1",
+              "timestampUtc": "2025-04-29T16:18:09.335",
+              "startUtc": "2025-04-29T16:17:11.776",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-196",
+              "mjd": 60794.679274708,
+              "wavelengthUm": 4.660816843017211,
+              "bandwidthUm": 0.03715787419871668,
+              "wavelengthReference": "Existing local target-position spectral metadata; not a detector-wide wavelength."
+            },
+            "assets": {
+              "fits": "epsilon_indi_b/frames/2025W18_1B_0175_1.fits",
+              "png": "epsilon_indi_b/frames/2025W18_1B_0175_1.png",
+              "masks": "epsilon_indi_b/frames/2025W18_1B_0175_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.21317677794079032,
+              "vmax": 0.7043061751381676,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr",
+              "warning": "Common visual scale across all D6 observations; the full set is NOT a homogeneous temporal comparison."
+            },
+            "expectedPosition": {
+              "raDeg": 331.09530583717753,
+              "decDeg": -56.800187629988265,
+              "xFits": 43.82602108006868,
+              "yFits": 43.70162620474307,
+              "xImage": 43.82602108006868,
+              "yImage": 43.29837379525693
+            },
+            "measuredPosition": {
+              "raDeg": 331.0955869067977,
+              "decDeg": -56.800324768897106,
+              "xFits": 43.736657404549504,
+              "yFits": 43.621998315767605,
+              "xImage": 43.736657404549504,
+              "yImage": 43.378001684232395
+            },
+            "formalCentroidErrorArcsec": 0.10472259377436155,
+            "formalCentroidErrorOriginalPixels": 0.016992689609642543,
+            "warnings": [
+              "Inspection-only outside the historical compatible pair; wavelength/response changes must not be called temporal variability."
+            ],
+            "masks": {
+              "displayValidFraction": 0.8322572314049587,
+              "scienceValidFraction": 0.7802169421487604,
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W18_1B/l2b-v27-2026-196/6/level2_2025W18_1B_0175_1D6_spx_l2b-v27-2026-196.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
+              "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2025W18_1B_0175_1D6.fits",
+              "sourceSha256": "ec73987b06f6f3ff679188187d3ccc439deb1d4e575433999b9c20718b83bf8a",
+              "newAstrometryComputed": false
+            },
+            "visitId": "d6-visit-1",
+            "inspectionOnly": true,
+            "comparisonGroupIds": []
+          },
+          {
+            "id": "2025W18_2B_0011_4",
+            "observation": {
+              "id": "2025W18_2B_0011_4",
+              "timestampUtc": "2025-05-01T14:00:58.615",
+              "startUtc": "2025-05-01T14:00:01.056",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-197",
+              "mjd": 60796.584011745,
+              "wavelengthUm": 4.494995161468503,
+              "bandwidthUm": 0.035590078523521036,
+              "wavelengthReference": "Existing local target-position spectral metadata; not a detector-wide wavelength."
+            },
+            "assets": {
+              "fits": "epsilon_indi_b/frames/2025W18_2B_0011_4.fits",
+              "png": "epsilon_indi_b/frames/2025W18_2B_0011_4.png",
+              "masks": "epsilon_indi_b/frames/2025W18_2B_0011_4.masks.json"
+            },
+            "display": {
+              "vmin": 0.21317677794079032,
+              "vmax": 0.7043061751381676,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr",
+              "warning": "Common visual scale across all D6 observations; the full set is NOT a homogeneous temporal comparison."
+            },
+            "expectedPosition": {
+              "raDeg": 331.09531637643045,
+              "decDeg": -56.8001911990796,
+              "xFits": 43.82267021672266,
+              "yFits": 43.699553879062485,
+              "xImage": 43.82267021672266,
+              "yImage": 43.300446120937515
+            },
+            "measuredPosition": {
+              "raDeg": 331.0955846194897,
+              "decDeg": -56.800287656225045,
+              "xFits": 43.73738485976135,
+              "yFits": 43.643547601304306,
+              "xImage": 43.73738485976135,
+              "yImage": 43.356452398695694
+            },
+            "formalCentroidErrorArcsec": 0.11167526675421593,
+            "formalCentroidErrorOriginalPixels": 0.01807534512833881,
+            "warnings": [
+              "Inspection-only outside the historical compatible pair; wavelength/response changes must not be called temporal variability."
+            ],
+            "masks": {
+              "displayValidFraction": 0.8400051652892562,
+              "scienceValidFraction": 0.7883522727272727,
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W18_2B/l2b-v27-2026-197/6/level2_2025W18_2B_0011_4D6_spx_l2b-v27-2026-197.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
+              "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2025W18_2B_0011_4D6.fits",
+              "sourceSha256": "c6315b764a91a2e5b1d903bc64e089939b4e8d88c3b5d80cdb2ec84e6e8b5664",
+              "newAstrometryComputed": false
+            },
+            "visitId": "d6-visit-2",
+            "inspectionOnly": true,
+            "comparisonGroupIds": []
           },
           {
             "id": "2025W39_2A_0693_3",
@@ -237,7 +370,140 @@
               "sourceSha256": "741a9d3620bdf6fca32e0475d58c19d7ccf29f485b3f0cab69af92ef540b0db2",
               "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W39_2A/l2b-v27-2026-239/6/level2_2025W39_2A_0693_3D6_spx_l2b-v27-2026-239.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
               "exactPngCopied": true
-            }
+            },
+            "visitId": "d6-visit-3",
+            "inspectionOnly": false,
+            "comparisonGroupIds": [
+              "d6-historical"
+            ]
+          },
+          {
+            "id": "2025W40_1A_0125_4",
+            "observation": {
+              "id": "2025W40_1A_0125_4",
+              "timestampUtc": "2025-09-29T13:51:45.891",
+              "startUtc": "2025-09-29T13:50:48.332",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-239",
+              "mjd": 60947.577614476,
+              "wavelengthUm": 4.777622055257018,
+              "bandwidthUm": 0.03667605283715548,
+              "wavelengthReference": "Existing local target-position spectral metadata; not a detector-wide wavelength."
+            },
+            "assets": {
+              "fits": "epsilon_indi_b/frames/2025W40_1A_0125_4.fits",
+              "png": "epsilon_indi_b/frames/2025W40_1A_0125_4.png",
+              "masks": "epsilon_indi_b/frames/2025W40_1A_0125_4.masks.json"
+            },
+            "display": {
+              "vmin": 0.21317677794079032,
+              "vmax": 0.7043061751381676,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr",
+              "warning": "Common visual scale across all D6 observations; the full set is NOT a homogeneous temporal comparison."
+            },
+            "expectedPosition": {
+              "raDeg": 331.09615185760066,
+              "decDeg": -56.800474127675606,
+              "xFits": 43.557038310941294,
+              "yFits": 43.53527507533567,
+              "xImage": 43.557038310941294,
+              "yImage": 43.46472492466433
+            },
+            "measuredPosition": {
+              "raDeg": 331.0963295703631,
+              "decDeg": -56.80093654260317,
+              "xFits": 43.50053703446584,
+              "yFits": 43.26677615984547,
+              "xImage": 43.50053703446584,
+              "yImage": 43.73322384015453
+            },
+            "formalCentroidErrorArcsec": 0.10139723538729521,
+            "formalCentroidErrorOriginalPixels": 0.01649188005193609,
+            "warnings": [
+              "Inspection-only outside the historical compatible pair; wavelength/response changes must not be called temporal variability."
+            ],
+            "masks": {
+              "displayValidFraction": 0.8140495867768595,
+              "scienceValidFraction": 0.7521952479338843,
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W40_1A/l2b-v27-2026-239/6/level2_2025W40_1A_0125_4D6_spx_l2b-v27-2026-239.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
+              "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2025W40_1A_0125_4D6.fits",
+              "sourceSha256": "54ff23694b17be44bbc8df79a8b6293fb8a749a27e9499934fa16a1a6e3e5924",
+              "newAstrometryComputed": false
+            },
+            "visitId": "d6-visit-3",
+            "inspectionOnly": true,
+            "comparisonGroupIds": []
+          },
+          {
+            "id": "2026W19_1A_0041_1",
+            "observation": {
+              "id": "2026W19_1A_0041_1",
+              "timestampUtc": "2026-05-04T02:49:22.016",
+              "startUtc": "2026-05-04T02:48:24.457",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-245",
+              "mjd": 61164.117615923,
+              "wavelengthUm": 4.694686398140685,
+              "bandwidthUm": 0.0374526096983112,
+              "wavelengthReference": "Existing local target-position spectral metadata; not a detector-wide wavelength."
+            },
+            "assets": {
+              "fits": "epsilon_indi_b/frames/2026W19_1A_0041_1.fits",
+              "png": "epsilon_indi_b/frames/2026W19_1A_0041_1.png",
+              "masks": "epsilon_indi_b/frames/2026W19_1A_0041_1.masks.json"
+            },
+            "display": {
+              "vmin": 0.21317677794079032,
+              "vmax": 0.7043061751381676,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr",
+              "warning": "Common visual scale across all D6 observations; the full set is NOT a homogeneous temporal comparison."
+            },
+            "expectedPosition": {
+              "raDeg": 331.09735004357486,
+              "decDeg": -56.800879865974565,
+              "xFits": 43.17609546138539,
+              "yFits": 43.29968276035752,
+              "xImage": 43.17609546138539,
+              "yImage": 43.70031723964248
+            },
+            "measuredPosition": {
+              "raDeg": 331.09760683005084,
+              "decDeg": -56.80103016120744,
+              "xFits": 43.09445632724294,
+              "yFits": 43.212413192822176,
+              "xImage": 43.09445632724294,
+              "yImage": 43.787586807177824
+            },
+            "formalCentroidErrorArcsec": 0.0766361172682554,
+            "formalCentroidErrorOriginalPixels": 0.012441684038349783,
+            "warnings": [
+              "Inspection-only outside the historical compatible pair; wavelength/response changes must not be called temporal variability."
+            ],
+            "masks": {
+              "displayValidFraction": 0.834323347107438,
+              "scienceValidFraction": 0.7722107438016529,
+              "scienceMaskAvailable": true
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/6/level2_2026W19_1A_0041_1D6_spx_l2b-v27-2026-245.fits?center=331.09633125951194,-56.80053487932291d&size=0.15",
+              "sourceAlignedFits": "outputs/spx002b/epsilon_indi_b/aligned/2026W19_1A_0041_1D6.fits",
+              "sourceSha256": "586ff5ed045a043c76d3eefd0b6f6340cae5caff5d5acaecf7141884d564d85b",
+              "newAstrometryComputed": false
+            },
+            "visitId": "d6-visit-4",
+            "inspectionOnly": true,
+            "comparisonGroupIds": []
           }
         ],
         "display": {
@@ -352,7 +618,131 @@
           "pixelScaleArcsec": 6.2,
           "pngConvention": "yImage = height - 1 - yFits; north up, east left; no recentering"
         },
-        "sourceManifest": "outputs/spx002b/epsilon_indi_b/sequence_manifest.json"
+        "sourceManifest": "outputs/spx002b/epsilon_indi_b/sequence_manifest.json",
+        "groups": [
+          {
+            "id": "d6-historical",
+            "label": "Historical D6 pair \u00b7 4.42\u20134.43 \u03bcm",
+            "frameIds": [
+              "2025W18_1B_0081_2",
+              "2025W39_2A_0693_3"
+            ],
+            "comparison": true,
+            "display": {
+              "vmin": 0.19463808084139544,
+              "vmax": 0.6858769888711637,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "invalidColor": "#683a68",
+              "units": "MJy / sr",
+              "sourceHdu": "DISPLAY",
+              "limitsSource": "Existing sequence_manifest display_stretch",
+              "warning": "Display normalization only; no PNG or visual-intensity quantitative photometry."
+            },
+            "warnings": [
+              "Only this historical pair has the retained motion measurement; response/PSF systematics remain unvalidated."
+            ]
+          },
+          {
+            "id": "d6-all-inspection",
+            "label": "All six D6 observations \u00b7 visual inspection only",
+            "frameIds": [
+              "2025W18_1B_0081_2",
+              "2025W18_1B_0175_1",
+              "2025W18_2B_0011_4",
+              "2025W39_2A_0693_3",
+              "2025W40_1A_0125_4",
+              "2026W19_1A_0041_1"
+            ],
+            "comparison": false,
+            "display": {
+              "vmin": 0.21317677794079032,
+              "vmax": 0.7043061751381676,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1,
+              "units": "MJy / sr",
+              "warning": "Common visual scale across all D6 observations; the full set is NOT a homogeneous temporal comparison."
+            },
+            "warnings": [
+              "Different local wavelengths and four visit groups; not six homogeneous independent temporal epochs. Blink and scientific Difference are restricted to the compatible historical group."
+            ]
+          }
+        ],
+        "defaultGroupId": "d6-historical",
+        "historicalPair": {
+          "aId": "2025W18_1B_0081_2",
+          "bId": "2025W39_2A_0693_3"
+        },
+        "differences": [
+          {
+            "id": "historical",
+            "aId": "2025W18_1B_0081_2",
+            "bId": "2025W39_2A_0693_3",
+            "aTimestampUtc": "2025-04-29T01:34:17.379",
+            "bTimestampUtc": "2025-09-28T23:09:16.769",
+            "assets": {
+              "fits": "epsilon_indi_b/differences/historical.fits",
+              "png": "epsilon_indi_b/differences/historical.png",
+              "mask": "epsilon_indi_b/differences/historical.mask.json"
+            },
+            "display": {
+              "vmin": -0.18508064980410405,
+              "vmax": 0.18508064980410405,
+              "stretch": "linear",
+              "colormap": "spx_residual",
+              "colors": [
+                "#2166ac",
+                "#f7f7f7",
+                "#b2182b"
+              ],
+              "zeroColor": "#f7f7f7",
+              "invalidColor": "#683a68",
+              "common": true
+            },
+            "units": "MJy / sr",
+            "classification": "exploratory",
+            "validFraction": 0.6308109504132231,
+            "validPixels": 4885,
+            "totalPixels": 7744,
+            "spectralScreen": {
+              "wavelengthSeparationUm": 0.0074482064385952285,
+              "maximumSeparationUm": 0.018277467708205663,
+              "timeSeparationDays": 152.89929849499458,
+              "warning": "Half-bandwidth screening is exploratory, not matched-response certification."
+            },
+            "method": "D = aligned scientific IMAGE B minus A; finite conservative science COVERAGE intersection.",
+            "normalization": "None. No gain, background, flux or PSF correction.",
+            "uncertainty": null,
+            "precision": "Float64 calculation/private FITS; float32 lightweight native web FITS.",
+            "backgroundDiagnostic": {
+              "region": "Common finite science pixels outside radius ten fixed-grid pixels of field center; descriptive field median, not a fitted background model.",
+              "pixels": 4649,
+              "medianA": 0.30809058409412005,
+              "medianB": 0.27054991419004093,
+              "medianDifference": -0.037447030285338856,
+              "correctionApplied": false
+            },
+            "residualDiagnostics": {
+              "median": -0.037765753651946066,
+              "mad": 0.027763488617292276,
+              "positiveFraction": 0.18178096212896622,
+              "negativeFraction": 0.8182190378710338,
+              "minimum": -1.0152706835005052,
+              "maximum": 3.2564820695608794
+            },
+            "warnings": [
+              "Exploratory signed residual, not a statistical significance or certified physical-change map.",
+              "PSF, spectral response, background and astrometric systematics are not matched or fully validated.",
+              "A positive/negative dipole is not automatically a real motion detection.",
+              "Only the intersection of conservative science COVERAGE and finite aligned IMAGE pixels is used.",
+              "No VAR_DIAG uncertainty propagation, background correction, gain normalization or PSF matching is applied."
+            ]
+          }
+        ],
+        "availableObservationCount": 6,
+        "independentVisitCount": 4
       }
     },
     {

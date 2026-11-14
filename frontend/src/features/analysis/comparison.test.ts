@@ -1,0 +1,14 @@
+import {it,expect} from 'vitest';
+import catalog from '../../../public/data/catalog.json';
+import type {SkyTarget} from '../../types/sky';
+import {compatibleBlink,groupIndices,motionContext,observationGroups,preparedDifference} from './comparison';
+import {initialPlayback,playbackReducer as reduce} from './playback';
+import {validateCatalog} from '../../data/catalog';
+const field=()=>structuredClone(catalog.targets[0]) as unknown as SkyTarget;
+it('separates six visual observations from the compatible historical pair',()=>{const t=field(),groups=observationGroups(t);expect(groups.map(g=>g.frameIds.length)).toEqual([2,6]);expect(groupIndices(t,groups[0])).toEqual([0,3]);expect(compatibleBlink(t,groups[1],0,1)).toBe(false)});
+it('plays sparse compatible indices without stepping through other wavelengths',()=>{let state=reduce(initialPlayback(6),{type:'group',indices:[0,3]});state=reduce(state,{type:'step',delta:1});expect(state.index).toBe(3);state=reduce(state,{type:'mode',mode:'playing'});expect(reduce(state,{type:'tick'}).index).toBe(0);expect(reduce(state,{type:'select',index:1})).toBe(state)});
+it('selects and plays more than three observations only in explicit inspection mode',()=>{let state=reduce(initialPlayback(6),{type:'group',indices:[0,1,2,3,4,5]});state=reduce(state,{type:'select',index:5});expect(reduce(state,{type:'step',delta:1}).index).toBe(0)});
+it('offers only the actually prepared B-A direction',()=>{const t=field();expect(preparedDifference(t,0,3)).not.toBeNull();expect(preparedDifference(t,3,0)).toBeNull();expect(preparedDifference(t,0,1)).toBeNull()});
+it('never reuses the historical motion numbers for another observation',()=>{const t=field();expect(motionContext(t,0,3,0).sequence!.motion!.measuredDisplacementArcsec).toBeCloseTo(1.919818);expect(motionContext(t,0,3,1).sequence!.motion).toBeNull();expect(motionContext(t,0,1,0).sequence!.motion).toBeNull()});
+it('rejects an incompatible group marked as a scientific comparison',()=>{const t=structuredClone(catalog);t.targets[0].sequence.groups![1].comparison=true;expect(()=>validateCatalog(t)).toThrow('Spectrally incompatible')});
+it('rejects unsigned or unprepared residual metadata',()=>{const t=structuredClone(catalog);t.targets[0].sequence.differences![0].display.vmin=0;expect(()=>validateCatalog(t)).toThrow('signed difference')});

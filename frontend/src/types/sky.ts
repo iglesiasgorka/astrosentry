@@ -1,7 +1,9 @@
 export type LonLat = [number, number];
 export interface Position {raDeg:number;decDeg:number;xFits:number;yFits:number;xImage:number;yImage:number}
 export interface Observation {id:string;timestampUtc:string;detector:string;release:string;wavelengthUm:number|null;processingVersion?:string|null;bandwidthUm?:number|null}
-export interface Display {vmin:number;vmax:number;stretch:string;common?:boolean;pngAsinhParameter?:number}
+export interface Display {vmin:number;vmax:number;stretch:string;common?:boolean;pngAsinhParameter?:number;colormap?:string}
+export interface ComparisonGroup {id:string;label:string;frameIds:string[];comparison:boolean;display:Display;warnings:string[]}
+export interface PreparedDifference {id:string;aId:string;bId:string;assets:{fits:string;png:string;mask:string};display:Display;units:string;classification:string;validFraction:number;warnings:string[];method:unknown}
 export interface SequenceFrame {
   id:string;observation:Observation;assets:{fits:string;png:string;masks:string};
   expectedPosition:Position|null;measuredPosition:Position|null;
@@ -14,7 +16,7 @@ export interface Motion {
   measuredDisplacementPixels:number|null;expectedDisplacementPixels:number|null;formalEndpointErrorArcsec:number|null;
   referenceRmsArcsec:number|null;referenceCount:number|null;formalErrorWarning?:string;referenceWarning?:string;
 }
-export interface TemporalSequence {frames:SequenceFrame[];display:Display;motion:Motion|null;warnings:string[];classification:string;interpretation:string;predictionModel:string|null;astrometricReference:unknown}
+export interface TemporalSequence {frames:SequenceFrame[];display:Display;motion:Motion|null;warnings:string[];classification:string;interpretation:string;predictionModel:string|null;astrometricReference:unknown;groups?:ComparisonGroup[];defaultGroupId?:string;historicalPair?:{aId:string;bId:string};differences?:PreparedDifference[]}
 export interface BrightnessPoint {id:string;timestampUtc:string;mjd:number;wavelengthUm:number|null;qualityAccepted:boolean;comparisonAccepted:boolean;fluxMicroJy:number|null;formalErrorMicroJy:number|null;relativeFlux:number|null;relativeFormalError:number|null;relativeChangePercent:number|null;reason:string;coreFlags:Record<string,number>;apertureValidFraction:number|null}
 export interface BrightnessData {classification:string;interpretation:string;method:string;units:string;points:BrightnessPoint[];warnings:string[];references:{id:string;acceptedEpochs:number;relativeScatter:number|null;spectrallyMatched:boolean}[];normalization:unknown}
 export interface SkyTarget {
@@ -51,12 +53,13 @@ export interface SkyEngine {
   subscribe(listener: () => void): () => void;
   setSurvey(id: string): Promise<void>;
   showCutout(target: SkyTarget): Promise<void>;
-  prepareSequence(target:SkyTarget):Promise<void>;
-  showFrame(target:SkyTarget,index:number):Promise<void>;
+  prepareSequence(target:SkyTarget,indices?:number[]):Promise<void>;
+  showFrame(target:SkyTarget,index:number,display?:Display):Promise<void>;
+  showDifference(target:SkyTarget,difference:PreparedDifference):Promise<void>;
   getDiagnostics():{initializationMs:number;layers:{key:string;ready:boolean;loadMs:number|null;cuts:number[]|null;stretch:string|null;opacity:number}[]};
   testProjection?(projection:'AIT'|'SIN'|'TAN'):void;
   hideCutout(): void;
   setCutoutVisible(visible: boolean): void;
-  getCutoutStatus(): { id: string | null; loaded: boolean; nativeCenter: LonLat | null; frameId?:string|null;frameIndex?:number;cuts?:number[]|null };
+  getCutoutStatus(): { id: string | null; loaded: boolean; nativeCenter: LonLat | null; frameId?:string|null;frameIndex?:number;cuts?:number[]|null;kind?:'epoch'|'difference';differenceId?:string|null };
   dispose(): void;
 }

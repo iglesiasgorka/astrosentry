@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const directory=fileURLToPath(new URL('../../outputs/spx004a/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx004b/',import.meta.url));
 await mkdir(directory,{recursive:true});
 const samples=JSON.parse(await readFile(directory+'registration_samples.json','utf8'));
 
@@ -45,7 +45,7 @@ test('fourth diagnostic field uses three real registered epochs without fictiona
   for(const [id,name] of [['epsilon_indi_b','Epsilon Indi B'],['m101','M101'],['barnard',"Barnard's Star"]]){
     await page.getByRole('button',{name:`Fly to ${name}`,exact:true}).click();
     await page.waitForFunction(id=>window.__analysis?.targetId===id&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded,id);
-    await page.getByRole('button',{name:'Next observation',exact:true}).click();await page.waitForFunction(()=>window.__sky!.engine.getCutoutStatus().frameIndex===1);
+    await page.getByRole('button',{name:'Next observation',exact:true}).click();await page.waitForFunction(()=>window.__sky!.engine.getCutoutStatus().frameIndex===window.__analysis!.b);
     await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);
   }
   expect((await page.evaluate(()=>window.__sky!.engine.getDiagnostics())).layers).toHaveLength(9);

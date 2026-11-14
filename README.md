@@ -10,6 +10,10 @@ SPHEREx Explorer enables users to discover regions of the sky, navigate through 
 - Smooth FlyTo navigation to selected astronomical targets.
 - Native WCS-registered FITS image layers.
 - Temporal exploration with Play/Pause, epoch selection, and Blink A/B.
+- Six Epsilon Indi B observations, with a compatible historical pair separated
+  from the broader inspection-only observation browser.
+- Signed, WCS-registered Difference B − A for the historical Epsilon pair,
+  with a common science mask, physical units and a zero-centered color scale.
 - Motion Inspector with expected and measured source positions.
 - Scientific metadata, data-quality indicators, and uncertainty warnings.
 - Four prepared fields: Epsilon Indi B, M101, Barnard's Star, and RW Aurigae.
@@ -86,6 +90,20 @@ frontend/
 
 The Epsilon Indi B example shows an apparent displacement of approximately 1.920 arcseconds over 152.9 days. This result is exploratory and does not constitute a statistically significant motion detection.
 
+The prepared catalog contains 13 observations: six for Epsilon Indi B, two for
+M101, two for Barnard's Star and three for RW Aurigae. Epsilon's six observations
+span four visit groups and different local wavelengths; they are not six
+homogeneous independent temporal epochs. Select the historical compatible group
+for Blink and Difference. The broader group supports visual inspection and
+playback with explicit spectral warnings. Historical motion metrics remain
+associated with their original pair.
+
+Difference uses aligned scientific arrays, not rendered PNGs. Blue indicates
+negative B − A, off-white zero and red positive values. Invalid native FITS pixels
+are transparent; the separately exported PNG marks them purple. The residual is
+exploratory: no PSF matching, background correction or validated significance
+calculation is applied. A residual or a dipole is not a confirmed physical change.
+
 Barnard's Star has no reliable measured displacement in the prepared observations because its core contains invalid or saturated pixels.
 
 The RW Aurigae example reports rejected original-pixel aperture measurements. Its
@@ -135,6 +153,7 @@ SPHEREx Explorer is an independent hackathon project using real astronomical dat
 
 ## Current Status
 
-The four-field temporal explorer includes exploratory motion and diagnostic
-brightness inspection. No validated variability detection is claimed. Additional
+The four-field temporal explorer includes an extended observation browser,
+exploratory motion, a prepared signed difference and diagnostic brightness
+inspection. No validated variability detection is claimed. Additional
 scientific tools remain subject to data-quality and uncertainty review.

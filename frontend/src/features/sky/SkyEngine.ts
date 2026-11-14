@@ -1,4 +1,4 @@
-import type { Camera, EngineSnapshot, LonLat, SkyEngine, SkyTarget, SurveyStatus } from '../../types/sky';
+import type { Camera, Display, EngineSnapshot, LonLat, PreparedDifference, SkyEngine, SkyTarget, SurveyStatus } from '../../types/sky';
 import { assetUrl } from '../../data/catalog';
 import { SPHEREX_URL, TWO_MASS_URL, parseProperties, cubeFrame } from './surveys';
 
@@ -18,8 +18,11 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
     showFov:false, showCooLocation:false, showReticle:false, showCooGrid:false, showStatusBar:false,inertia:false,
     backgroundColor:'rgb(5, 10, 17)', log:false,
   });
+  const residualPalette=typeof aladin.addColormap==='function';
+  if(residualPalette)aladin.addColormap('spx_residual',['#2166ac','#f7f7f7','#b2182b']);
   let disposed=false, raf=0, cutoutToken=0, surveyToken=0;
   let activeImage:any=null, activeId:string|null=null, imageLoaded=false, nativeCenter:LonLat|null=null,frameIndex=0,frameId:string|null=null;
+  let activeKind:'epoch'|'difference'='epoch',differenceId:string|null=null;
   type Layer={image:any;ready:boolean;promise:Promise<void>;center:LonLat|null;loadMs:number|null;layerName:string};
   const layers=new Map<string,Layer>();
   let releaseInitialBackground!:()=>void,backgroundSlotReserved=false;
@@ -35,19 +38,19 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   aladin.on('positionChanged',emit);aladin.on('zoomChanged',emit);
   const resize=new ResizeObserver(emit);resize.observe(host);
   const hideCutout=()=>{
-    cutoutToken++;activeId=null;imageLoaded=false;nativeCenter=null;frameId=null;
+    cutoutToken++;activeId=null;imageLoaded=false;nativeCenter=null;frameId=null;differenceId=null;
     for(const layer of layers.values())if(layer.ready&&layer.image.getOpacity()!==0)layer.image.setOpacity(0);
     activeImage=null;
     emit();
   };
-  const ensureFrame=(target:SkyTarget,index:number):Layer=>{
-    const frame=target.sequence?.frames[index];
-    if(index<0||(!frame&&index!==0))throw new Error('The requested real observation does not exist.');
+  const ensureFrame=(target:SkyTarget,index:number,difference?:PreparedDifference):Layer=>{
+    const frame=difference?{id:'difference-'+difference.id,assets:difference.assets,display:difference.display}:target.sequence?.frames[index];
+    if(!difference&&(index<0||(!frame&&index!==0)))throw new Error('The requested real observation does not exist.');
     const key=`${target.id}:${frame?.id??target.observation.id}`;
     const existing=layers.get(key);if(existing){layers.delete(key);layers.set(key,existing);return existing;}
-    const entry:Layer={image:null,ready:false,promise:Promise.resolve(),center:null,loadMs:null,layerName:`local-${target.id}-${index}`};
+    const entry:Layer={image:null,ready:false,promise:Promise.resolve(),center:null,loadMs:null,layerName:`local-${target.id}-${frame?.id??target.observation.id}`};
     layers.set(key,entry);
-    const start=performance.now(),display=target.sequence?.display??target.display;
+    const start=performance.now(),display=frame?.display??target.sequence?.display??target.display;
     entry.promise=(async()=>{
       // In 3.8.2 setBaseImageLayer replaces overlayLayers[0]. Reserve the survey
       // slot before local layers: otherwise a late survey silently replaces frame 0.
@@ -62,14 +65,17 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
         const timeout=window.setTimeout(()=>done(new Error('Local FITS layer timed out.')),15000);
         const done=(error?:unknown)=>{if(settled)return;settled=true;clearTimeout(timeout);if(error)reject(error);else resolve();};
         entry.image=A.image(url,{name:`SPHEREx · ${target.name} · ${index+1}`,imgFormat:'fits',
-          minCut:display.vmin,maxCut:display.vmax,stretch:'asinh',colormap:'grayscale',opacity:0,
+          minCut:display.vmin,maxCut:display.vmax,stretch:display.stretch,colormap:display.colormap??'grayscale',opacity:0,
           successCallback:(ra:number,dec:number)=>{
             if(disposed){done(new Error('Sky engine was disposed.'));return;}
             try{
               // 3.8.2 substitutes inferred cuts for falsy zero cuts on initial load.
               // Reapply explicit common cuts after native loading, then verify them.
               entry.image.setCuts(display.vmin,display.vmax,'fits');
-              entry.image.setColormap('grayscale',{stretch:'asinh'});
+              entry.image.setColormap(display.colormap??'grayscale',{stretch:display.stretch});
+              // Native initial-opacity defaults can ignore a falsy zero. Explicitly
+              // hide every prepared layer before it can cover the selected epoch.
+              entry.image.setOpacity(0);
               const cuts=entry.image.getCuts();
               if(cuts[0]!==display.vmin||cuts[1]!==display.vmax)throw new Error('Common intensity cuts were not applied.');
               entry.center=[ra,dec];entry.ready=true;entry.loadMs=performance.now()-start;
@@ -83,13 +89,16 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
     })().catch(error=>{layers.delete(key);throw error;});
     return entry;
   };
-  const showFrame=async(target:SkyTarget,index:number)=>{
+  const showFrame=async(target:SkyTarget,index:number,override?:Display,difference?:PreparedDifference)=>{
     const token=++cutoutToken;activeId=target.id;imageLoaded=false;
-    const entry=ensureFrame(target,index);await entry.promise;
+    const entry=ensureFrame(target,index,difference);await entry.promise;
     if(disposed||token!==cutoutToken)return;
+    const display=override??difference?.display??target.sequence?.frames[index]?.display??target.display;
+    entry.image.setCuts(display.vmin,display.vmax,'fits');entry.image.setColormap(display.colormap??'grayscale',{stretch:display.stretch});
     for(const layer of layers.values())if(layer.ready&&layer.image.getOpacity()!==(layer===entry?1:0))layer.image.setOpacity(layer===entry?1:0);
     activeImage=entry.image;nativeCenter=entry.center;frameIndex=index;
-    frameId=target.sequence?.frames[index]?.id??target.observation.id;imageLoaded=true;emit();
+    frameId=difference?null:target.sequence?.frames[index]?.id??target.observation.id;
+    activeKind=difference?'difference':'epoch';differenceId=difference?.id??null;imageLoaded=true;emit();
   };
   const setSurvey=async(id:string)=>{
     const token=++surveyToken;
@@ -147,12 +156,20 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
     subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener);},
     setSurvey,
     showCutout:target=>showFrame(target,0),showFrame,
-    prepareSequence:async target=>{for(let index=0;index<(target.sequence?.frames.length??1);index++)await ensureFrame(target,index).promise;},
+    showDifference:async(target,difference)=>{
+      if(!residualPalette)throw new Error('The native diverging palette is unavailable.');
+      if(!target.sequence?.differences?.some(d=>d.id===difference.id)||difference.display.vmin!==-difference.display.vmax)throw new Error('An explicitly prepared symmetric residual is required.');
+      await showFrame(target,-1,difference.display,difference);
+    },
+    prepareSequence:async(target,indices)=>{const group=target.sequence?.groups?.find(g=>g.id===target.sequence?.defaultGroupId);
+      const selected=indices??(group?group.frameIds.map(id=>target.sequence!.frames.findIndex(f=>f.id===id)):Array.from({length:target.sequence?.frames.length??1},(_,i)=>i));
+      for(const index of selected)await ensureFrame(target,index).promise;
+    },
     getDiagnostics:()=>({initializationMs:performance.now()-began,layers:[...layers].map(([key,entry])=>({key,ready:entry.ready,loadMs:entry.loadMs,cuts:entry.ready?entry.image.getCuts():null,stretch:entry.ready?entry.image.getColorCfg().stretch:null,opacity:entry.ready?entry.image.getOpacity():0}))}),
     testProjection:projection=>{aladin.setProjection(projection);emit();},
     hideCutout,
     setCutoutVisible:visible=>{activeImage?.setOpacity(visible?1:0);emit();},
-    getCutoutStatus:()=>({id:activeId,loaded:imageLoaded,nativeCenter,frameId,frameIndex,cuts:activeImage?.getCuts()??null}),
+    getCutoutStatus:()=>({id:activeId,loaded:imageLoaded,nativeCenter,frameId,frameIndex,cuts:activeImage?.getCuts()??null,kind:activeKind,differenceId}),
     dispose:()=>{disposed=true;releaseInitialBackground();cutoutToken++;surveyToken++;cancelAnimationFrame(raf);resize.disconnect();listeners.clear();
       aladin.on('positionChanged',()=>{});aladin.on('zoomChanged',()=>{});
       if(typeof aladin.remove==='function')aladin.remove();else host.replaceChildren();},

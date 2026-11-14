@@ -24,6 +24,7 @@ dist/
 !frontend/public/data/*/observation.fits
 !frontend/public/data/*/aligned.fits
 !frontend/public/data/*/frames/*.fits
+!frontend/public/data/*/differences/*.fits
 *.part
 data/**
 !data/raw/

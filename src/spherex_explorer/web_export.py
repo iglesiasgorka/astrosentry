@@ -494,6 +494,8 @@ def export_web_data(project: Path, output: Path | None = None) -> dict:
                "notes": ["Global HiPS context and individual SPHEREx observations are distinct image layers.",
                          "Two already processed real epochs per field; fixed WCS, common display limits, no interpolated epochs."]}
     include_brightness_target(project,output,catalog)
+    from .change_explorer import include_change_targets
+    include_change_targets(project,output,catalog)
     write_manifest(output / "catalog.json", catalog)
     return catalog
 

@@ -53,12 +53,13 @@ def search_key(p):
     return hashlib.sha256(f'{p.ra:.10f},{p.dec:.10f},{p.size:.4f},{p.bandpass}'.encode()).hexdigest()[:20]
 
 
-def search(project, p, timeout=40, service='sia2'):
+def search(project, p, timeout=40, service='sia2', workspace=None):
     """Cache successful bounded metadata; never auto-retry a second service."""
     if service not in {'sia2','tap'}:
         raise ValueError('Choose the verified SIA2 adapter or explicit TAP option.')
     identifier = hashlib.sha256((search_key(p)+':'+service).encode()).hexdigest()[:20]
-    destination = Path(project)/WORKSPACE/'searches'/f'{identifier}.json'
+    root=Path(workspace) if workspace is not None else Path(project)/WORKSPACE
+    destination = root/'searches'/f'{identifier}.json'
     if destination.exists():
         cached=json.loads(destination.read_text())
         for record in cached['records']:
@@ -194,11 +195,12 @@ def export_aligned_sequence(items, records, root, prefix, key, name, warnings=No
     return target
 
 
-def prepare_region(project, result, count=4, cancel=None, budget=None):
+def prepare_region(project, result, count=4, cancel=None, budget=None, workspace=None):
     if type(count) is not int or count not in [2,3,4]:
         raise ValueError('Prepare between two and four observations.')
     p=parameters(result['parameters']);job=hashlib.sha256(f'{result["id"]}:{count}'.encode()).hexdigest()[:20]
-    root=Path(project)/WORKSPACE;directory=root/'jobs'/job;directory.mkdir(parents=True,exist_ok=True)
+    root=Path(workspace) if workspace is not None else Path(project)/WORKSPACE
+    directory=root/'jobs'/job;directory.mkdir(parents=True,exist_ok=True)
     # Prefer already validated, exact-request cutouts. Their local spectral WCS
     # can guide selection without interpreting detector-wide metadata as lambda.
     available=[];cached=[];point=SkyCoord(p.ra*u.deg,p.dec*u.deg)

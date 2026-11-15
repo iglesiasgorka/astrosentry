@@ -1,10 +1,10 @@
-import {API_BASE} from '../../data/apiConfig';
+import {API_BASE,apiHeaders,setDemoCode,rememberAssetAccess} from '../../data/apiConfig';
 import {validateCatalog} from '../../data/catalog';
 import type {SkyTarget} from '../../types/sky';
 import type {Region} from './coordinates';
 export interface AvailableObservation {id:string;timestampUtc:string;mjd:number;detector:string;release:string;processingVersion:string;visit:number;wavelengthUm:number|null}
 export interface Availability {id:string;parameters:Region;count:number;visitCount:number;observations:AvailableObservation[];source:string}
-export interface PreparationJob {id:string;status:'preparing'|'ready'|'error'|'canceled';message:string;target?:SkyTarget}
+export interface PreparationJob {id:string;status:'preparing'|'ready'|'error'|'canceled'|'expired';message:string;target?:SkyTarget}
 const cache=new Map<string,Availability>();
 export function availabilityQuery(p:Region){
   return `SELECT 'https://irsa.ipac.caltech.edu/' || a.uri || '?center=${p.ra},${p.dec}d&size=${p.size}' AS uri, a.uri AS artifact_uri, p.time_bounds_lower, p.energy_bandpassname FROM spherex.artifact a JOIN spherex.plane p ON a.planeid = p.planeid WHERE 1 = CONTAINS(POINT('ICRS', ${p.ra}, ${p.dec}), p.poly) AND p.energy_bandpassname = 'SPHEREx-D${p.detector}' ORDER BY p.time_bounds_lower`;
@@ -36,8 +36,13 @@ export function parseAvailabilityVotable(text:string,p:Region):Availability{
 }
 async function jsonRequest(path:string,data?:unknown,signal?:AbortSignal){
   if(!API_BASE)throw new Error('A local processing API is not configured.');
-  const r=await fetch(API_BASE+path,{method:data===undefined?'GET':'POST',headers:data===undefined?undefined:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data),signal});
-  const payload=await r.json();if(!r.ok)throw new Error(payload.error??`Processing service returned HTTP ${r.status}.`);return payload;
+  const r=await fetch(API_BASE+path,{method:data===undefined?'GET':'POST',headers:apiHeaders(data!==undefined),body:data===undefined?undefined:JSON.stringify(data),signal});
+  const payload=await r.json();if(!r.ok){if(r.status===401)window.dispatchEvent(new Event('processing-locked'));throw new Error(payload.error??`Processing service returned HTTP ${r.status}.`);}rememberAssetAccess(payload.assetAccess);return payload;
+}
+export async function unlockProcessing(code:string){setDemoCode(code);try{await jsonRequest('/api/access',{});}catch(error){setDemoCode('');throw error;}}
+export async function refreshTargetAccess(target:SkyTarget){
+  const path=target.assets.fits;
+  if(path?.startsWith('dynamic/')){const job=await getJob(path.split('/')[1],AbortSignal.timeout(10000));if(job.status!=='ready')throw new Error(job.message);}
 }
 export async function findObservations(p:Region,signal:AbortSignal,localOnly=false):Promise<Availability>{
   const key=JSON.stringify(p)+':'+localOnly;if(cache.has(key))return cache.get(key)!;

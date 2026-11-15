@@ -1,0 +1,55 @@
+/** Actual loopback Waitress + isolated processing of copied, existing FITS. No API fixtures. */
+import {test,expect} from '@playwright/test';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const output=fileURLToPath(new URL('../../outputs/spx007c_pi/',import.meta.url));
+const api='http://127.0.0.1:8767';
+test('protected preparation, signed assets and fixed-camera temporal playback',async({page,request})=>{
+  test.setTimeout(120000);
+  page.on('pageerror',e=>console.log('PAGE ERROR',e.message));
+  page.on('response',r=>{if(r.url().startsWith(api)&&r.status()>=400)console.log('API RESPONSE',r.status(),new URL(r.url()).pathname);});
+  await mkdir(output,{recursive:true});const apiCalls:string[]=[],assets:string[]=[];
+  page.on('request',r=>{if(r.url().startsWith(api)){if(r.url().includes('/assets/'))assets.push(new URL(r.url()).pathname);else apiCalls.push(new URL(r.url()).pathname);}});
+  await page.route('**/TAP/**',route=>route.abort());await page.route('**/SIA/**',route=>route.abort());
+  expect((await request.post(api+'/api/prepare',{data:{searchId:'f369d59a4aca8645a101',count:4}})).status()).toBe(401);
+  expect((await request.get(api+'/api/health',{headers:{Origin:'https://evil.example'}})).status()).toBe(403);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.getByRole('button',{name:'Open Coordinate Search'}).click();
+  await expect(page.getByLabel('Demo access code')).toBeVisible();
+  await page.getByLabel('Demo access code').fill('local-offline-validation-code-not-for-production');
+  await page.getByRole('button',{name:'Unlock processing',exact:true}).click();await expect(page.getByLabel('Demo access code')).toBeHidden();
+  await page.getByLabel('Right Ascension',{exact:true}).fill('304.693508808');await page.getByLabel('Declination',{exact:true}).fill('42.4436872991');
+  await page.getByLabel('Requested field width').selectOption('0.05');
+  await page.getByRole('button',{name:'Find Observations',exact:true}).click();
+  await expect(page.locator('.availability-results')).toContainText('57 real available observations',{timeout:70000});
+  await page.getByRole('button',{name:'Prepare real timeline locally',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Explore Timeline',exact:true})).toBeVisible({timeout:180000});
+  await page.getByRole('button',{name:'Explore Timeline',exact:true}).click();
+  await page.screenshot({path:output+'opening-timeline.png'});
+  await page.waitForFunction(()=>window.__analysis?.prepared&&window.__analysis.targetId.startsWith('region_')&&window.__sky!.engine.getCutoutStatus().loaded,undefined,{timeout:30000});
+  const before=await page.evaluate(()=>({camera:window.__sky!.engine.getCamera(),target:window.__sky!.targets.find(t=>t.id===window.__analysis!.targetId)!}));
+  expect(before.target.sequence!.frames.length).toBe(4);expect(before.target.dimensions).toEqual({width:30,height:30});
+  await page.getByRole('button',{name:'Next observation',exact:true}).click();
+  await page.getByRole('button',{name:'Play observations',exact:true}).click();await page.waitForTimeout(1200);await page.getByRole('button',{name:'Pause playback',exact:true}).click();
+  await page.getByRole('button',{name:'Blink A/B',exact:true}).click();await page.waitForTimeout(1000);await page.getByRole('button',{name:'Stop blink',exact:true}).click();
+  expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(before.camera);expect(await page.locator('.aladin-container').count()).toBe(1);
+  await page.screenshot({path:output+'protected-timeline.png'});
+  const bare=api+'/assets/'+before.target.assets.fits;expect((await request.get(bare)).status()).toBe(403);
+  expect(JSON.stringify(await page.evaluate(()=>({...localStorage,...sessionStorage})))).not.toContain('local-offline-validation-code');
+  expect(JSON.stringify(before.target)).not.toContain('ticket=');
+  expect(assets.length).toBeGreaterThan(0);
+  await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);
+  // A slow capability refresh must not undo a later navigation decision.
+  await page.route(api+'/api/jobs/*',async route=>{await new Promise(resolve=>setTimeout(resolve,800));await route.continue();});
+  await page.getByRole('button',{name:'Open Coordinate Search'}).click();
+  await page.getByRole('button',{name:/^Open prepared field:/}).click();
+  await page.evaluate(()=>window.__sky!.select('m101'));
+  await page.waitForFunction(()=>window.__analysis?.targetId==='m101'&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded);
+  await page.waitForTimeout(1200);expect(await page.evaluate(()=>window.__analysis?.targetId)).toBe('m101');
+  await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);
+  // API failure does not prevent opening existing static science.
+  await page.route(api+'/**',r=>r.abort());
+  await page.evaluate(()=>window.__sky!.select('epsilon_indi_b'));await page.waitForFunction(()=>window.__analysis?.targetId==='epsilon_indi_b'&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded);
+  await page.screenshot({path:output+'static-fallback.png'});
+  await writeFile(output+'browser-validation.json',JSON.stringify({passed:true,lateNavigationGuard:true,staticFallback:true,apiCalls,assets,camera:before.camera,frames:before.target.sequence!.frames.map(f=>f.observation),source:'Actual Waitress and supervised worker, four copied real SPX-007B FITS; no new acquisition.'},null,2));
+});

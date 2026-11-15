@@ -20,6 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]
+server = ["waitress>=3.0.2,<4"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

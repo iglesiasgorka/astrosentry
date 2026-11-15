@@ -1,0 +1,41 @@
+[Unit]
+Description=SPHEREx Explorer protected demonstration API
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=spherex
+Group=spherex
+WorkingDirectory=/opt/spherex-explorer
+EnvironmentFile=/etc/spherex-explorer.env
+Environment=PYTHONUNBUFFERED=1
+StateDirectory=spherex-explorer
+StateDirectoryMode=0700
+UMask=0077
+ExecStart=/opt/spherex-explorer/.venv/bin/python -m spherex_explorer.production_api --port 8766
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+MemoryHigh=2500M
+MemoryMax=3G
+CPUQuota=100%
+TasksMax=64
+LimitNOFILE=512
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/spherex-explorer
+
+[Install]
+WantedBy=multi-user.target

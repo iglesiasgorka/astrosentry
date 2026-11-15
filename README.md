@@ -231,6 +231,12 @@ npm run preview
 
 Browser and scientific registration tests may require additional local validation artifacts that are not included in the frontend distribution.
 
+The optional protected Python backend has a [Raspberry Pi installation and private
+Tailscale validation guide](RASPBERRY_PI.md). It uses a dedicated virtual
+environment, persistent quotas and expiring derived assets. Native ARM64 and
+private-network validation are required before public exposure; the static
+prepared fields remain independent of this service.
+
 ## Contributing
 
 - Create a feature branch for your changes.

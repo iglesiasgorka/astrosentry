@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import threading
+import os
 from datetime import datetime, timezone
 
 from .data_access import download_cutout, parse_artifact_url
@@ -12,11 +13,24 @@ _LOCK = threading.RLock()
 
 
 class AcquisitionBudget:
+    def _save(self, ledger):
+        """Commit quota reservations before HTTP, surviving a killed worker."""
+        self.path.parent.mkdir(parents=True,exist_ok=True)
+        partial=self.path.with_suffix('.part')
+        with partial.open('w',encoding='utf-8') as stream:
+            json.dump(ledger,stream,indent=2,allow_nan=False)
+            stream.flush();os.fsync(stream.fileno())
+        partial.replace(self.path)
+        if os.name=='posix':
+            directory=os.open(self.path.parent,os.O_RDONLY)
+            try:os.fsync(directory)
+            finally:os.close(directory)
+
     def __init__(self, project, ledger_path=None, limit=24, reservation=8):
         self.project = Path(project).resolve()
         self.path = Path(ledger_path) if ledger_path else self.project/'outputs/spx006/acquisition_ledger.json'
         if ledger_path and not self.path.exists():
-            write_manifest(self.path, {'version':1,'limit':limit,'wiseReservation':reservation,'attempts':[]})
+            self._save({'version':1,'limit':limit,'wiseReservation':reservation,'attempts':[]})
 
     def snapshot(self):
         with _LOCK:
@@ -39,13 +53,13 @@ class AcquisitionBudget:
             entry = {'number': len(attempts)+1, 'purpose': purpose, 'url': url,
                      'startedUtc': datetime.now(timezone.utc).isoformat(), 'status': 'running'}
             attempts.append(entry)
-            write_manifest(self.path, ledger)
+            self._save(ledger)
         result = {'status': 'interrupted', 'error': 'Acquisition did not complete.'}
         try:
             # Disable the helper's internal retries: each retry must be accounted separately.
             path = download_cutout(url, directory, timeout=timeout, attempts=1, max_bytes=32*1024*1024)
             result = {'status': 'downloaded', 'bytes': path.stat().st_size,
-                      'localPath': path.relative_to(self.project).as_posix()}
+                      'localPath': path.relative_to(self.project if path.is_relative_to(self.project) else self.path.parent).as_posix()}
             return path
         except Exception as error:
             result = {'status': 'failed', 'error': f'{type(error).__name__}: {error}'}
@@ -54,4 +68,4 @@ class AcquisitionBudget:
             with _LOCK:
                 ledger = self.snapshot()
                 ledger['attempts'][entry['number']-1].update(result)
-                write_manifest(self.path, ledger)
+                self._save(ledger)

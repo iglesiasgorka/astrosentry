@@ -15,6 +15,7 @@ import {validateCatalog} from '../../data/catalog';
 import {GuidedDiscovery} from './GuidedDiscovery';
 import {ExploreSidebar} from './ExploreSidebar';
 import {investigationFov,scienceStatus} from './productLayout';
+import {refreshTargetAccess} from './regionApi';
 
 declare global { interface Window { __sky?:{engine:SkyEngine;targets:SkyTarget[];state:typeof initialMapState;select:(id:string)=>void;back:()=>void} } }
 
@@ -29,6 +30,8 @@ export function SkyMap({catalog}:{catalog:SkyCatalog}){
   const [runtimeTargets,setRuntimeTargets]=useState<SkyTarget[]>([]);
   const [restoredCandidate,setRestoredCandidate]=useState<CandidateEvidence|null>(null);
   const [guideOpen,setGuideOpen]=useState(false);
+  const [accessError,setAccessError]=useState('');
+  const accessGeneration=useRef(0);
   const exploreSidebar=useRef(window.innerWidth>700);
   const toggleFields=()=>setFields(previous=>{const next=!previous;if(state.mode==='global')exploreSidebar.current=next;return next});
   const [searchOpen,setSearchOpen]=useState(()=>new URLSearchParams(window.location.search).has('ra'));
@@ -75,8 +78,12 @@ export function SkyMap({catalog}:{catalog:SkyCatalog}){
   },[engine]);
   const openPrepared=useCallback((next:SkyTarget,restore?:CandidateEvidence)=>{
     if(!engine)return;
-    if(!catalog.targets.some(t=>t.id===next.id)){engine.registerTarget(next);setRuntimeTargets(previous=>previous.some(t=>t.id===next.id)?previous:[...previous,next]);}
-    void select(next,restore);
+    const token=++accessGeneration.current,navigation=version.current;setAccessError('');
+    void refreshTargetAccess(next).then(()=>{
+      if(token!==accessGeneration.current||navigation!==version.current)return;
+      if(!catalog.targets.some(t=>t.id===next.id)){engine.registerTarget(next);setRuntimeTargets(previous=>previous.some(t=>t.id===next.id)?previous:[...previous,next]);}
+      void select(next,restore);
+    }).catch(e=>{if(token===accessGeneration.current&&navigation===version.current)setAccessError(String(e)+' Open Coordinate Search to unlock processing. Static prepared fields remain available.');});
   },[engine,catalog,select]);
   const reopenCandidate=(record:CandidateEvidence)=>{
     const next=allTargets.find(t=>t.id===record.targetId)??validateCatalog({version:1,targets:[record.targetSnapshot]}).targets[0];
@@ -107,6 +114,7 @@ export function SkyMap({catalog}:{catalog:SkyCatalog}){
     {engine&&<Discoveries onOpen={reopenCandidate}/>}
     {engine&&<SkyDetailStatus engine={engine}/>}
     {survey.message&&<div className="survey-notice" role="status">{survey.message}</div>}
+    {accessError&&<div className="survey-notice" role="alert">{accessError}<button onClick={()=>setAccessError('')}>Dismiss</button></div>}
     <footer className="map-footer"><span className="data-credit">Real sky imagery · <a href="https://aladin.cds.unistra.fr/AladinLite/" target="_blank" rel="noreferrer">Aladin Lite / CDS</a> · {survey.id==='2mass'?'2MASS / IPAC':'SPHEREx / NASA / Caltech-IPAC'}</span>
       {engine&&<CameraReadout engine={engine}/>}</footer>
     {about&&<div className="modal-backdrop" onClick={()=>setAbout(false)}><section ref={aboutDialog} className="about-dialog floating-panel" role="dialog" aria-modal="true" aria-labelledby="about-title" onClick={e=>e.stopPropagation()}><button className="dialog-close" aria-label="Close data sources" onClick={()=>setAbout(false)}>×</button><p className="eyebrow">ABOUT THE ATLAS</p><h2 id="about-title">A sky grounded in real data.</h2><p>SPHEREx Explorer is an independent NASA Space Apps Challenge project, not an official NASA product.</p><p>Explore real SPHEREx images through time and wavelength on one sky map. Enter coordinates, open a prepared field, then use Play, Blink or an available Difference. The global mosaic is separate from individual observations.</p><ul><li><a href="https://irsa.ipac.caltech.edu/Missions/spherex.html" target="_blank" rel="noreferrer">SPHEREx / NASA / Caltech-IPAC / IRSA</a></li><li><a href="https://caltech-ipac.github.io/irsa-tutorials/spherex-hipscube/" target="_blank" rel="noreferrer">SPHEREx DR1 all-sky spectral cube · official channel metadata</a></li><li><a href="https://aladin.cds.unistra.fr/AladinLite/" target="_blank" rel="noreferrer">Aladin Lite 3.8.2, developed by CDS, Strasbourg</a></li><li><a href="https://irsa.ipac.caltech.edu/Missions/2mass.html" target="_blank" rel="noreferrer">2MASS K infrared context, if selected</a></li></ul><p className="muted">Survey tiles and archive queries need internet access. New scientific preparation needs the optional Python service; prepared examples work without it. My Discoveries stores manual, unverified annotations in this browser and exports evidence for review; nothing is submitted to NASA. Original scientific FITS remain unchanged. A visual change, residual or manual mark is not a significant-motion or variability detection.</p></section></div>}

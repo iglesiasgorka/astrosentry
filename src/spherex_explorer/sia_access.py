@@ -19,6 +19,13 @@ COLLECTIONS = ('spherex_dr1', 'spherex_qr3', 'spherex_dr1_deep', 'spherex_qr3_de
 REQUIRED = {'access_url', 'obs_id', 'obs_collection', 'energy_bandpassname', 't_min', 't_max', 's_region'}
 
 
+class SiaQueryError(RuntimeError):
+    def __init__(self,status,attempts):
+        self.status=status;self.attempts=attempts
+        self.public_message=f'IRSA SIA2 returned HTTP {status} after {attempts} attempt(s); this is not a no-data result.'
+        super().__init__(self.public_message)
+
+
 def region_corners(p):
     grid, shape = common_grid(p.ra, p.dec, p.size, 6.2)
     return grid.pixel_to_world(np.array([-.5, shape[1]-.5, shape[1]-.5, -.5]),
@@ -110,18 +117,28 @@ def parse_sia_response(body, p, maxrec=5000):
 def query_sia_observations(p, timeout=40, evidence=None):
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError('SIA2 timeout must be positive and finite.')
-    params = sia_parameters(p); began = time.monotonic()
-    with requests.get(ENDPOINT, params=params, timeout=(10, timeout), stream=True, allow_redirects=False) as response:
-        if response.status_code != 200:
-            raise RuntimeError(f'IRSA SIA2 returned HTTP {response.status_code}; this is not a no-data result.')
-        body = bytearray()
-        for chunk in response.iter_content(65536):
-            body.extend(chunk)
-            if len(body) > 8_000_000 or time.monotonic()-began > timeout+10:
-                raise ValueError('SIA2 response exceeds metadata byte/time limits.')
-        records, report = parse_sia_response(bytes(body), p)
-        report.update(service='IRSA SIA2', endpoint=ENDPOINT, parameters=params, bytes=len(body),
-                      elapsedSeconds=time.monotonic()-began, status=response.status_code)
+    params = sia_parameters(p); began = time.monotonic();deadline=began+timeout
+    statuses=[]
+    for attempt in range(1,4):
+        remaining=deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError('IRSA SIA2 exhausted its metadata deadline; this is not a no-data result.')
+        per_attempt=min(6,remaining/(4-attempt))
+        with requests.get(ENDPOINT, params=params, timeout=(min(2,per_attempt),per_attempt), stream=True, allow_redirects=False) as response:
+            statuses.append(response.status_code)
+            if response.status_code!=200:
+                if response.status_code not in {502,503,504} or attempt==3:raise SiaQueryError(response.status_code,attempt)
+            else:
+                body=bytearray()
+                for chunk in response.iter_content(65536):
+                    body.extend(chunk)
+                    if len(body)>8_000_000 or time.monotonic()>=deadline:raise ValueError('SIA2 response exceeds metadata byte/time limits.')
+                records,report=parse_sia_response(bytes(body),p)
+                report.update(service='IRSA SIA2',endpoint=ENDPOINT,parameters=params,bytes=len(body),
+                    elapsedSeconds=time.monotonic()-began,status=200,attemptStatuses=statuses)
+                break
+        delay=.5*attempt
+        if time.monotonic()+delay>=deadline:raise SiaQueryError(statuses[-1],attempt)
+        time.sleep(delay)
     if evidence is not None:
         from .fits_utils import write_manifest
         evidence.mkdir(parents=True, exist_ok=True)

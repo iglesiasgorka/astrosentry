@@ -1,0 +1,42 @@
+import {test,expect} from '@playwright/test';
+import {writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const out=fileURLToPath(new URL('../../outputs/spx007e/',import.meta.url));
+test('AstroSentry branding, credits, anonymous cache and all prepared fields remain functional',async({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');
+  await expect(page).toHaveTitle('AstroSentry — Beyond what the eye can see.');
+  await expect(page.getByRole('link',{name:'AstroSentry, return to sky'})).toBeVisible();
+  await page.waitForFunction(()=>!!window.__sky);
+  await page.getByRole('button',{name:/About \/ Data sources/}).click();
+  const about=page.getByRole('dialog',{name:'AstroSentry',exact:true});
+  await expect(about).toContainText('Beyond what the eye can see.');await expect(about).toContainText('ChatGPT and Codex');await expect(about).toContainText('SPHEREx DR1/QR3');
+  await page.screenshot({path:out+'about-credits.png'});await page.getByRole('button',{name:'Close data sources'}).click();
+  await page.screenshot({path:out+'astrosentry-desktop.png'});
+  await page.getByRole('button',{name:'Open Coordinate Search'}).click();
+  await expect(page.getByLabel('Demo access code')).toBeHidden();
+  await page.getByRole('button',{name:/^Try cached real field/}).click();await page.getByRole('button',{name:'Find Observations',exact:true}).click();
+  await expect(page.locator('.availability-results')).toContainText('operator-imported-SPX007B');
+  await page.getByRole('button',{name:'Prepare real timeline locally',exact:true}).click();await page.getByRole('button',{name:'Explore Timeline',exact:true}).click();
+  await page.waitForFunction(()=>window.__analysis?.prepared&&window.__analysis.targetId.startsWith('region_')&&window.__sky!.engine.getCutoutStatus().loaded);
+  await expect(page.locator('.timeline-note')).toContainText('No live download');
+  const camera=await page.evaluate(()=>window.__sky!.engine.getCamera());
+  await page.getByRole('button',{name:'Play observations',exact:true}).click();await page.waitForTimeout(1100);await page.getByRole('button',{name:'Pause playback',exact:true}).click();
+  expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(camera);
+  await page.route('http://127.0.0.1:8769/**',r=>r.abort());
+  const frames:Record<string,number>={};
+  for(const id of ['barnard','epsilon_indi_b','wise0855','rw_aur','r_dra','m101']){
+    await page.evaluate(id=>window.__sky!.select(id),id);
+    await page.waitForFunction(id=>window.__analysis?.targetId===id&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded,id);
+    frames[id]=await page.evaluate(id=>window.__sky!.targets.find(t=>t.id===id)!.sequence!.frames.length,id);
+    const fixed=await page.evaluate(()=>window.__sky!.engine.getCamera());await page.getByRole('button',{name:'Next observation',exact:true}).click();
+    expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(fixed);
+  }
+  expect(frames).toEqual({barnard:2,epsilon_indi_b:6,wise0855:5,rw_aur:3,r_dra:5,m101:2});
+  expect(await page.locator('.aladin-container').count()).toBe(1);
+  await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);
+  await page.setViewportSize({width:390,height:844});
+  await expect(page.getByRole('link',{name:'AstroSentry, return to sky'})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  await page.screenshot({path:out+'astrosentry-mobile.png'});
+  await writeFile(out+'browser-validation.json',JSON.stringify({passed:true,anonymousCachedProcessing:true,staticFieldsWithApiBlocked:frames,oneMap:true,mobile:{width:390,height:844}},null,2));
+});

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spherex-explorer"
 version = "0.1.0"
-description = "Reproducible exploration of real SPHEREx spectral image cutouts"
+description = "AstroSentry: exploration of real SPHEREx spectral image cutouts"
 requires-python = ">=3.11"
 dependencies = [
     "astropy>=7,<9",
@@ -21,6 +21,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]
 server = ["waitress>=3.0.2,<4"]
+
+[project.urls]
+Homepage = "https://astrosentry.vercel.app"
+Repository = "https://github.com/iglesiasgorka/spherex-explorer"
+"AI disclosure" = "https://github.com/iglesiasgorka/spherex-explorer/blob/HEAD/AI_USAGE.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]

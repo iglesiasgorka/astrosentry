@@ -19,3 +19,10 @@ it('rejects malformed tickets and preserves the API-independent static configura
   expect(api.API_BASE).toBeNull();expect(()=>api.dynamicAssetUrl('dynamic/a/frames/a.fits')).toThrow();
   api.rememberAssetAccess({jobId:'../../outside',ticket:'bad'});expect(api.apiHeaders()).toEqual({});
 });
+it('anonymous capabilities are issued at runtime and operator credentials remain an alternative',async()=>{
+  const api=await import('./apiConfig');api.configureProcessing({accessMode:'anonymous-cached'});
+  expect(api.needsDemoSession()).toBe(true);api.setDemoSession('runtime-test-capability');
+  expect(api.needsDemoSession()).toBe(false);expect(api.apiHeaders().Authorization).toBe('Demo runtime-test-capability');
+  api.setDemoCode('private-operator');expect(api.anonymousAccess()).toBe(false);expect(api.apiHeaders().Authorization).toBe('Bearer private-operator');
+  api.setDemoCode('');api.forgetDemoSession();expect(api.needsDemoSession()).toBe(true);
+});

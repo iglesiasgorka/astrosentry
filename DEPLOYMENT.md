@@ -6,7 +6,9 @@ validation. The cloud assessment below is historical; its missing-control list
 describes the old local_api, not the new production_api. Native ARM64/private
 validation is still required. No remote service was deployed.
 
-**Status: blocked under the current no-paid-services / same-day constraints.**
+**Historical free-cloud assessment: blocked under its no-paid-services constraints.**
+The owned Pi installation is now the active path; this historical assessment
+does not describe its current readiness. Use PUBLIC_DEMO.md for AstroSentry.
 The static frontend is already deployed and the loopback dynamic flow works.
 There is no production backend entrypoint in this revision. Do not expose
 `spherex_explorer.local_api` or set a public frontend variable to a laptop address.
@@ -124,7 +126,7 @@ entrypoint. No render.yaml with a misleading/insecure start command is supplied.
 | Install | Existing science package: `python -m pip install .`; add/test a production server extra before publication |
 | Start | **Unavailable in this revision.** Must target the reviewed WSGI/ASGI/process-worker entrypoint, not local_api or Vite |
 | Storage | Dedicated cloud workspace on a persistent mount, never historical scientific directories |
-| CORS | Exactly `https://spherex-explorer-one.vercel.app`; no wildcard or inherited localhost defaults |
+| CORS | Primary `https://astrosentry.vercel.app`, transitional `https://spherex-explorer-one.vercel.app` and explicit local test origin; no wildcard |
 | Concurrency | One scientific job; bounded request pool and metadata admission, no unbounded waiting queue |
 | Authentication | Server-validated identity/capability before costly endpoints; no shared secret in VITE variables |
 | Limits | Durable per-user/global quotas, download/response bytes, disk cap, hard job deadline, bounded retention |

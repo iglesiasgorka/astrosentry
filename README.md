@@ -1,8 +1,14 @@
-# SPHEREx Explorer
+# AstroSentry
+
+**Beyond what the eye can see.**
+
+Public frontend: [astrosentry.vercel.app](https://astrosentry.vercel.app). The previous
+[spherex-explorer-one.vercel.app](https://spherex-explorer-one.vercel.app) remains
+authorized during the transition.
 
 An interactive astronomical sky explorer built for NASA Space Apps Challenge 2026 — **Planet X and SPHEREx**.
 
-SPHEREx Explorer enables users to discover regions of the sky, navigate through real infrared astronomical imagery, and compare SPHEREx observations across multiple epochs.
+AstroSentry enables users to discover regions of the sky, navigate through real infrared astronomical imagery, and compare SPHEREx observations across multiple epochs.
 
 ## Features
 
@@ -56,7 +62,7 @@ npm run dev
 
 Open the local URL displayed by Vite, usually:
 
-http://localhost:5173/
+http://127.0.0.1:5173/
 
 On Windows, if PowerShell blocks the npm script, use `npm.cmd` instead of `npm`.
 
@@ -90,7 +96,7 @@ only navigates; `?ra=133.795129&dec=-7.245147&fov=0.15` locates without acquirin
 observations. Decimal fields show six places when unfocused; searches and links
 retain the full input precision.
 
-Preparing a new 2–4-frame fixed-grid timeline requires the optional local Python
+Preparing a new 2–4-frame fixed-grid timeline requires the optional Python processing
 API and `VITE_API_BASE_URL`. **Find Observations** then searches the official IRSA
 SIA2 service, separating metadata availability from processed imagery and errors
 from empty results. Current DR1/QR3 wide/deep collections are queried, with
@@ -106,24 +112,25 @@ processing, not arbitrary-region generation on the public website. Requests are
 bounded by a persistent acquisition budget; repeat prepared jobs reuse local data.
 
 The frontend remains usable without Python. Its prepared 23 observations, guide,
-manual annotations, spectral map and temporal controls are static assets. No new
-processing backend has been deployed; a local worker is not advertised as a
-public arbitrary-region generation service. Internet and WebGL2 are required for
+manual annotations, spectral map and temporal controls are static assets. The optional production backend supports a bounded anonymous cached-data demo;
+its reachability depends on the owner-configured public HTTPS route. It does not
+provide unrestricted anonymous arbitrary-region acquisition. Internet and WebGL2 are required for
 the global map. See the optional service's entry point
-`python -m spherex_explorer.local_api --help` for local configuration.
+`python -m spherex_explorer.production_api --help` for local configuration.
 
 Without a processing service, Coordinate Search offers navigation and an explicit
 **Continue in IRSA Data Explorer** link using its documented coordinate interface.
 This external search does not create an in-app sequence. Direct browser SIA2
 access was blocked by CORS; the static interface therefore does not advertise
 unavailable search/preparation buttons. TAP's small connectivity probe timed out;
-SIA2 works through Python and is the default local metadata adapter.
+SIA2 is the default Python metadata adapter, with bounded retries and explicit
+successful-cache fallback during upstream outages.
 
 | Capability | Local validation | Public integration |
 | --- | --- | --- |
 | Coordinates, sky/spectral exploration, six prepared fields | Implemented and tested | Static frontend; no processing API required |
-| New-region metadata and four-frame preparation | Real SIA2, fresh cutouts and browser playback verified | Requires processing API; not deployed |
-| Arbitrary public timeline generation | Bounded local implementation | Not available; backend needs production hardening/infrastructure |
+| New-region metadata and four-frame preparation | Real SIA2, fresh cutouts and browser playback verified | Requires a reachable processing API; anonymous preparation uses cached FITS only |
+| Arbitrary public timeline generation | Bounded local implementation | Anonymous FITS acquisition is disabled; uncached metadata queries depend on IRSA |
 | External archive investigation | Documented IRSA coordinate link | External service, distinct from in-app processing |
 
 Sources: [official SIA2 tutorial](https://caltech-ipac.github.io/irsa-tutorials/spherex-intro/),
@@ -237,6 +244,11 @@ environment, persistent quotas and expiring derived assets. Native ARM64 and
 private-network validation are required before public exposure; the static
 prepared fields remain independent of this service.
 
+An opt-in [seven-day anonymous cached demo](PUBLIC_DEMO.md) adds bounded SIA2
+retries, dated cache provenance and scoped sessions. Anonymous processing uses
+existing real FITS only; operator access remains protected. Public availability
+depends on the owner's deployment and is separate from the static examples.
+
 ## Contributing
 
 - Create a feature branch for your changes.
@@ -256,7 +268,7 @@ prepared fields remain independent of this service.
 - [SIMBAD Astronomical Database](https://simbad.cds.unistra.fr/simbad/)
 - [Gaia Archive](https://gea.esac.esa.int/archive/)
 
-SPHEREx Explorer is an independent hackathon project using real astronomical data. It is not an official NASA product.
+AstroSentry is an independent hackathon project using real astronomical data. It is not an official NASA product.
 
 ## Current Status
 
@@ -266,3 +278,30 @@ manual evidence and an extended observation browser,
 exploratory motion, a prepared signed difference and diagnostic brightness
 inspection. No validated variability detection is claimed. Additional
 scientific tools remain subject to data-quality and uncertainty review.
+
+## Attribution and AI disclosure
+
+Scientific data credits, DR1/QR3 provenance and external software/resources are
+listed in [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md). OpenAI ChatGPT and Codex
+assisted planning, implementation (including scientific-processing code), testing
+and documentation. Archive observations are real; no generative model creates
+observations or validates detections. See [AI_USAGE.md](AI_USAGE.md) and the
+[public project metadata](frontend/public/project-metadata.json).
+
+## Anonymous demonstration limits
+
+With the optional public API configured, visitors obtain a temporary session
+without a code. Successful cached metadata is dated and labeled. Preparation
+uses existing original FITS only; ready jobs are reused. Uncached regions can
+request bounded live metadata, which may fail during an IRSA outage; anonymous
+FITS acquisition remains disabled. All five challenge targets already have real
+static temporal sequences (21 observations), plus two M101 frames. These work
+independently of IRSA metadata and the processing API. Global HiPS still needs
+network access. New backend imports are unnecessary for their existing playback.
+
+The delivered backend cache example covers a separate SPX-007B region. Rerunning
+backend preparation for each named challenge field would need suitable original
+FITS and matching metadata imported to the Pi; frontend-derived FITS alone are
+not substitutes. Several historical cutouts are .15 degrees, above the public
+.1-degree processing limit. Keep the existing prepared science for submission;
+no acquisition, import or scientific reprocessing is part of this branding phase.

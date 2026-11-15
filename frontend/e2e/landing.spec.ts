@@ -1,12 +1,17 @@
 import {test,expect,coordinates,fields,openInspector} from './fixtures';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../outputs/landing/',import.meta.url));
-for(const viewport of [{width:1920,height:1080},{width:390,height:844}]){
+import {mkdir} from 'node:fs/promises';
+const out=fileURLToPath(new URL('../../outputs/landing_polish/',import.meta.url));
+await mkdir(out,{recursive:true});
+for(const viewport of [{width:1920,height:1080},{width:1366,height:768},{width:390,height:844}]){
   test(`home and explorer history ${viewport.width}`,async({page})=>{
     await page.setViewportSize(viewport);
     const scienceRequests:string[]=[];
     page.on('request',r=>{if(/\/data\/|\/hips\/|aladin.*\.js/.test(r.url()))scienceRequests.push(r.url());});
-    await page.goto('/');await expect(page.locator('h1')).toContainText('Beyond what');
+    await page.goto('/');await expect(page.locator('h1')).toHaveText('AstroSentry');
+    await page.evaluate(()=>document.fonts.ready);
+    await expect(page.getByRole('list',{name:'Explorer highlights'}).getByRole('listitem')).toHaveCount(3);
+    expect(await page.locator('.landing').evaluate(n=>n.scrollWidth<=n.clientWidth&&n.scrollHeight<=n.clientHeight+1)).toBe(true);
     await page.waitForTimeout(500);expect(scienceRequests).toEqual([]);
     await expect(page.locator('.sky-canvas')).toHaveCount(0);
     await page.screenshot({path:out+`home-${viewport.width}.png`});
@@ -17,7 +22,7 @@ for(const viewport of [{width:1920,height:1080},{width:390,height:844}]){
       await page.setViewportSize(viewport);
       await page.locator('.landing').evaluate(n=>{n.scrollTop=0;});
     }
-    await page.getByRole('link',{name:'Explore the sky'}).click();await page.waitForFunction(()=>!!window.__sky);
+    await page.getByRole('link',{name:'Start Exploring'}).click();await page.waitForFunction(()=>!!window.__sky);
     await expect(page).toHaveURL(/\/explorer$/);await expect(page.locator('.sky-canvas')).toHaveCount(1);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     const home=page.getByRole('link',{name:'Home',exact:true});await expect(home).toBeVisible();
@@ -39,7 +44,7 @@ test('legacy deep links and resume retain every parameter',async({page})=>{
   await expect(page.getByLabel('Right Ascension',{exact:true})).toHaveValue('331.096331');
   await expect(page.getByLabel('Observation detector',{exact:true})).toHaveValue('6');
   await page.getByRole('link',{name:'Home',exact:true}).click();
-  await page.getByRole('link',{name:'Explore the sky'}).click();await page.waitForFunction(()=>!!window.__sky);
+  await page.getByRole('link',{name:'Start Exploring'}).click();await page.waitForFunction(()=>!!window.__sky);
   expect(new URL(page.url()).search).toBe(query);
   await page.reload();await page.waitForFunction(()=>!!window.__sky);
   await expect(page.getByLabel('Declination',{exact:true})).toHaveValue('-56.800535');
@@ -80,7 +85,7 @@ test('spectral selection retains the existing camera and engine',async({page})=>
 });
 test('static prepared fields survive an unavailable backend and rapid navigation',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'});await page.route('http://127.0.0.1:8765/**',r=>r.abort());
-  await page.goto('/');await page.getByRole('link',{name:'Explore the sky'}).dblclick();await page.waitForFunction(()=>!!window.__sky);
+  await page.goto('/');await page.getByRole('link',{name:'Start Exploring'}).dblclick();await page.waitForFunction(()=>!!window.__sky);
   await expect(page.locator('.sky-canvas')).toHaveCount(1);
   await page.evaluate(()=>window.__sky!.select('epsilon_indi_b'));
   await page.waitForFunction(()=>window.__analysis?.prepared&&window.__sky!.engine.getCutoutStatus().loaded);

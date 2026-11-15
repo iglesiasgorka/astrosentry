@@ -3,7 +3,7 @@ import {writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 const out=fileURLToPath(new URL('../../outputs/spx007e/',import.meta.url));
 test('AstroSentry branding, credits, anonymous cache and all prepared fields remain functional',async({page})=>{
-  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');
   await expect(page).toHaveTitle('AstroSentry — Beyond what the eye can see.');
   await expect(page.getByRole('link',{name:'AstroSentry, return to sky'})).toBeVisible();
   await page.waitForFunction(()=>!!window.__sky);

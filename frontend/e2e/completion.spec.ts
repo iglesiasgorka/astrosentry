@@ -4,7 +4,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 const output=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(output,{recursive:true});
 test('coordinates locate the exact challenge example and reopen a real cached fixed-grid region through read-only API fixtures',async({page})=>{
-  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   await coordinates(page);
   await page.getByRole('button',{name:'Example: WISE 0855',exact:true}).click();await page.getByRole('button',{name:'Locate in Sky',exact:true}).click();
   await expect.poll(()=>page.evaluate(()=>window.__sky!.engine.getCamera().center[0])).toBeCloseTo(133.79512916666666,7);
@@ -30,7 +30,7 @@ test('coordinates locate the exact challenge example and reopen a real cached fi
   await writeFile(output+'legacy_dynamic_browser.json',JSON.stringify({source:'Read-only replay of the real SPX-006 local-cache target; separate from the fresh SPX-007B flow',target:start.target,camera:start.camera,attemptsBefore:before.attemptsUsed,attemptsAfter:after.attemptsUsed,passed:true},null,2));
 });
 test('all five challenge targets and the additional field open real epochs with diagnostic inspectors',async({page})=>{
-  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   for(const [id,name] of [['wise0855','WISE 0855'],['r_dra','R Draconis'],['barnard',"Barnard's Star"],['epsilon_indi_b','Epsilon Indi B'],['rw_aur','RW Aurigae'],['m101','M101']]){
     await fields(page);await expect(page.getByRole('navigation',{name:'Prepared fields navigation'})).toContainText('Challenge Targets');
     await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:new RegExp('^'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))}).click();

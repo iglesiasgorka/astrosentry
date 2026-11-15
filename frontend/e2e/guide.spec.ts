@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 const output=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(output,{recursive:true});
 test('a short guide opens real epochs without replacing the sky on desktop and mobile',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(String(e)));
- await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+ await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
  await page.screenshot({path:output+'final_global.png'});
  await page.getByRole('button',{name:'Start your first investigation',exact:true}).click();const guide=page.getByRole('region',{name:'Guided Discovery'});
  await expect(guide).toContainText('2025-04-29');await expect(guide).toContainText('2025-09-28');

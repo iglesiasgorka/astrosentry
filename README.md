@@ -12,8 +12,20 @@ AstroSentry enables users to discover regions of the sky, navigate through real 
 
 ## Features
 
+The landing page at `/` uses a lightweight decorative CSS starfield. Open
+`/explorer` for the scientific map; direct visits, reloads and browser history
+are supported. Existing links at `/?ra=...&dec=...` still open the explorer
+directly. Home → Explore preserves their complete query and fragment in the
+current browser session. The decorative background contains no scientific data.
+
+The explorer is loaded on demand and disposed when returning Home. Navigation
+does not create a background Aladin instance. Narrow Vercel rewrites for
+`/explorer` and `/explorer/` are provided at both possible project roots (repository
+and `frontend/`); existing build/output settings, assets and API paths are not
+rewritten. No deployment is performed by these changes.
+
 - Interactive all-sky map using real SPHEREx DR1 HiPS imagery.
-- Spectral Explorer on the home map: 100 official infrared channels, with real
+- Spectral Explorer on the explorer map: 100 official infrared channels, with real
   wavelength labels, keyboard access and bounded progressive channel changes.
 - Coordinate Search in decimal or sexagesimal ICRS, selectable requested field width
   and reproducible URL locations.

@@ -7,7 +7,7 @@ const SPECTRAL_CHANNELS=JSON.parse(await readFile(new URL('../src/features/sky/s
 const directory=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));
 await mkdir(directory,{recursive:true});
 const tilePattern=/\/Norder(\d+)\/Dir\d+\/Npix(\d+)_(\d+)\.png/;
-async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>window.__sky?.engine.getSpectralStatus().available);await expect(page.getByRole('slider',{name:'SPHEREx wavelength'})).toBeEnabled();}
+async function ready(page:Page){await page.goto('/explorer');await page.waitForFunction(()=>window.__sky?.engine.getSpectralStatus().available);await expect(page.getByRole('slider',{name:'SPHEREx wavelength'})).toBeEnabled();}
 async function applied(page:Page,index:number){await page.waitForFunction(index=>window.__sky?.engine.getSpectralStatus().appliedFrame===index&&window.__sky.engine.getSpectralStatus().phase==='progressive',index);}
 async function slider(page:Page,index:number){const position=SPECTRAL_CHANNELS.findIndex(c=>c.frameIndex===index);await page.getByRole('slider',{name:'SPHEREx wavelength'}).fill(String(position));await applied(page,index);}
 async function layout(page:Page,name:string){

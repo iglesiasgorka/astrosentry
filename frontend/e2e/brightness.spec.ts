@@ -8,7 +8,7 @@ const samples=JSON.parse(await readFile(directory+'registration_samples.json','u
 
 test('fourth diagnostic field uses three real registered epochs without fictional brightness points',async({page})=>{
   const requests:string[]=[],errors:string[]=[];page.on('request',r=>requests.push(r.url()));page.on('pageerror',e=>errors.push(String(e)));
-  await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   await expect(page.getByRole('button',{name:'6 prepared fields'})).toBeVisible();
   if(await page.getByRole('button',{name:'Collapse sidebar'}).isVisible())await page.getByRole('button',{name:'Collapse sidebar'}).click();
   await expect(page.getByRole('button',{name:'Fly to RW Aurigae',exact:true})).toBeVisible();
@@ -60,7 +60,7 @@ test('fourth diagnostic field uses three real registered epochs without fictiona
 
 test('missing brightness epoch is reported honestly and never creates a flux point',async({page})=>{
   await page.route('https://**/*',r=>r.abort());await page.route('**/data/rw_aur/frames/*0645*.fits',r=>r.fulfill({status:404,body:'Deliberate missing epoch test'}));
-  await page.goto('/');await page.waitForFunction(()=>!!window.__sky);await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);await page.emulateMedia({reducedMotion:'reduce'});
   await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/^RW Aurigae/}).click();await page.waitForFunction(()=>window.__sky!.engine.getCutoutStatus().loaded);
   await page.getByRole('button',{name:/^Select observation 3:/}).click();await expect(page.locator('.honest-fallback')).toContainText('Local inspection only.');
   await openInspector(page,'Brightness');expect(await page.locator('.brightness-point').count()).toBe(0);await expect(page.getByRole('region',{name:'Brightness Inspector'})).toContainText('No accepted brightness measurements');

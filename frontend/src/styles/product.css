@@ -68,3 +68,4 @@
  .mode-inspecting .app-header,.mode-flying .app-header{grid-template-rows:34px}
  .mode-inspecting .survey-notice,.mode-flying .survey-notice{top:auto;bottom:calc(var(--map-bottom) + 22px);left:14px;right:auto;max-width:calc(100% - 90px);font-size:10px;padding:9px 12px;line-height:1.5}
 }
+.brand-slogan{display:block;font-size:9px;font-weight:400;letter-spacing:.1px;color:#9ab4c6;margin-top:3px}

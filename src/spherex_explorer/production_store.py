@@ -14,6 +14,9 @@ class Store:
                     PRIMARY KEY(name,window));
                 CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY, status TEXT,
                     created REAL, finished REAL, message TEXT);
+                CREATE TABLE IF NOT EXISTS grants(session TEXT, job TEXT, expires REAL,
+                    PRIMARY KEY(session,job));
+                CREATE TABLE IF NOT EXISTS owners(job TEXT PRIMARY KEY, session TEXT);
             ''')
             db.execute("UPDATE jobs SET status='error',finished=?,message=? WHERE status='preparing'",
                        (time.time(),'Processing was interrupted by a service restart. Retry explicitly.'))
@@ -45,6 +48,8 @@ class Store:
 
     def start(self, identifier):
         with self.connect() as db:
+            db.execute('DELETE FROM grants WHERE job=?',(identifier,))
+            db.execute('DELETE FROM owners WHERE job=?',(identifier,))
             db.execute('INSERT OR REPLACE INTO jobs VALUES(?,?,?,?,?)',
                        (identifier,'preparing',time.time(),None,'Preparing real observations in a bounded worker.'))
 
@@ -64,6 +69,19 @@ class Store:
     def prune(self):
         with self.connect() as db:
             db.execute("DELETE FROM jobs WHERE status='expired' AND finished<?",(time.time()-172800,))
+            db.execute('DELETE FROM grants WHERE expires<?',(time.time(),))
+            db.execute('DELETE FROM owners WHERE job NOT IN (SELECT id FROM jobs)')
+
+    def grant(self,session,job,expires,owner=False):
+        with self.connect() as db:
+            db.execute('INSERT OR REPLACE INTO grants VALUES(?,?,?)',(session,job,expires))
+            if owner:db.execute('INSERT OR REPLACE INTO owners VALUES(?,?)',(job,session))
+
+    def permitted(self,session,job,cancel=False):
+        with self.connect() as db:
+            grant=db.execute('SELECT 1 FROM grants WHERE session=? AND job=? AND expires>?',(session,job,time.time())).fetchone()
+            owner=db.execute('SELECT 1 FROM owners WHERE session=? AND job=?',(session,job)).fetchone() if cancel else True
+            return bool(grant and owner)
 
 
 class InstanceLock:

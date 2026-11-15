@@ -3,6 +3,7 @@ import base64
 import hashlib
 import math
 import json
+import requests
 from pathlib import Path
 import threading
 
@@ -53,26 +54,39 @@ def search_key(p):
     return hashlib.sha256(f'{p.ra:.10f},{p.dec:.10f},{p.size:.4f},{p.bandpass}'.encode()).hexdigest()[:20]
 
 
-def search(project, p, timeout=40, service='sia2', workspace=None):
+def search(project, p, timeout=40, service='sia2', workspace=None, fresh_seconds=None, stale_seconds=604800):
     """Cache successful bounded metadata; never auto-retry a second service."""
     if service not in {'sia2','tap'}:
         raise ValueError('Choose the verified SIA2 adapter or explicit TAP option.')
     identifier = hashlib.sha256((search_key(p)+':'+service).encode()).hexdigest()[:20]
     root=Path(workspace) if workspace is not None else Path(project)/WORKSPACE
     destination = root/'searches'/f'{identifier}.json'
+    cached=None
     if destination.exists():
         cached=json.loads(destination.read_text())
         for record in cached['records']:
             if service=='sia2':
                 record['url']=f'{record["sia"]["access_url"]}?center={p.ra},{p.dec}&size={p.size}'
-        write_manifest(destination,cached)
-        return cached
-    with QUERY_LOCK:
-        if service == 'sia2':
-            records, report = query_sia_observations(p, timeout, destination.parent/identifier)
-        else:
-            records = prepare_observations(query_observations(p, timeout=timeout))
-            report = {'service':'IRSA TAP','coverage':'Center intersection only; not complete requested-grid coverage.'}
+        if fresh_seconds is None:
+            write_manifest(destination,cached)
+            return cached
+        from .metadata_cache import age_seconds,cached_result
+        if age_seconds(destination)<=fresh_seconds:return cached_result(cached,destination,'fresh')
+    failure=destination.with_suffix('.failure.json')
+    from .metadata_cache import age_seconds,cached_result,save_failure,utc_now
+    if cached and age_seconds(destination)<=stale_seconds and failure.exists() and age_seconds(failure)<300:
+        return cached_result(cached,destination,'stale',json.loads(failure.read_text()))
+    try:
+        with QUERY_LOCK:
+            if service == 'sia2':
+                records, report = query_sia_observations(p, timeout, destination.parent/identifier)
+            else:
+                records = prepare_observations(query_observations(p, timeout=timeout))
+                report = {'service':'IRSA TAP','coverage':'Center intersection only; not complete requested-grid coverage.'}
+    except (RuntimeError,ValueError,TimeoutError,requests.RequestException) as error:
+        if fresh_seconds is not None and cached and age_seconds(destination)<=stale_seconds:
+            return cached_result(cached,destination,'stale',save_failure(failure,error))
+        raise
     visits = {r['observation_id']: number for number, group in enumerate(epoch_groups(records), 1) for r in group}
     result = {'id': identifier, 'parameters': {'ra': p.ra, 'dec': p.dec, 'size': p.size, 'detector': int(p.bandpass[-1])},
               'count': len(records), 'visitCount': len(set(visits.values())), 'records': records,
@@ -81,8 +95,11 @@ def search(project, p, timeout=40, service='sia2', workspace=None):
                 'visit': visits[r['observation_id']], 'wavelengthUm': None,
                 'wavelengthStatus': 'Requires local spectral WCS after FITS acquisition.'} for r in records],
               'query':report, 'completeArchiveSearch':True,
-              'source':f'Official IRSA {service.upper()}; deduplicated observation/detector. Intersection is not complete field coverage; local wavelengths require FITS.'}
+              'source':f'Official IRSA {service.upper()}; deduplicated observation/detector. Intersection is not complete field coverage; local wavelengths require FITS.',
+              'cachedAtUtc':utc_now()}
     write_manifest(destination, result)
+    failure.unlink(missing_ok=True)
+    if fresh_seconds is not None:return {**result,'cache':{'status':'live','archiveRetrievedAtUtc':result['cachedAtUtc'],'origin':'IRSA SIA2'}}
     return result
 
 
@@ -195,7 +212,7 @@ def export_aligned_sequence(items, records, root, prefix, key, name, warnings=No
     return target
 
 
-def prepare_region(project, result, count=4, cancel=None, budget=None, workspace=None):
+def prepare_region(project, result, count=4, cancel=None, budget=None, workspace=None, cached_only=False):
     if type(count) is not int or count not in [2,3,4]:
         raise ValueError('Prepare between two and four observations.')
     p=parameters(result['parameters']);job=hashlib.sha256(f'{result["id"]}:{count}'.encode()).hexdigest()[:20]
@@ -218,6 +235,9 @@ def prepare_region(project, result, count=4, cancel=None, budget=None, workspace
             except (OSError,ValueError):
                 pass
         available.append(record)
+    if cached_only:
+        available=cached
+        if len(cached)<2:raise ValueError('At least two validated cached FITS are required. No live acquisition is allowed in this mode.')
     compatible=select_spectral_sequence(available,limit=count)
     selected=compatible if len(compatible)>=2 else []
     pool=cached if len(cached)>=count else available
@@ -225,6 +245,7 @@ def prepare_region(project, result, count=4, cancel=None, budget=None, workspace
     grid,shape=common_grid(p.ra,p.dec,p.size,6.2)
     items=[];records=[];failures=[]
     budget=budget or AcquisitionBudget(project,root/'acquisition_ledger.json',limit=12,reservation=0)
+    if cached_only:budget.allow_download=False
     import time
     deadline=time.monotonic()+300
     consecutive_failures=0
@@ -266,7 +287,11 @@ def prepare_region(project, result, count=4, cancel=None, budget=None, workspace
     if failures:
         warnings.append(f'Partial preparation: {len(items)} of {len(selected)} selected observations are usable. Some acquisitions or scientific reads failed; no replacement frames were invented.')
     target=export_aligned_sequence(items,records,root/'assets',f'dynamic/{job}',f'region_{job}',f'Sky region {p.ra:.4f}°, {p.dec:+.4f}°',warnings=warnings)
-    target['preparation']={'selectedCount':len(selected),'preparedCount':len(items),'failedObservationIds':[f['id'] for f in failures]}
+    target['preparation']={'selectedCount':len(selected),'preparedCount':len(items),'failedObservationIds':[f['id'] for f in failures],
+        'searchId':result['id'],'requestedCount':count}
+    if cached_only:
+        target['preparation'].update(acquisitionMode='existing-local-FITS-only',cacheImport=result.get('cacheImport'))
+        target['warnings'].append('Prepared from existing local real FITS, not a live download. Original source URLs and hashes are retained.')
     write_manifest(directory/'alignment_report.json',build_alignment_report(items,SkyCoord(p.ra*u.deg,p.dec*u.deg),shape,6.2))
     write_manifest(directory/'target.json',target)
     return target

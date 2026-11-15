@@ -38,6 +38,7 @@ export interface SkyTarget {
   warnings: string[];
   sequence?:TemporalSequence;
   brightness?:BrightnessData;
+  preparation?:{searchId?:string;requestedCount?:number;acquisitionMode?:string};
 }
 export interface SkyCatalog { version: number; targets: SkyTarget[] }
 export interface Camera { center: LonLat; fov: number }

@@ -1,4 +1,9 @@
-# Raspberry Pi private backend deployment
+# AstroSentry — Raspberry Pi backend deployment
+
+For the existing installed Pi and current HTTPS 8443 listener, use the in-place
+SPX-007E update in PUBLIC_DEMO.md. The steps below retain the original fresh
+installation workflow; do not reinstall or reconfigure existing listeners for
+a branding update.
 
 Use this guide for SPX-007C Pi. DEPLOYMENT.md retains the earlier free-cloud
 assessment. No Raspberry, Tailscale or Vercel settings were changed by the agent.
@@ -88,7 +93,7 @@ cd /opt/spherex-explorer
 . .venv/bin/activate
 umask 077
 export SPX_STATE_DIR="$HOME/.local/state/spherex-explorer"
-export SPX_ALLOWED_ORIGINS='https://spherex-explorer-one.vercel.app,http://127.0.0.1:5173'
+export SPX_ALLOWED_ORIGINS='https://astrosentry.vercel.app,https://spherex-explorer-one.vercel.app,http://127.0.0.1:5173'
 export SPX_DEMO_CODE="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
 python -m spherex_explorer.production_api --check
 python -m spherex_explorer.production_api --port 8766
@@ -264,7 +269,7 @@ When the owner later has an approved **public HTTPS API URL**:
 
 1. Confirm `/api/health` over an external, non-tailnet connection and denial of
    unauthenticated preparation and bare asset access.
-2. Keep SPX_ALLOWED_ORIGINS restricted to `https://spherex-explorer-one.vercel.app`
+2. Keep SPX_ALLOWED_ORIGINS restricted to `https://astrosentry.vercel.app` plus transitional `https://spherex-explorer-one.vercel.app`
    (remove localhost if no longer needed), then restart only this service.
 3. In Vercel project settings, set Production `VITE_API_BASE_URL` to that API
    HTTPS origin, without `/api` and with no credential. The frontend must contain

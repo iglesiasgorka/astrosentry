@@ -1,9 +1,9 @@
-import {API_BASE,apiHeaders,setDemoCode,rememberAssetAccess} from '../../data/apiConfig';
+import {API_BASE,apiHeaders,setDemoCode,rememberAssetAccess,anonymousAccess,needsDemoSession,setDemoSession,forgetDemoSession,configureProcessing,processingKnown,hasOperatorCode} from '../../data/apiConfig';
 import {validateCatalog} from '../../data/catalog';
 import type {SkyTarget} from '../../types/sky';
 import type {Region} from './coordinates';
 export interface AvailableObservation {id:string;timestampUtc:string;mjd:number;detector:string;release:string;processingVersion:string;visit:number;wavelengthUm:number|null}
-export interface Availability {id:string;parameters:Region;count:number;visitCount:number;observations:AvailableObservation[];source:string}
+export interface Availability {id:string;parameters:Region;count:number;visitCount:number;observations:AvailableObservation[];source:string;cache?:{status:string;archiveRetrievedAtUtc?:string|null;storedAtUtc?:string;origin:string}}
 export interface PreparationJob {id:string;status:'preparing'|'ready'|'error'|'canceled'|'expired';message:string;target?:SkyTarget}
 const cache=new Map<string,Availability>();
 export function availabilityQuery(p:Region){
@@ -34,18 +34,39 @@ export function parseAvailabilityVotable(text:string,p:Region):Availability{
   if(observations.length>=5000)throw new Error('The query reached its row limit; narrow the region.');
   return {id:JSON.stringify(p),parameters:p,count:observations.length,visitCount:visit,observations,source:'Official IRSA TAP, browser VOTable query; availability is not processed imagery.'};
 }
-async function jsonRequest(path:string,data?:unknown,signal?:AbortSignal){
+let sessionRequest:Promise<void>|null=null;
+async function ensureSession(){
+  if(!needsDemoSession())return;
+  if(!sessionRequest)sessionRequest=(async()=>{
+    const r=await fetch(API_BASE+'/api/session',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(10000)});
+    const payload=await r.json();if(!r.ok)throw new Error(payload.error??'The public processing quota is unavailable. Static fields remain available.');
+    setDemoSession(payload.session);
+  })().finally(()=>{sessionRequest=null;});
+  await sessionRequest;
+}
+async function jsonRequest(path:string,data?:unknown,signal?:AbortSignal,retry=true):Promise<any>{
   if(!API_BASE)throw new Error('A local processing API is not configured.');
+  if(!processingKnown()&&!hasOperatorCode()){
+    const health=await fetch(API_BASE+'/api/health',{signal:AbortSignal.any([signal??new AbortController().signal,AbortSignal.timeout(10000)])});
+    if(!health.ok)throw new Error('Processing service is not ready. Static prepared fields remain available.');
+    configureProcessing(await health.json());
+  }
+  await ensureSession();
   const r=await fetch(API_BASE+path,{method:data===undefined?'GET':'POST',headers:apiHeaders(data!==undefined),body:data===undefined?undefined:JSON.stringify(data),signal});
-  const payload=await r.json();if(!r.ok){if(r.status===401)window.dispatchEvent(new Event('processing-locked'));throw new Error(payload.error??`Processing service returned HTTP ${r.status}.`);}rememberAssetAccess(payload.assetAccess);return payload;
+  const payload=await r.json();if(!r.ok){if(r.status===401){if(anonymousAccess()&&retry){forgetDemoSession();return jsonRequest(path,data,signal,false);}window.dispatchEvent(new Event('processing-locked'));}throw new Error(payload.error??`Processing service returned HTTP ${r.status}.`);}rememberAssetAccess(payload.assetAccess);return payload;
 }
 export async function unlockProcessing(code:string){setDemoCode(code);try{await jsonRequest('/api/access',{});}catch(error){setDemoCode('');throw error;}}
 export async function refreshTargetAccess(target:SkyTarget){
   const path=target.assets.fits;
-  if(path?.startsWith('dynamic/')){const job=await getJob(path.split('/')[1],AbortSignal.timeout(10000));if(job.status!=='ready')throw new Error(job.message);}
+  if(path?.startsWith('dynamic/')){
+    let job:PreparationJob;
+    try{job=await getJob(path.split('/')[1],AbortSignal.timeout(10000));}
+    catch(error){if(!anonymousAccess()||!target.preparation?.searchId)throw error;job=await prepareObservations(target.preparation.searchId,target.preparation.requestedCount??4,AbortSignal.timeout(10000));}
+    if(job.status!=='ready')throw new Error(job.message);
+  }
 }
 export async function findObservations(p:Region,signal:AbortSignal,localOnly=false):Promise<Availability>{
-  const key=JSON.stringify(p)+':'+localOnly;if(cache.has(key))return cache.get(key)!;
+  const key=JSON.stringify(p)+':'+localOnly;if(cache.has(key)){const prior=cache.get(key)!;return {...prior,source:prior.source+' Reused from browser memory; original metadata provenance/date retained.'};}
   let result:Availability;
   if(API_BASE)result=await jsonRequest('/api/search',{...p,localOnly},signal);
   else{

@@ -99,7 +99,7 @@ export function TemporalAnalysis({engine,target,onBack,interruption,restoredCand
         </div></details>
       </div>
       <div className="epoch-track" role="group" aria-label="Observation dates in UTC">{scope.map((index,i)=><button className={index===playback.index&&!differenceActive?'active':''} key={frames[index].id} aria-pressed={index===playback.index&&!differenceActive} aria-label={`Select observation ${i+1}: ${frames[index].observation.timestampUtc} UTC`} onClick={()=>select(index)}><i/><span>{frames[index].observation.timestampUtc.slice(0,10)}</span></button>)}</div>
-      <p className="timeline-note"><span className="science-note">{scienceStatus(target)} · {group.comparison?'Compatible group; systematics remain unvalidated.':'Inspection only: spectra or quality differ.'}</span><span>{prepared?'Local frames prepared':'Preparing local frames…'} · Real dates, visual playback cadence</span></p>
+      <p className="timeline-note"><span className="science-note">{scienceStatus(target)} · {group.comparison?'Compatible group; systematics remain unvalidated.':'Inspection only: spectra or quality differ.'}</span><span>{target.preparation?.acquisitionMode==='existing-local-FITS-only'?'Cached real FITS · No live download':prepared?'Local frames prepared':'Preparing local frames…'} · Real dates, visual playback cadence</span></p>
       {!blinkAllowed&&<p className="operation-reason">Blink and manual A/B comparison need a compatible, distinct pair. No homogeneous comparison is inferred from these frames.</p>}
       {error&&<p className="temporal-error" role="alert">{error}</p>}
     </section>

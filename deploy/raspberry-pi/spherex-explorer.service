@@ -1,5 +1,5 @@
 [Unit]
-Description=SPHEREx Explorer protected demonstration API
+Description=AstroSentry protected demonstration API
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=300

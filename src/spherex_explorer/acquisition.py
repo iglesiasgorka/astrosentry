@@ -26,8 +26,9 @@ class AcquisitionBudget:
             try:os.fsync(directory)
             finally:os.close(directory)
 
-    def __init__(self, project, ledger_path=None, limit=24, reservation=8):
+    def __init__(self, project, ledger_path=None, limit=24, reservation=8, allow_download=True, daily_limit=None):
         self.project = Path(project).resolve()
+        self.allow_download=allow_download;self.daily_limit=daily_limit
         self.path = Path(ledger_path) if ledger_path else self.project/'outputs/spx006/acquisition_ledger.json'
         if ledger_path and not self.path.exists():
             self._save({'version':1,'limit':limit,'wiseReservation':reservation,'attempts':[]})
@@ -44,9 +45,16 @@ class AcquisitionBudget:
         if cached:
             validate_fits(cached[0])
             return cached[0]
+        if not self.allow_download:raise ValueError('This demonstration only processes existing cached FITS; no HTTP acquisition was attempted.')
         with _LOCK:
             ledger = self.snapshot()
             attempts = ledger['attempts']
+            if self.daily_limit is not None:
+                now=datetime.now(timezone.utc)
+                def recent(entry):
+                    try:return (now-datetime.fromisoformat(entry['startedUtc'])).total_seconds()<86400
+                    except (KeyError,TypeError,ValueError):return True
+                if sum(recent(a) for a in attempts)>=self.daily_limit:raise ValueError('The rolling 24-hour acquisition limit is exhausted; cached processing remains available.')
             dynamic_used = sum(a['purpose'] != 'wise0855' for a in attempts)
             if len(attempts) >= ledger['limit'] or (purpose != 'wise0855' and dynamic_used >= ledger['limit']-ledger['wiseReservation']):
                 raise ValueError('The task-wide acquisition budget is exhausted; WISE reservation is protected.')

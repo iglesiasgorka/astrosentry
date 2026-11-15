@@ -7,9 +7,18 @@ export const API_BASE=configuredBase();
 
 // Credentials and short-lived asset capabilities deliberately remain in memory.
 let demoCode='';
+let demoSession='';
+let accessMode:string|null=null;
+export function processingKnown(){return accessMode!==null;}
+export function hasOperatorCode(){return !!demoCode;}
+export function configureProcessing(health:{accessMode?:string}){accessMode=health.accessMode??'protected';}
+export function anonymousAccess(){return accessMode==='anonymous-cached'&&!demoCode;}
+export function setDemoSession(token:string){demoSession=token;}
+export function needsDemoSession(){return anonymousAccess()&&!demoSession;}
+export function forgetDemoSession(){demoSession='';}
 const tickets=new Map<string,string>();
 export function setDemoCode(value:string){demoCode=value;}
-export function apiHeaders(json=false):Record<string,string>{return {...(json?{'Content-Type':'application/json'}:{}),...(demoCode?{Authorization:'Bearer '+demoCode}:{})};}
+export function apiHeaders(json=false):Record<string,string>{return {...(json?{'Content-Type':'application/json'}:{}),...(demoCode?{Authorization:'Bearer '+demoCode}:demoSession?{Authorization:'Demo '+demoSession}:{})};}
 export function rememberAssetAccess(value:unknown){
   if(!value||typeof value!=='object')return;
   const access=value as {jobId?:unknown;ticket?:unknown};

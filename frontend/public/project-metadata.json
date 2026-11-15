@@ -1,0 +1,47 @@
+{
+  "name": "AstroSentry",
+  "slogan": "Beyond what the eye can see.",
+  "url": "https://astrosentry.vercel.app",
+  "previousUrl": "https://spherex-explorer-one.vercel.app",
+  "challenge": "NASA Space Apps Challenge 2026 — Planet X and SPHEREx",
+  "independentProject": true,
+  "aiAssistance": {
+    "tools": [
+      "OpenAI ChatGPT",
+      "OpenAI Codex"
+    ],
+    "scope": [
+      "planning",
+      "code including scientific processing",
+      "tests and browser automation",
+      "documentation and interface copy"
+    ],
+    "originalObservationsAiGenerated": false,
+    "generativeModelInScientificRuntime": false,
+    "disclosure": "AI_USAGE.md",
+    "disclosureUrl": "https://github.com/iglesiasgorka/spherex-explorer/blob/HEAD/AI_USAGE.md"
+  },
+  "scientificSources": [
+    {
+      "name": "SPHEREx / NASA / JPL / Caltech / IRSA",
+      "products": [
+        "DR1 spectral images",
+        "QR3 spectral images",
+        "DR1 all-sky HiPS cube"
+      ],
+      "url": "https://irsa.ipac.caltech.edu/Missions/spherex.html"
+    },
+    {
+      "name": "Aladin Lite / CDS",
+      "url": "https://aladin.cds.unistra.fr/AladinLite/"
+    },
+    {
+      "name": "SIMBAD / CDS",
+      "url": "https://simbad.cds.unistra.fr/simbad/"
+    },
+    {
+      "name": "2MASS / IPAC",
+      "url": "https://irsa.ipac.caltech.edu/Missions/2mass.html"
+    }
+  ]
+}

@@ -65,6 +65,14 @@ def test_authentication_cors_and_bounds(app):
     assert request(app,'/api/prepare','POST',{'searchId':'../../x','count':4},CODE)['status']==400
 
 
+def test_astrosentry_origin_transition_keeps_explicit_local_testing(app):
+    for origin in ['https://astrosentry.vercel.app','https://spherex-explorer-one.vercel.app','http://127.0.0.1:5173']:
+        result=request(app,origin=origin)
+        assert result['status']==200
+        assert result['headers']['Access-Control-Allow-Origin']==origin
+    assert request(app,origin='https://unapproved.vercel.app')['status']==403
+
+
 def test_persistent_quota_recovery_and_exclusive_lock(tmp_path):
     db=tmp_path/'control.sqlite';store=Store(db)
     assert store.admit('acquisition-demo',1,3600)

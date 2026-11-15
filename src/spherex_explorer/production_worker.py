@@ -15,12 +15,14 @@ def execute(operation, data, project, workspace):
         grid,shape=common_grid(10,20,.05,6.2)
         return {'scientificImports':True,'gridShape':list(shape)}
     if operation=='search':
-        return public_search(search(project,parameters(data),timeout=20,workspace=workspace))
+        return public_search(search(project,parameters(data),timeout=20,workspace=workspace,
+                                   fresh_seconds=21600,stale_seconds=data.get('cacheSeconds',604800)))
     if operation=='prepare':
         from .acquisition import AcquisitionBudget
         result=json.loads((workspace/'searches'/f'{data["searchId"]}.json').read_text())
-        budget=AcquisitionBudget(project,workspace/'acquisition_ledger.json',limit=data['acquisitionLimit'],reservation=0)
-        return {'target':prepare_region(project,result,data['count'],budget=budget,workspace=workspace)}
+        budget=AcquisitionBudget(project,workspace/'acquisition_ledger.json',limit=data['acquisitionLimit'],reservation=0,
+                                 allow_download=not data.get('cachedOnly',False),daily_limit=data.get('dailyAcquisitions',2))
+        return {'target':prepare_region(project,result,data['count'],budget=budget,workspace=workspace,cached_only=data.get('cachedOnly',False))}
     raise ValueError('Unsupported worker operation.')
 
 
@@ -44,10 +46,10 @@ def main():
     try:
         result=execute(args.operation,data,Path(__file__).resolve().parents[2],Path(data.pop('_workspace')))
         args.output.write_text(json.dumps(result,allow_nan=False),encoding='utf-8')
-    except Exception:
+    except Exception as error:
         import traceback
         traceback.print_exc()
-        args.output.write_text(json.dumps({'error':'Scientific work failed; inspect the private service logs.'}))
+        args.output.write_text(json.dumps({'error':getattr(error,'public_message','Scientific work failed; inspect the private service logs.')}))
         raise SystemExit(1)
 
 

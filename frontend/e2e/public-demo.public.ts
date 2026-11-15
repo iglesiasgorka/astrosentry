@@ -1,0 +1,55 @@
+/** Actual anonymous cached processing service; no mocked API/scientific response. */
+import {test,expect} from '@playwright/test';
+import {writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const api='http://127.0.0.1:8768',output=fileURLToPath(new URL('../../outputs/spx007d/',import.meta.url));
+test('public cached demo requires no code and preserves scoped jobs, playback and static fallback',async({page,request})=>{
+  test.setTimeout(120000);const paths:string[]=[],failures:string[]=[];let browserSession='';
+  page.on('request',r=>{if(r.url().startsWith(api)){paths.push(new URL(r.url()).pathname);const auth=r.headers()['authorization'];if(auth?.startsWith('Demo '))browserSession=auth.slice(5);}});
+  page.on('pageerror',e=>failures.push(e.message));
+  expect((await request.post(api+'/api/search',{data:{ra:10,dec:20}})).status()).toBe(401);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.getByRole('button',{name:'Open Coordinate Search'}).click();
+  await expect(page.getByText('Public demo · existing real FITS only',{exact:false})).toBeVisible();
+  await expect(page.getByLabel('Demo access code')).toBeHidden();
+  await page.getByRole('button',{name:/^Try cached real field/}).click();
+  await page.getByRole('button',{name:'Find Observations',exact:true}).click();
+  await expect(page.locator('.availability-results')).toContainText('57 real available observations');
+  await expect(page.locator('.availability-results')).toContainText('operator-imported-SPX007B');
+  await expect(page.locator('.availability-results')).toContainText('original retrieval time unrecorded');
+  await page.getByRole('button',{name:'Prepare real timeline locally',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Explore Timeline',exact:true})).toBeVisible({timeout:60000});
+  await page.getByRole('button',{name:'Explore Timeline',exact:true}).click();
+  await page.waitForFunction(()=>window.__analysis?.prepared&&window.__analysis.targetId.startsWith('region_')&&window.__sky!.engine.getCutoutStatus().loaded);
+  const before=await page.evaluate(()=>({camera:window.__sky!.engine.getCamera(),target:window.__sky!.targets.find(t=>t.id===window.__analysis!.targetId)!}));
+  expect(before.target.sequence!.frames).toHaveLength(4);
+  expect(before.target.preparation?.acquisitionMode).toBe('existing-local-FITS-only');
+  await page.getByRole('button',{name:'Play observations',exact:true}).click();await page.waitForTimeout(1200);await page.getByRole('button',{name:'Pause playback',exact:true}).click();
+  await page.getByRole('button',{name:'Blink A/B',exact:true}).click();await page.waitForTimeout(900);await page.getByRole('button',{name:'Stop blink',exact:true}).click();
+  expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(before.camera);
+  expect(await page.locator('.aladin-container').count()).toBe(1);
+  await page.screenshot({path:output+'anonymous-timeline.png'});
+  const job=before.target.assets.fits.split('/')[1];
+  expect((await request.get(api+'/assets/'+before.target.assets.fits)).status()).toBe(403);
+  const stranger=await request.post(api+'/api/session',{headers:{Origin:'http://127.0.0.1:5188'},data:{}}),session=(await stranger.json()).session;
+  expect((await request.get(api+'/api/jobs/'+job,{headers:{Authorization:'Demo '+session}})).status()).toBe(404);
+  expect((await request.post(api+'/api/jobs/'+job+'/cancel',{headers:{Authorization:'Demo '+session},data:{}})).status()).toBe(403);
+  expect(browserSession.length).toBeGreaterThan(30);
+  expect(JSON.stringify(await page.evaluate(()=>({...localStorage,...sessionStorage})))).not.toContain(browserSession);
+  await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);
+  await page.route(api+'/**',r=>r.abort());await page.evaluate(()=>window.__sky!.select('epsilon_indi_b'));
+  await page.waitForFunction(()=>window.__analysis?.targetId==='epsilon_indi_b'&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded);
+  await page.screenshot({path:output+'static-fallback.png'});
+  await writeFile(output+'browser-validation.json',JSON.stringify({passed:true,paths,pageErrors:failures,codeEntered:false,fixedCamera:true,staticFallback:true,frames:before.target.sequence!.frames.map(f=>f.observation)},null,2));
+});
+
+test('operator code remains a functional alternative in anonymous mode',async({page})=>{
+  await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.getByRole('button',{name:'Open Coordinate Search'}).click();
+  await page.getByRole('button',{name:'Operator access',exact:true}).click();
+  await page.getByLabel('Demo access code').fill('local-public-validation-code-not-for-deployment');
+  await page.getByRole('button',{name:'Unlock processing',exact:true}).click();
+  await expect(page.getByLabel('Demo access code')).toBeHidden();
+  await expect(page.getByRole('button',{name:'Find Observations',exact:true})).toBeEnabled();
+  expect((await page.request.get(api+'/api/health')).status()).toBe(200);
+});

@@ -87,17 +87,23 @@ Enter RA/Dec in decimal degrees or complete sexagesimal form, for example
 `08h55m10.831s`, `-07d14m42.53s` (WISE 0855). RA must be in `[0, 360)` and Dec
 in `[-90, +90]`. Requested field widths are 0.05–0.20 degrees. **Locate in Sky**
 only navigates; `?ra=133.795129&dec=-7.245147&fov=0.15` locates without acquiring
-observations. **Find Observations** requests real archive metadata and distinguishes
-service failure from an empty result. Archive access depends on IRSA and browser
-access; new live TAP queries timed out during this milestone's integration run.
+observations. Decimal fields show six places when unfocused; searches and links
+retain the full input precision.
 
 Preparing a new 2–4-frame fixed-grid timeline requires the optional local Python
-API and `VITE_API_BASE_URL`. It reuses the scientific pipeline with bounded
-acquisition, masks, provenance and shared visual limits. A real new smaller field
-has been prepared from verified cached FITS coverage. A fresh unrelated
-archive-wide sequence remains unverified while TAP is unavailable. The cache
-search is explicitly an incomplete local subset. A new requested width changes
-the processed region, whereas opening an existing prepared field retains its grid.
+API and `VITE_API_BASE_URL`. **Find Observations** then searches the official IRSA
+SIA2 service, separating metadata availability from processed imagery and errors
+from empty results. Current DR1/QR3 wide/deep collections are queried, with
+observation/version deduplication. Footprint intersection does not guarantee full
+coverage or valid pixels; local wavelengths require the FITS spectral WCS.
+
+A genuinely new field at RA 304.693508808°, Dec +42.4436872991°, width 0.05°, D2
+has been acquired and validated locally: four real observations on a 30×30
+common grid, three dates, shared display limits, separate masks and a preliminary
+two-epoch spectral group. It is outside all 52 previous raw cutouts. No motion
+measurement or Difference is assigned to this region. This demonstrates local
+processing, not arbitrary-region generation on the public website. Requests are
+bounded by a persistent acquisition budget; repeat prepared jobs reuse local data.
 
 The frontend remains usable without Python. Its prepared 23 observations, guide,
 manual annotations, spectral map and temporal controls are static assets. No new
@@ -105,6 +111,24 @@ processing backend has been deployed; a local worker is not advertised as a
 public arbitrary-region generation service. Internet and WebGL2 are required for
 the global map. See the optional service's entry point
 `python -m spherex_explorer.local_api --help` for local configuration.
+
+Without a processing service, Coordinate Search offers navigation and an explicit
+**Continue in IRSA Data Explorer** link using its documented coordinate interface.
+This external search does not create an in-app sequence. Direct browser SIA2
+access was blocked by CORS; the static interface therefore does not advertise
+unavailable search/preparation buttons. TAP's small connectivity probe timed out;
+SIA2 works through Python and is the default local metadata adapter.
+
+| Capability | Local validation | Public integration |
+| --- | --- | --- |
+| Coordinates, sky/spectral exploration, six prepared fields | Implemented and tested | Static frontend; no processing API required |
+| New-region metadata and four-frame preparation | Real SIA2, fresh cutouts and browser playback verified | Requires processing API; not deployed |
+| Arbitrary public timeline generation | Bounded local implementation | Not available; backend needs production hardening/infrastructure |
+| External archive investigation | Documented IRSA coordinate link | External service, distinct from in-app processing |
+
+Sources: [official SIA2 tutorial](https://caltech-ipac.github.io/irsa-tutorials/spherex-intro/),
+[cutout URL contract](https://irsa.ipac.caltech.edu/data/SPHEREx/docs/cutout_tool.html),
+[Data Explorer coordinate API](https://irsa.ipac.caltech.edu/onlinehelp/spherex/help.pdf).
 
 ## Project Structure
 

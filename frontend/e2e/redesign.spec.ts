@@ -1,7 +1,7 @@
 import {test,expect,fields,coordinates,more,closeMore,openInspector,type Page} from './fixtures';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url));await mkdir(out,{recursive:true});
+const out=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(out,{recursive:true});
 async function ready(page:Page){await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function choose(page:Page,name:string){await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:new RegExp('^'+name)}).click();await page.waitForFunction(()=>!!window.__analysis?.prepared&&window.__sky!.engine.getCutoutStatus().loaded);await page.waitForTimeout(300);}
 async function primaryBounds(page:Page){
@@ -45,11 +45,12 @@ test('a laptop investigation retains real playback, guarded Difference, readable
 test('four responsive viewports keep the main actions on screen and one stable map instance',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(String(e)));await ready(page);
   for(const [width,height,label] of [[1920,1080,'desktop'],[1366,768,'laptop'],[1536,864,'wide_laptop'],[390,844,'mobile']] as const){
-    await page.setViewportSize({width,height});await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);await page.waitForTimeout(300);await page.screenshot({path:out+`explore_${label}.png`});
+    await page.setViewportSize({width,height});await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);await expect.poll(()=>page.evaluate(()=>window.__sky!.engine.getCamera().center[0])).toBeCloseTo(270,8);await expect.poll(()=>page.evaluate(()=>window.__sky!.engine.getCamera().center[1])).toBeCloseTo(0,8);await page.waitForTimeout(300);await page.screenshot({path:out+`explore_${label}.png`});
     try{await choose(page,'Epsilon')}catch(error){await writeFile(out+'responsive_failure.json',JSON.stringify({label,errors,debug:await page.evaluate(()=>({state:window.__sky?.state,snapshot:window.__sky?.engine.snapshot(),cutout:window.__sky?.engine.getCutoutStatus(),analysis:window.__analysis}))},null,2));throw error;}await primaryBounds(page);await page.screenshot({path:out+`investigate_${label}.png`});
     await openInspector(page,'Motion');await page.screenshot({path:out+`inspector_${label}.png`});const rect=(await page.locator('.unified-inspector').boundingBox())!;expect(rect.y).toBeGreaterThanOrEqual(0);expect(rect.y+rect.height).toBeLessThanOrEqual(height);
     await page.keyboard.press('Escape');expect(await page.locator('.unified-inspector').count()).toBe(0);expect(await page.locator('.aladin-container').count()).toBe(1);
   }
+  expect(errors).toEqual([]);
 });
 
 test('a failed requested 2MASS survey retains the actual SPHEREx base and its spectral selection',async({page})=>{

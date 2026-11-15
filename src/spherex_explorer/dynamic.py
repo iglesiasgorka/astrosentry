@@ -24,6 +24,9 @@ from .observation import Observation
 from .scientific_pipeline import initial_target_selection
 from .targets import epoch_groups, select_spectral_sequence
 from .web_export import sky_geometry, display_limits
+from .sia_access import query_sia_observations
+
+WORKSPACE = 'outputs/spx007b'
 
 QUERY_LOCK = threading.Lock()
 WARNINGS = ['Exploratory visual comparison only. No validated motion or variability measurement.',
@@ -50,22 +53,34 @@ def search_key(p):
     return hashlib.sha256(f'{p.ra:.10f},{p.dec:.10f},{p.size:.4f},{p.bandpass}'.encode()).hexdigest()[:20]
 
 
-def search(project, p, timeout=90):
-    """Cache only successful official TAP results; no FITS acquisition occurs."""
-    destination = Path(project)/'outputs/spx006b/searches'/f'{search_key(p)}.json'
+def search(project, p, timeout=40, service='sia2'):
+    """Cache successful bounded metadata; never auto-retry a second service."""
+    if service not in {'sia2','tap'}:
+        raise ValueError('Choose the verified SIA2 adapter or explicit TAP option.')
+    identifier = hashlib.sha256((search_key(p)+':'+service).encode()).hexdigest()[:20]
+    destination = Path(project)/WORKSPACE/'searches'/f'{identifier}.json'
     if destination.exists():
-        return json.loads(destination.read_text())
+        cached=json.loads(destination.read_text())
+        for record in cached['records']:
+            if service=='sia2':
+                record['url']=f'{record["sia"]["access_url"]}?center={p.ra},{p.dec}&size={p.size}'
+        write_manifest(destination,cached)
+        return cached
     with QUERY_LOCK:
-        table = query_observations(p, timeout=timeout)
-    records = prepare_observations(table)
+        if service == 'sia2':
+            records, report = query_sia_observations(p, timeout, destination.parent/identifier)
+        else:
+            records = prepare_observations(query_observations(p, timeout=timeout))
+            report = {'service':'IRSA TAP','coverage':'Center intersection only; not complete requested-grid coverage.'}
     visits = {r['observation_id']: number for number, group in enumerate(epoch_groups(records), 1) for r in group}
-    result = {'id': search_key(p), 'parameters': {'ra': p.ra, 'dec': p.dec, 'size': p.size, 'detector': int(p.bandpass[-1])},
+    result = {'id': identifier, 'parameters': {'ra': p.ra, 'dec': p.dec, 'size': p.size, 'detector': int(p.bandpass[-1])},
               'count': len(records), 'visitCount': len(set(visits.values())), 'records': records,
               'observations': [{'id': r['observation_id'], 'timestampUtc': r['timestamp'], 'mjd': r['mjd'],
                 'detector': r['bandpass'], 'release': r['release'], 'processingVersion': r['processing_version'],
                 'visit': visits[r['observation_id']], 'wavelengthUm': None,
                 'wavelengthStatus': 'Requires local spectral WCS after FITS acquisition.'} for r in records],
-              'source': 'Official IRSA TAP; deduplicated observation/detector; DR1 preferred over QR3/QR2.'}
+              'query':report, 'completeArchiveSearch':True,
+              'source':f'Official IRSA {service.upper()}; deduplicated observation/detector. Intersection is not complete field coverage; local wavelengths require FITS.'}
     write_manifest(destination, result)
     return result
 
@@ -112,7 +127,7 @@ def local_search(project, p):
         'observations':[{'id':r['observation_id'],'timestampUtc':r['timestamp'],'mjd':r['mjd'],'detector':p.bandpass,
             'release':r['release'],'processingVersion':r['processing_version'],'visit':visits[r['observation_id']],
             'wavelengthUm':r['wavelength_um'],'cachedRequestedRegionCovered':r['cachedRequestedRegionCovered']} for r in records]}
-    write_manifest(project/'outputs/spx006b/searches'/f'{identifier}.json',result)
+    write_manifest(project/WORKSPACE/'searches'/f'{identifier}.json',result)
     return result
 
 
@@ -179,37 +194,77 @@ def export_aligned_sequence(items, records, root, prefix, key, name, warnings=No
     return target
 
 
-def prepare_region(project, result, count=4, cancel=None):
+def prepare_region(project, result, count=4, cancel=None, budget=None):
     if type(count) is not int or count not in [2,3,4]:
         raise ValueError('Prepare between two and four observations.')
     p=parameters(result['parameters']);job=hashlib.sha256(f'{result["id"]}:{count}'.encode()).hexdigest()[:20]
-    root=Path(project)/'outputs/spx006b';directory=root/'jobs'/job;directory.mkdir(parents=True,exist_ok=True)
-    compatible=select_spectral_sequence(result['records'],limit=count)
+    root=Path(project)/WORKSPACE;directory=root/'jobs'/job;directory.mkdir(parents=True,exist_ok=True)
+    # Prefer already validated, exact-request cutouts. Their local spectral WCS
+    # can guide selection without interpreting detector-wide metadata as lambda.
+    available=[];cached=[];point=SkyCoord(p.ra*u.deg,p.dec*u.deg)
+    for original in result['records']:
+        record=dict(original)
+        digest=hashlib.sha256(record['url'].encode()).hexdigest()[:16]
+        paths=list((root/'raw').glob(f'*_{digest}.fits'))
+        if paths:
+            try:
+                obs=Observation.read(paths[0],record['release'])
+                spectral=obs.spectral_at(point)
+                record.update(wavelength_um=spectral['wavelength_um'],bandwidth_um=spectral['bandwidth_um'],
+                              target_quality_ok=bool((~obs.science_invalid).mean()>=.25))
+                cached.append(record)
+            except (OSError,ValueError):
+                pass
+        available.append(record)
+    compatible=select_spectral_sequence(available,limit=count)
     selected=compatible if len(compatible)>=2 else []
-    selected+=initial_target_selection([r for r in result['records'] if r not in selected],count-len(selected)) if len(selected)<count else []
+    pool=cached if len(cached)>=count else available
+    selected+=initial_target_selection([r for r in pool if r not in selected],count-len(selected)) if len(selected)<count else []
     grid,shape=common_grid(p.ra,p.dec,p.size,6.2)
-    items=[];records=[];failures=[];budget=AcquisitionBudget(project)
+    items=[];records=[];failures=[]
+    budget=budget or AcquisitionBudget(project,root/'acquisition_ledger.json',limit=12,reservation=0)
+    import time
+    deadline=time.monotonic()+300
+    consecutive_failures=0
     for record in selected:
         if cancel and cancel.is_set():
             raise InterruptedError('Preparation canceled before the next acquisition.')
+        if time.monotonic() >= deadline:
+            raise TimeoutError('Preparation exceeded its five-minute deadline.')
         try:
             if record.get('cachedRequestedRegionCovered'):
                 path=(Path(project)/record['cached_local_path']).resolve()
                 if not path.is_relative_to((Path(project)/'data/raw').resolve()):raise ValueError('Cached source escapes raw-data directory.')
             else:
                 record=dict(record,url=record.get('requested_cutout_url',record['url']))
-                path=budget.download(record['url'],Path(project)/'data/raw/spx006/dynamic',purpose='dynamic')
+                path=budget.download(record['url'],root/'raw',purpose='dynamic')
             obs=Observation.read(path,record['release'])
+            if obs.observation_id != record['observation_id'] or int(obs.header.get('DETECTOR',0)) != int(record['detector']):
+                raise ValueError('Downloaded FITS identity/detector differs from the archive result.')
+            with fits.open(path) as hdus:
+                required={'PRIMARY','IMAGE','FLAGS','VARIANCE','ZODI','EPSF','WCS-WAVE'}
+                if not required.issubset({h.name for h in hdus}):
+                    raise ValueError('SPHEREx cutout lacks required scientific extensions.')
             if obs.midpoint is None:
                 raise ValueError('Observation midpoint is missing.')
             aligned=align_observation(obs,grid,shape)
             if not np.isfinite(aligned.display_image).any():
                 raise ValueError('No finite display pixels in the requested region.')
+            from .scientific_pipeline import build_alignment_report
             save_aligned(aligned,directory/'aligned'/f'{obs.observation_id}.fits')
             items.append(aligned);records.append(record)
+            consecutive_failures=0
         except Exception as error:
             failures.append({'id':record['observation_id'],'error':f'{type(error).__name__}: {error}'})
+            consecutive_failures+=1
         write_manifest(directory/'preparation.json',{'parameters':result['parameters'],'selected':selected,'downloaded':len(items),'failures':failures})
-    target=export_aligned_sequence(items,records,root/'assets',f'dynamic/{job}',f'region_{job}',f'Sky region {p.ra:.4f}°, {p.dec:+.4f}°')
+        if consecutive_failures>=2:
+            break
+    warnings=list(WARNINGS)
+    if failures:
+        warnings.append(f'Partial preparation: {len(items)} of {len(selected)} selected observations are usable. Some acquisitions or scientific reads failed; no replacement frames were invented.')
+    target=export_aligned_sequence(items,records,root/'assets',f'dynamic/{job}',f'region_{job}',f'Sky region {p.ra:.4f}°, {p.dec:+.4f}°',warnings=warnings)
+    target['preparation']={'selectedCount':len(selected),'preparedCount':len(items),'failedObservationIds':[f['id'] for f in failures]}
+    write_manifest(directory/'alignment_report.json',build_alignment_report(items,SkyCoord(p.ra*u.deg,p.dec*u.deg),shape,6.2))
     write_manifest(directory/'target.json',target)
     return target

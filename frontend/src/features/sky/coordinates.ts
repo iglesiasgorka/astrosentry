@@ -1,4 +1,12 @@
 export interface Region {ra:number;dec:number;size:number;detector:number}
+/** Presentation only: callers retain the original strings for queries and links. */
+export function displayCoordinate(value:string){
+  return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(value.trim())&&Number.isFinite(Number(value))?Number(value).toFixed(6):value;
+}
+/** Official SPHEREx Data Explorer API: RA/Dec are J2000; sr is a radius. */
+export function irsaExplorerUrl(p:Region){
+  return 'https://irsa.ipac.caltech.edu/applications/spherex/?'+new URLSearchParams({api:'spectral-images',ra:String(p.ra),dec:String(p.dec),sr:String(p.size/Math.SQRT2)+'d'});
+}
 export function parseAngle(input:string,ra:boolean):number{
   const text=input.trim().replace(/−/g,'-');let result:number;
   if(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text))result=Number(text);

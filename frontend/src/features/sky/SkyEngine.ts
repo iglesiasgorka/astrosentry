@@ -189,9 +189,16 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   const engine:SkyEngine={
     getCamera:()=>({center:Array.from(aladin.getRaDec()) as LonLat,fov:aladin.getFov()[0]}),
     setCamera:camera=>{if(disposed)return;
-      // Narrow the projection before recentering: Aladin 3.8.2's synchronous
-      // position callback cannot invert the portrait all-sky viewport reliably.
-      aladin.setFoV(camera.fov);aladin.gotoRaDec(...camera.center);emit();},
+      const center=aladin.getRaDec(),previousFov=aladin.getFov()[0];
+      const moving=Math.abs(center[0]-camera.center[0])>1e-10||Math.abs(center[1]-camera.center[1])>1e-10;
+      if(moving){
+        // Aladin 3.8.2 inverts the viewport synchronously in gotoRaDec. Use a
+        // safe intermediate FoV for both arrival and portrait Back to Sky.
+        // These synchronous writes finish before the next rendered frame.
+        aladin.setFoV(Math.min(previousFov,camera.fov,90));
+        aladin.gotoRaDec(...camera.center);
+      }
+      aladin.setFoV(camera.fov);emit();},
     snapshot,
     project:point=>{const p=aladin.world2pix(...point);return p&&p.every(Number.isFinite)?Array.from(p) as LonLat:null;},
     unproject:point=>{const p=aladin.pix2world(...point);return p&&p.every(Number.isFinite)?Array.from(p) as LonLat:null;},

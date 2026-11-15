@@ -148,11 +148,18 @@ def download_cutout(url: str, directory: Path, timeout: float = 120,
     """Stream one cutout atomically, with bounded retries and validated reuse."""
     parsed = urlsplit(url)
     query = parse_qs(parsed.query)
-    if (parsed.scheme != "https" or parsed.hostname != "irsa.ipac.caltech.edu"
+    if (parsed.scheme != "https" or parsed.netloc != "irsa.ipac.caltech.edu"
             or "center" not in query or "size" not in query):
         raise ValueError("Only HTTPS IRSA cutout URLs with center and size are allowed.")
     if attempts < 1 or timeout <= 0:
         raise ValueError("Attempts and timeout must be positive.")
+    parse_artifact_url(url)
+    if len(query['center']) != 1 or len(query['size']) != 1:
+        raise ValueError('Cutout parameters must be unique.')
+    coordinates = query['center'][0].removesuffix('d').split(',')
+    if len(coordinates) != 2:
+        raise ValueError('Cutout center requires RA and Dec.')
+    SearchParameters(float(coordinates[0]), float(coordinates[1]), float(query['size'][0]))
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     digest = hashlib.sha256(url.encode()).hexdigest()[:16]
@@ -164,14 +171,25 @@ def download_cutout(url: str, directory: Path, timeout: float = 120,
         return destination
     for attempt in range(attempts):
         try:
-            with requests.get(url, timeout=(15, timeout), stream=True) as response:
+            with requests.get(url, timeout=(15, timeout), stream=True, allow_redirects=False) as response:
+                if 300 <= getattr(response, 'status_code', 200) < 400:
+                    raise ValueError('Cutout redirects are refused; only the verified official URL is permitted.')
                 response.raise_for_status()
+                headers = getattr(response, 'headers', {})
+                media = headers.get('Content-Type', '').split(';')[0].lower()
+                if media and media not in {'image/fits', 'application/fits', 'application/octet-stream', 'binary/octet-stream'}:
+                    raise ValueError(f'Unexpected cutout content type: {media}')
+                if int(headers.get('Content-Length', 0)) > max_bytes:
+                    raise ValueError(f'Cutout exceeds {max_bytes} byte safety limit.')
                 total = 0
+                began = time.monotonic()
                 with partial.open("wb") as stream:
                     for chunk in response.iter_content(chunk_size=65536):
                         total += len(chunk)
                         if total > max_bytes:
                             raise ValueError(f"Cutout exceeds {max_bytes} byte safety limit.")
+                        if time.monotonic()-began > timeout:
+                            raise ValueError('Cutout exceeded total streaming time limit.')
                         stream.write(chunk)
             validate_fits(partial)
             partial.replace(destination)

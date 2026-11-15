@@ -2,7 +2,7 @@ import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
 import {test,expect,type Page} from './fixtures';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const directory=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));
 await mkdir(directory,{recursive:true});
 const samples=JSON.parse(await readFile(directory+'registration_samples.json','utf8'));
 const residualSamples=JSON.parse(await readFile(directory+'residual_samples.json','utf8'));

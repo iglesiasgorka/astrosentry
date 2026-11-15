@@ -12,9 +12,11 @@ _LOCK = threading.RLock()
 
 
 class AcquisitionBudget:
-    def __init__(self, project):
+    def __init__(self, project, ledger_path=None, limit=24, reservation=8):
         self.project = Path(project).resolve()
-        self.path = self.project/'outputs/spx006/acquisition_ledger.json'
+        self.path = Path(ledger_path) if ledger_path else self.project/'outputs/spx006/acquisition_ledger.json'
+        if ledger_path and not self.path.exists():
+            write_manifest(self.path, {'version':1,'limit':limit,'wiseReservation':reservation,'attempts':[]})
 
     def snapshot(self):
         with _LOCK:
@@ -24,6 +26,7 @@ class AcquisitionBudget:
         parse_artifact_url(url)
         digest = hashlib.sha256(url.encode()).hexdigest()[:16]
         cached = list((self.project/'data/raw').rglob(f'*_{digest}.fits'))
+        cached += list(Path(directory).glob(f'*_{digest}.fits'))
         if cached:
             validate_fits(cached[0])
             return cached[0]

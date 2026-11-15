@@ -19,6 +19,7 @@ def main():
     parser.add_argument('--directory',type=Path,default=PROJECT/'outputs/spx003b')
     parser.add_argument('--pattern',default='*_screen.json')
     parser.add_argument('--expected',type=int,default=12)
+    parser.add_argument('--dynamic-root',type=Path,default=PROJECT/'outputs/spx006b/assets')
     args=parser.parse_args()
     directory = args.directory
     report = {}
@@ -27,7 +28,7 @@ def main():
         name = path.stem.removesuffix("_screen")
         image = np.array(Image.open(directory / f"{name}.png").convert("RGB"), dtype=float)
         asset=metadata['frame']['assets']['fits']
-        root=PROJECT/('outputs/spx006b/assets' if asset.startswith('dynamic/') else 'frontend/public/data')
+        root=args.dynamic_root if asset.startswith('dynamic/') else PROJECT/'frontend/public/data'
         with fits.open(root/asset) as hdus:
             array = hdus[0].data.copy()
         expected, observed, flipped, paired = [], [], [], []

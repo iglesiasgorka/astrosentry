@@ -2,7 +2,7 @@ import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
 import {test,expect} from './fixtures';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const output=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url));await mkdir(output,{recursive:true});
+const output=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(output,{recursive:true});
 test('coordinates locate the exact challenge example and reopen a real cached fixed-grid region through read-only API fixtures',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
   await coordinates(page);
@@ -27,7 +27,7 @@ test('coordinates locate the exact challenge example and reopen a real cached fi
   await page.getByRole('button',{name:'Play observations',exact:true}).click();await page.waitForTimeout(1100);await page.getByRole('button',{name:'Pause playback',exact:true}).click();
   expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(start.camera);
   const after=await page.evaluate(()=>fetch('http://127.0.0.1:8765/api/health').then(r=>r.json()));expect(after.attemptsUsed).toBe(before.attemptsUsed);
-  await writeFile(output+'dynamic_browser.json',JSON.stringify({source:'Read-only replay of the real SPX-006 local-cache target; no new query or preparation in SPX-007A',target:start.target,camera:start.camera,attemptsBefore:before.attemptsUsed,attemptsAfter:after.attemptsUsed,passed:true},null,2));
+  await writeFile(output+'legacy_dynamic_browser.json',JSON.stringify({source:'Read-only replay of the real SPX-006 local-cache target; separate from the fresh SPX-007B flow',target:start.target,camera:start.camera,attemptsBefore:before.attemptsUsed,attemptsAfter:after.attemptsUsed,passed:true},null,2));
 });
 test('all five challenge targets and the additional field open real epochs with diagnostic inspectors',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);

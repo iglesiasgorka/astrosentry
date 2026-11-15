@@ -49,6 +49,14 @@
 /* Explicit mobile header tracks replace inherited absolute survey positioning. */
 .product-experience .survey-selector{position:static}
 .product-experience .survey-notice{pointer-events:none}
+/* SPX-007B: small clarity fixes; no data or camera changes. */
+.product-experience .spectral-explorer h2{display:block;font-size:14px;margin:3px 0 0;line-height:1.25}
+.product-experience .epoch-track button{flex-direction:column;align-items:center;justify-content:flex-start;gap:5px}
+.product-experience .epoch-track button i{margin:0;flex-shrink:0}
+.product-experience .epoch-track:before{top:4px;left:0;right:0}
+.residual-units{display:block;text-align:center;margin:5px 0;color:#c6e5ee}
+.product-experience .processing-mode{max-width:100%;line-height:1.6;font-size:10px}
+.product-experience .coordinate-footer{flex-wrap:wrap;gap:8px}
 .mode-inspecting .survey-notice,.mode-flying .survey-notice{top:auto;bottom:calc(var(--map-bottom) + 22px);left:18px;right:auto;max-width:400px}
 @media(max-width:700px){
  .product-experience .app-header{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:34px 38px;gap:12px 8px;align-content:start}

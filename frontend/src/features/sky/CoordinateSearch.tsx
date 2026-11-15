@@ -2,11 +2,12 @@ import {useEffect,useRef,useState} from 'react';
 import '../../styles/coordinates.css';
 import type {SkyTarget} from '../../types/sky';
 import {API_BASE} from '../../data/apiConfig';
-import {parseRegion,regionFromUrl,separationArcsec,type Region} from './coordinates';
+import {parseRegion,regionFromUrl,separationArcsec,displayCoordinate,irsaExplorerUrl,type Region} from './coordinates';
 import {findObservations,prepareObservations,getJob,cancelJob,validatePreparedTarget,type Availability,type PreparationJob} from './regionApi';
 
 export function CoordinateSearch({targets,hidden,onLocate,onPrepared,onGuide,onClose}:{targets:SkyTarget[];hidden:boolean;onLocate:(p:Region)=>void;onPrepared:(t:SkyTarget)=>void;onGuide:()=>void;onClose:()=>void}){
   const [ra,setRa]=useState(''),[dec,setDec]=useState(''),[size,setSize]=useState(.1),[detector,setDetector]=useState(2),[count,setCount]=useState(4);
+  const [focused,setFocused]=useState<'ra'|'dec'|null>(null);
   const [result,setResult]=useState<Availability|null>(null),[job,setJob]=useState<PreparationJob|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const request=useRef<AbortController|null>(null),generation=useRef(0),jobId=useRef<string|null>(null),initial=useRef(false);
   const cancel=()=>{generation.current++;request.current?.abort();request.current=null;if(jobId.current){void cancelJob(jobId.current);jobId.current=null;}setBusy(false);};
@@ -36,14 +37,16 @@ export function CoordinateSearch({targets,hidden,onLocate,onPrepared,onGuide,onC
     }catch(e){if(token===generation.current&&!controller.signal.aborted)setError(String(e));}finally{if(token===generation.current)setBusy(false);}
   };
   let prepared:SkyTarget|undefined;
+  let archiveUrl:string|undefined;try{archiveUrl=irsaExplorerUrl(region())}catch{/* Invalid coordinates do not create an archive link. */}
   try{const p=region();prepared=targets.filter(t=>separationArcsec([p.ra,p.dec],[t.center.raDeg,t.center.decDeg])<Math.min(t.angularSizeDeg.width,t.angularSizeDeg.height)*1800).sort((a,b)=>separationArcsec([p.ra,p.dec],[a.center.raDeg,a.center.decDeg])-separationArcsec([p.ra,p.dec],[b.center.raDeg,b.center.decDeg]))[0];}catch{/* Invalid form remains editable. */}
   return <section ref={panel} className="coordinate-search floating-panel" role="dialog" aria-modal="false" aria-label="Coordinate Search" hidden={hidden}>
     <header><div><span className="eyebrow">SPACE · FIND A REAL SKY REGION</span><h2>Coordinate Search</h2></div><div><button className="text-button guide-start" onClick={onGuide}>Start your first investigation</button><button className="text-button" aria-label="Close Coordinate Search" onClick={onClose}>×</button></div></header>
-    <><form onSubmit={e=>{e.preventDefault();void find();}}>
-      <div className="coordinate-inputs"><label>Right Ascension<input aria-label="Right Ascension" placeholder="133.795129 or 08h55m10.831s" value={ra} onChange={e=>{changed();setRa(e.target.value)}}/></label><label>Declination<input aria-label="Declination" placeholder="−7.245147 or −07d14m42.53s" value={dec} onChange={e=>{changed();setDec(e.target.value)}}/></label>
+    <><form onSubmit={e=>{e.preventDefault();if(API_BASE)void find();}}>
+      <div className="coordinate-inputs"><label>Right Ascension<input aria-label="Right Ascension" title={ra} placeholder="133.795129 or 08h55m10.831s" value={focused==='ra'?ra:displayCoordinate(ra)} onFocus={()=>setFocused('ra')} onBlur={()=>setFocused(null)} onChange={e=>{changed();setRa(e.target.value)}}/></label><label>Declination<input aria-label="Declination" title={dec} placeholder="−7.245147 or −07d14m42.53s" value={focused==='dec'?dec:displayCoordinate(dec)} onFocus={()=>setFocused('dec')} onBlur={()=>setFocused(null)} onChange={e=>{changed();setDec(e.target.value)}}/></label>
       <label>Field width<select aria-label="Requested field width" value={size} onChange={e=>{changed();setSize(Number(e.target.value))}}>{[.05,.1,.15,.2].map(n=><option key={n} value={n}>{n.toFixed(2)}°</option>)}</select></label><label>Detector<select aria-label="Observation detector" value={detector} onChange={e=>{changed();setDetector(Number(e.target.value))}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>D{n}</option>)}</select></label></div>
-      <div className="coordinate-actions"><button type="button" onClick={locate}>Locate in Sky</button><button type="submit" disabled={busy}>Find Observations</button><button type="button" className="text-button" onClick={()=>{changed();setRa('08h55m10.831s');setDec('-07d14m42.53s');setSize(.15);setDetector(6)}}>Example: WISE 0855</button>{API_BASE&&<button type="button" aria-label="Search existing local FITS coverage only" title="Verified local original-FITS subset, not a full IRSA search" className="text-button" disabled={busy} onClick={()=>void find(true)}>Local FITS only</button>}</div>
+      <div className="coordinate-actions"><button type="button" onClick={locate}>Locate in Sky</button>{API_BASE&&<button type="submit" disabled={busy}>Find Observations</button>}<button type="button" className="text-button" onClick={()=>{changed();setRa('08h55m10.831s');setDec('-07d14m42.53s');setSize(.15);setDetector(6)}}>Example: WISE 0855</button>{API_BASE&&<button type="button" aria-label="Search existing local FITS coverage only" title="Verified local original-FITS subset, not a full IRSA search" className="text-button" disabled={busy} onClick={()=>void find(true)}>Local FITS only</button>}</div>
     </form>
+    {archiveUrl&&<p className="coordinate-hint"><a href={archiveUrl} target="_blank" rel="noreferrer">Continue in IRSA Data Explorer ↗</a><br/>External archive search; this does not create a sequence in this app.</p>}
     {busy&&<p role="status">{job?'Preparing real observations locally…':'Querying observation metadata…'} <button className="text-button" onClick={cancel}>Cancel</button></p>}
     {error&&<p className="coordinate-error" role="alert">{error}</p>}
     {prepared&&<button className="prepared-region" onClick={()=>onPrepared(prepared!)}>Open prepared field: {prepared.name}<small>Existing framing and observation wavelengths are retained.</small></button>}
@@ -52,7 +55,7 @@ export function CoordinateSearch({targets,hidden,onLocate,onPrepared,onGuide,onC
       {API_BASE?<div className="coordinate-actions"><label>Cutouts<select aria-label="Maximum preparation observations" value={count} onChange={e=>setCount(Number(e.target.value))}>{[2,3,4].map(n=><option key={n}>{n}</option>)}</select></label><button disabled={busy||result.count<2} onClick={()=>void prepare()}>Prepare real timeline locally</button></div>:<p className="coordinate-hint">Metadata search is available directly from IRSA when browser access permits. Preparing a new timeline requires a configured processing API; no public backend is deployed.</p>}</>}
     </div>}
     {job&&<p role="status">{job.message}{job.status==='ready'&&job.target&&<button onClick={()=>onPrepared(job.target!)}>Explore Timeline</button>}</p>}
-    <div className="coordinate-footer"><details className="coordinate-help"><summary>Coordinate formats & limits</summary><p>ICRS · decimal degrees or complete h:m:s / signed d:m:s. RA: [0, 360), Dec: [−90, +90]. Field width also controls the requested cutouts. Prepared-field framing is retained when opening existing data.</p></details><p className="processing-mode">{API_BASE?'Local processing configured · bounded demo':'Static mode · new processing needs a service'}</p></div>
+    <div className="coordinate-footer"><details className="coordinate-help"><summary>Coordinate formats & limits</summary><p>ICRS · decimal degrees or complete h:m:s / signed d:m:s. RA: [0, 360), Dec: [−90, +90]. Field width also controls the requested cutouts. Prepared-field framing is retained when opening existing data. Unfocused decimal fields show six places; full stored precision is used for queries and links.</p></details><p className="processing-mode">{API_BASE?'Processing service configured. Find Observations searches real IRSA metadata; preparation creates a local sequence.':'You can explore any sky position. Time sequences are available for prepared fields. Creating a new sequence requires the processing service.'}</p></div>
     </>
   </section>;
 }

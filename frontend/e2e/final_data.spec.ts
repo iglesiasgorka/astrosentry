@@ -2,7 +2,7 @@ import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
 import {test,expect,type Page} from './fixtures';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const root=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url)),output=root+'completion-registration/';await mkdir(output,{recursive:true});
+const root=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url)),output=root+'completion-registration/';await mkdir(output,{recursive:true});
 const samples=JSON.parse(await readFile(root+'completion_registration_samples.json','utf8'));
 async function capture(page:Page,id:string,index:number,suffix=''){
  await closeMore(page);

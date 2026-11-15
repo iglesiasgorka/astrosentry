@@ -9,7 +9,7 @@ import re
 import threading
 from urllib.parse import unquote, urlsplit
 
-from .dynamic import parameters, search, local_search, public_search, prepare_region
+from .dynamic import parameters, search, local_search, public_search, prepare_region, WORKSPACE
 from .fits_utils import write_manifest
 from .acquisition import AcquisitionBudget
 
@@ -17,11 +17,9 @@ from .acquisition import AcquisitionBudget
 class Service:
     def __init__(self, project):
         self.project = Path(project).resolve()
-        self.root = self.project/'outputs/spx006b'
+        self.root = self.project/WORKSPACE
         self.root.mkdir(parents=True, exist_ok=True)
-        ledger = self.project/'outputs/spx006/acquisition_ledger.json'
-        if not ledger.exists():
-            write_manifest(ledger, {'version':1,'limit':24,'wiseReservation':8,'attempts':[]})
+        self.budget = AcquisitionBudget(self.project,self.root/'acquisition_ledger.json',limit=12,reservation=0)
         self.executor = ThreadPoolExecutor(max_workers=1)
         self.lock = threading.RLock()
         self.jobs = {}
@@ -56,7 +54,7 @@ class Service:
 
     def _run(self, job_id, result, count, cancel):
         try:
-            target=prepare_region(self.project,result,count,cancel)
+            target=prepare_region(self.project,result,count,cancel,budget=self.budget)
             public={'id':job_id,'status':'ready','target':target,'message':'Real observations prepared locally; not a deployed public processing service.'}
         except InterruptedError:
             public={'id':job_id,'status':'canceled','message':'Preparation canceled; completed downloads remain cached.'}
@@ -74,6 +72,10 @@ class Service:
             if job_id in self.jobs:return dict(self.jobs[job_id]['public'])
         path=self.root/'jobs'/job_id/'public.json'
         if path.exists():return json.loads(path.read_text())
+        legacy=self.project/'outputs/spx006b/jobs'/job_id/'public.json'
+        if legacy.exists():
+            cached=json.loads(legacy.read_text())
+            if cached.get('status')=='ready':return cached
         raise FileNotFoundError('Job not found.')
 
 
@@ -107,14 +109,19 @@ def handler(service, origins):
             if not self.allowed():return self.respond(403,{'error':'Origin or Host is not allowed.'})
             path=urlsplit(self.path).path
             if path=='/api/health':
-                ledger=AcquisitionBudget(service.project).snapshot()
+                ledger=service.budget.snapshot()
                 return self.respond(200,{'mode':'local-demo','preparation':True,'acquisitionLimit':ledger['limit'],'attemptsUsed':len(ledger['attempts'])})
             if path.startswith('/api/jobs/'):
                 try:return self.respond(200,service.job(path.rsplit('/',1)[-1]))
                 except (ValueError,FileNotFoundError):return self.respond(404,{'error':'Job unavailable.'})
             if path.startswith('/assets/dynamic/'):
-                root=(service.root/'assets').resolve();file=(root/unquote(path[len('/assets/'):])).resolve()
-                if not file.is_relative_to(root) or not file.is_file() or file.suffix not in {'.fits','.png','.json'}:
+                file=None
+                # Keep saved historical investigations readable, never rewrite them.
+                for directory in [service.root/'assets',service.project/'outputs/spx006b/assets']:
+                    root=directory.resolve();candidate=(root/unquote(path[len('/assets/'):])).resolve()
+                    if candidate.is_relative_to(root) and candidate.is_file() and candidate.suffix in {'.fits','.png','.json'}:
+                        file=candidate;break
+                if file is None:
                     return self.respond(404,{'error':'Asset unavailable.'})
                 self.send_response(200);self.cors();self.send_header('Content-Type','application/fits' if file.suffix=='.fits' else mimetypes.guess_type(file.name)[0] or 'application/octet-stream')
                 self.send_header('Content-Length',str(file.stat().st_size));self.send_header('Cache-Control','public, max-age=3600');self.end_headers()

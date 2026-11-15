@@ -147,4 +147,18 @@ def test_http_asset_paths_stay_within_derivative_root_and_cancellation_is_bounde
     assert api_request(port,'/assets/dynamic/%2e%2e/%2e%2e/last_query_error.json')[0]==404
     assert api_request(port,'/api/jobs/invalid')[0]==404
     assert api_request(port,'/api/jobs/'+'a'*20+'/cancel',{})[1]['status']=='cancellation-requested'
-    assert api_request(port,'/api/health')[1]['acquisitionLimit']==24
+    assert api_request(port,'/api/health')[1]['acquisitionLimit']==12
+
+
+def test_historical_ready_jobs_and_derivatives_remain_readable_without_rewriting(local_http):
+    from hashlib import sha256
+    _,service=local_http
+    legacy=service.project/'outputs/spx006b'
+    asset=legacy/'assets/dynamic/legacy/masks.json';asset.parent.mkdir(parents=True)
+    asset.write_text('{"source":"offline historical fixture"}')
+    job=legacy/'jobs'/('a'*20)/'public.json';job.parent.mkdir(parents=True)
+    job.write_text('{"status":"ready","id":"'+('a'*20)+'"}')
+    before={p:sha256(p.read_bytes()).hexdigest() for p in [asset,job]}
+    assert api_request(service,'/assets/dynamic/legacy/masks.json')[1]['source']=='offline historical fixture'
+    assert service.job('a'*20)['status']=='ready'
+    assert before=={p:sha256(p.read_bytes()).hexdigest() for p in [asset,job]}

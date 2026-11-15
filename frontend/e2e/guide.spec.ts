@@ -2,7 +2,7 @@ import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
 import {test,expect} from './fixtures';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-const output=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url));await mkdir(output,{recursive:true});
+const output=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(output,{recursive:true});
 test('a short guide opens real epochs without replacing the sky on desktop and mobile',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);

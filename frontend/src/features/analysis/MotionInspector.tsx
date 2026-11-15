@@ -14,7 +14,15 @@ export function MotionInspector({target,onClose}:{target:SkyTarget;onClose:()=>v
   const reference=sequence.astrometricReference as {main_id?:string;source?:string;proper_motion_bibcode?:string;epoch_note?:string}|null;
   return <section className="motion-inspector floating-panel" aria-label="Motion Inspector">
     <header><div><p className="eyebrow">FIXED-GRID ASTROMETRY</p><h3>{target.id==='barnard'?'Prediction Inspector':'Motion Inspector'}</h3></div><button aria-label="Close Motion Inspector" onClick={onClose}>×</button></header>
-    <p className="inspector-context">{sequence.interpretation}</p>
+    <p className="inspector-context">{target.id==='barnard'?'Invalid and saturated source pixels: predicted positions only; no accepted centroid.':sequence.frames.some(f=>f.measuredPosition)?'Exploratory apparent displacement, not a significant-motion detection. Formal errors are incomplete; reference RMS is diagnostic.':'Predicted motion only. No accepted measured displacement or formal endpoint error. Reference RMS is diagnostic.'}</p>
+    {motion&&<dl className="motion-values">
+      <div><dt>Apparent measured shift</dt><dd>{number(motion.measuredDisplacementArcsec)}″ / {number(motion.measuredDisplacementPixels)} px</dd></div>
+      <div><dt>Expected linear shift</dt><dd>{number(motion.expectedDisplacementArcsec)}″</dd></div>
+      <div><dt>Elapsed time</dt><dd>{number(motion.timeSeparationDays,3)} days</dd></div>
+      <div><dt>Reference RMS · diagnostic</dt><dd>{number(motion.referenceRmsArcsec)}″ ({motion.referenceCount??'—'} references)</dd></div>
+      <div><dt>Formal endpoint error · incomplete</dt><dd>{number(motion.formalEndpointErrorArcsec)}″</dd></div>
+    </dl>}
+    <details className="position-table"><summary>Pair interpretation & caveats</summary><p>{sequence.interpretation}</p></details>
     <svg viewBox="0 0 345 310" className="motion-chart" role="img" aria-label="Magnified positions on a fixed pixel grid, north up and east left">
       <defs><marker id="motion-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#ffb473"/></marker></defs>
       {[0,.25,.5,.75,1].map(t=><g key={t}><path className="chart-grid" d={`M ${65+t*220} 45 V 265 M 65 ${265-t*220} H 285`}/><text x={65+t*220} y="280" textAnchor="middle">{(lowX+t*span).toFixed(2)}</text><text x="57" y={268-t*220} textAnchor="end">{(lowY+t*span).toFixed(2)}</text></g>)}
@@ -27,16 +35,9 @@ export function MotionInspector({target,onClose}:{target:SkyTarget;onClose:()=>v
       </g>)}
     </svg>
     <p className="position-legend"><span>+ Expected (cyan)</span><span>{sequence.frames.some(f=>f.measuredPosition)?'○ Measured (orange)':'○ Measured: unavailable'}</span></p>
-    {motion&&<dl className="motion-values">
-      <div><dt>Apparent measured shift</dt><dd>{number(motion.measuredDisplacementArcsec)}″ / {number(motion.measuredDisplacementPixels)} px</dd></div>
-      <div><dt>Expected linear shift</dt><dd>{number(motion.expectedDisplacementArcsec)}″</dd></div>
-      <div><dt>Elapsed time</dt><dd>{number(motion.timeSeparationDays,3)} days</dd></div>
-      <div><dt>Reference RMS · diagnostic</dt><dd>{number(motion.referenceRmsArcsec)}″ ({motion.referenceCount??'—'} references)</dd></div>
-      <div><dt>Formal endpoint error · incomplete</dt><dd>{number(motion.formalEndpointErrorArcsec)}″</dd></div>
-    </dl>}
     <details className="position-table"><summary>Epoch positions & formal errors</summary>{sequence.frames.map((frame,index)=><div key={frame.id}><strong>Epoch {index+1} · {frame.observation.timestampUtc.slice(0,10)} UTC</strong>
       <p>Expected RA/Dec: {frame.expectedPosition?`${frame.expectedPosition.raDeg.toFixed(9)}°, ${frame.expectedPosition.decDeg.toFixed(9)}°`:'Unavailable'}</p>
-      <p>Measured RA/Dec: {frame.measuredPosition?`${frame.measuredPosition.raDeg.toFixed(9)}°, ${frame.measuredPosition.decDeg.toFixed(9)}°`:'null — invalid/saturated target core'}</p>
+      <p>Measured RA/Dec: {frame.measuredPosition?`${frame.measuredPosition.raDeg.toFixed(9)}°, ${frame.measuredPosition.decDeg.toFixed(9)}°`:'null — no accepted measurement for this observation'}</p>
       <p>Formal centroid error: {number(frame.formalCentroidErrorArcsec)}″; {number(frame.formalCentroidErrorOriginalPixels)} original pixels (incomplete).</p>
     </div>)}</details>
     <p className="inspector-caution">Formal fit errors omit instrumental and reference-frame systematics. Reference RMS is a diagnostic, not detection significance. No parallax or binary orbit correction is included.</p>

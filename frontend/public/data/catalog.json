@@ -1739,6 +1739,1090 @@
         ],
         "normalization": null
       }
+    },
+    {
+      "id": "r_dra",
+      "name": "R Draconis",
+      "objectType": "Known Mira variable \u00b7 rejected photometry",
+      "classification": "diagnostic",
+      "center": {
+        "raDeg": 248.1672354986,
+        "decDeg": 66.755023540963
+      },
+      "dimensions": {
+        "width": 88,
+        "height": 88
+      },
+      "pixelScaleArcsec": 6.2,
+      "wcsHeader": {
+        "WCSAXES": 2,
+        "CRPIX1": 44.5,
+        "CRPIX2": 44.5,
+        "CDELT1": -0.0017222222222222,
+        "CDELT2": 0.0017222222222222,
+        "CUNIT1": "deg",
+        "CUNIT2": "deg",
+        "CTYPE1": "RA---TAN",
+        "CTYPE2": "DEC--TAN",
+        "CRVAL1": 248.1672354986,
+        "CRVAL2": 66.755023540963,
+        "LONPOLE": 180.0,
+        "LATPOLE": 66.755023540963,
+        "MJDREF": 0.0,
+        "RADESYS": "ICRS"
+      },
+      "footprint": [
+        [
+          248.35865153608606,
+          66.67912956800421
+        ],
+        [
+          247.97581946111396,
+          66.67912956800421
+        ],
+        [
+          247.9746370458093,
+          66.83068418419893
+        ],
+        [
+          248.35983395139073,
+          66.83068418419893
+        ]
+      ],
+      "angularSizeDeg": {
+        "width": 0.15155546718886145,
+        "height": 0.15155546718887408
+      },
+      "geometryValidation": {
+        "centerErrorArcsec": 0.0,
+        "cornerRoundtripErrorPixels": 1.145302542213846e-11,
+        "northUp": true,
+        "eastLeft": true,
+        "footprintConvention": "Outer pixel edges, ordered bottom-left, bottom-right, top-right, top-left in FITS coordinates."
+      },
+      "observation": {
+        "id": "2025W24_1A_0123_3",
+        "timestampUtc": "2025-06-09T12:55:49.868",
+        "detector": "SPHEREx-D2",
+        "release": "dr1",
+        "processingVersion": "l2b-v27-2026-201",
+        "wavelengthUm": 1.6212148247181952,
+        "bandwidthUm": 0.03911745589711081,
+        "wavelengthReference": "Fixed requested field center"
+      },
+      "assets": {
+        "fits": "r_dra/frames/2025W24_1A_0123_3D2.fits",
+        "png": "r_dra/frames/2025W24_1A_0123_3D2.png",
+        "masks": "r_dra/frames/2025W24_1A_0123_3D2.masks.json"
+      },
+      "display": {
+        "vmin": 0.19484649104996443,
+        "vmax": 16.760261609755133,
+        "stretch": "asinh",
+        "common": true,
+        "pngAsinhParameter": 0.1
+      },
+      "warnings": [
+        "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+        "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+        "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+      ],
+      "sequence": {
+        "frames": [
+          {
+            "id": "2025W24_1A_0123_3D2",
+            "observation": {
+              "id": "2025W24_1A_0123_3",
+              "timestampUtc": "2025-06-09T12:55:49.868",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-201",
+              "wavelengthUm": 1.6212148247181952,
+              "bandwidthUm": 0.03911745589711081,
+              "wavelengthReference": "Fixed requested field center"
+            },
+            "assets": {
+              "fits": "r_dra/frames/2025W24_1A_0123_3D2.fits",
+              "png": "r_dra/frames/2025W24_1A_0123_3D2.png",
+              "masks": "r_dra/frames/2025W24_1A_0123_3D2.masks.json"
+            },
+            "display": {
+              "vmin": 0.19484649104996443,
+              "vmax": 16.760261609755133,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+              "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+              "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                43,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "OVERFLOW": 9,
+                "SUR_ERROR": 9,
+                "SOURCE": 9,
+                "BLOOM": 9
+              },
+              "finite_fraction": 0.0,
+              "science_valid_fraction": 0.0,
+              "display_valid_fraction": 0.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.8733212809917356,
+              "scienceValidFraction": 0.765754132231405
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W24_1A/l2b-v27-2026-201/2/level2_2025W24_1A_0123_3D2_spx_l2b-v27-2026-201.fits?center=248.1672354985973,66.75502354096318d&size=0.15",
+              "sourceSha256": "ceeedab609f0bb11f9c5a8b252c44c72670c3af42e194d0a4375e0620b357ccd"
+            },
+            "visitId": "visit-1"
+          },
+          {
+            "id": "2025W27_1A_0331_3D2",
+            "observation": {
+              "id": "2025W27_1A_0331_3",
+              "timestampUtc": "2025-07-01T16:26:59.630",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-214",
+              "wavelengthUm": 1.134891216423828,
+              "bandwidthUm": 0.027145607138169887,
+              "wavelengthReference": "Fixed requested field center"
+            },
+            "assets": {
+              "fits": "r_dra/frames/2025W27_1A_0331_3D2.fits",
+              "png": "r_dra/frames/2025W27_1A_0331_3D2.png",
+              "masks": "r_dra/frames/2025W27_1A_0331_3D2.masks.json"
+            },
+            "display": {
+              "vmin": 0.19484649104996443,
+              "vmax": 16.760261609755133,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+              "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+              "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                26,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "OVERFLOW": 9,
+                "SUR_ERROR": 9,
+                "SOURCE": 9,
+                "BLOOM": 9
+              },
+              "finite_fraction": 0.0,
+              "science_valid_fraction": 0.0,
+              "display_valid_fraction": 0.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.7002840909090909,
+              "scienceValidFraction": 0.6823347107438017
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W27_1A/l2b-v27-2026-214/2/level2_2025W27_1A_0331_3D2_spx_l2b-v27-2026-214.fits?center=248.1672354985973,66.75502354096318d&size=0.15",
+              "sourceSha256": "6fedbdf4c33afbdb60b6399555eb78093cd360ecd42c01bd7ad0066527e4eaa9"
+            },
+            "visitId": "visit-2"
+          },
+          {
+            "id": "2025W27_1A_0555_2D2",
+            "observation": {
+              "id": "2025W27_1A_0555_2",
+              "timestampUtc": "2025-07-02T21:45:41.813",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-214",
+              "wavelengthUm": 1.2179931881251769,
+              "bandwidthUm": 0.02933731948651204,
+              "wavelengthReference": "Fixed requested field center"
+            },
+            "assets": {
+              "fits": "r_dra/frames/2025W27_1A_0555_2D2.fits",
+              "png": "r_dra/frames/2025W27_1A_0555_2D2.png",
+              "masks": "r_dra/frames/2025W27_1A_0555_2D2.masks.json"
+            },
+            "display": {
+              "vmin": 0.19484649104996443,
+              "vmax": 16.760261609755133,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+              "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+              "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                19,
+                44
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "OVERFLOW": 9,
+                "SUR_ERROR": 9,
+                "SOURCE": 9,
+                "BLOOM": 9
+              },
+              "finite_fraction": 0.0,
+              "science_valid_fraction": 0.0,
+              "display_valid_fraction": 0.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.6197055785123967,
+              "scienceValidFraction": 0.6067923553719008
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W27_1A/l2b-v27-2026-214/2/level2_2025W27_1A_0555_2D2_spx_l2b-v27-2026-214.fits?center=248.1672354985973,66.75502354096318d&size=0.15",
+              "sourceSha256": "c0d3741865d146814f5c73a34de16592340af05410efe6c6718db4cc9c9a74e7"
+            },
+            "visitId": "visit-3"
+          },
+          {
+            "id": "2025W47_1A_0388_3D2",
+            "observation": {
+              "id": "2025W47_1A_0388_3",
+              "timestampUtc": "2025-11-18T17:40:23.971",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-208",
+              "wavelengthUm": 1.4784331755630584,
+              "bandwidthUm": 0.03633176209799795,
+              "wavelengthReference": "Fixed requested field center"
+            },
+            "assets": {
+              "fits": "r_dra/frames/2025W47_1A_0388_3D2.fits",
+              "png": "r_dra/frames/2025W47_1A_0388_3D2.png",
+              "masks": "r_dra/frames/2025W47_1A_0388_3D2.masks.json"
+            },
+            "display": {
+              "vmin": 0.19484649104996443,
+              "vmax": 16.760261609755133,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+              "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+              "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                43,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "OVERFLOW": 9,
+                "SUR_ERROR": 9,
+                "SOURCE": 9,
+                "BLOOM": 9
+              },
+              "finite_fraction": 0.0,
+              "science_valid_fraction": 0.0,
+              "display_valid_fraction": 0.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.9382747933884298,
+              "scienceValidFraction": 0.9088326446280992
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W47_1A/l2b-v27-2026-208/2/level2_2025W47_1A_0388_3D2_spx_l2b-v27-2026-208.fits?center=248.1672354985973,66.75502354096318d&size=0.15",
+              "sourceSha256": "156f6af0179d8395c55c54b6f92d72d0e42be917b2891d6e2e1fea8bede7ad11"
+            },
+            "visitId": "visit-4"
+          },
+          {
+            "id": "2025W48_2A_0243_2D2",
+            "observation": {
+              "id": "2025W48_2A_0243_2",
+              "timestampUtc": "2025-11-28T14:01:12.180",
+              "detector": "SPHEREx-D2",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-209",
+              "wavelengthUm": 1.5885654248437213,
+              "bandwidthUm": 0.0382339937141621,
+              "wavelengthReference": "Fixed requested field center"
+            },
+            "assets": {
+              "fits": "r_dra/frames/2025W48_2A_0243_2D2.fits",
+              "png": "r_dra/frames/2025W48_2A_0243_2D2.png",
+              "masks": "r_dra/frames/2025W48_2A_0243_2D2.masks.json"
+            },
+            "display": {
+              "vmin": 0.19484649104996443,
+              "vmax": 16.760261609755133,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": null,
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+              "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+              "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                43,
+                44
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "OVERFLOW": 9,
+                "SUR_ERROR": 9,
+                "SOURCE": 9,
+                "BLOOM": 9
+              },
+              "finite_fraction": 0.0,
+              "science_valid_fraction": 0.0,
+              "display_valid_fraction": 0.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.9362086776859504,
+              "scienceValidFraction": 0.9158057851239669
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W48_2A/l2b-v27-2026-209/2/level2_2025W48_2A_0243_2D2_spx_l2b-v27-2026-209.fits?center=248.1672354985973,66.75502354096318d&size=0.15",
+              "sourceSha256": "ca280f591948f115da979522a25dffcd4f4424b0e02db846afd23596d6ae2876"
+            },
+            "visitId": "visit-5"
+          }
+        ],
+        "display": {
+          "vmin": 0.19484649104996443,
+          "vmax": 16.760261609755133,
+          "stretch": "asinh",
+          "common": true,
+          "pngAsinhParameter": 0.1
+        },
+        "motion": null,
+        "classification": "diagnostic",
+        "warnings": [
+          "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+          "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+          "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+        ],
+        "interpretation": "Real fixed-grid observations; exploratory visual inspection, not a validated motion or variability result.",
+        "predictionModel": null,
+        "astrometricReference": null,
+        "groups": [
+          {
+            "id": "inspection",
+            "label": "All available observations \u00b7 inspection only",
+            "frameIds": [
+              "2025W24_1A_0123_3D2",
+              "2025W27_1A_0331_3D2",
+              "2025W27_1A_0555_2D2",
+              "2025W47_1A_0388_3D2",
+              "2025W48_2A_0243_2D2"
+            ],
+            "comparison": false,
+            "display": {
+              "vmin": 0.19484649104996443,
+              "vmax": 16.760261609755133,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "warnings": [
+              "Wavelengths or quality may differ; this group is not a homogeneous temporal measurement."
+            ]
+          }
+        ],
+        "defaultGroupId": "inspection",
+        "availableObservationCount": 5,
+        "independentVisitCount": 5
+      },
+      "brightness": {
+        "classification": "diagnostic",
+        "interpretation": "Diagnostic brightness comparison: 0 spectrally comparable accepted epochs; no validated variability claim. Rejected aperture fluxes remain null.",
+        "method": "Original IMAGE aperture r=2 native pixels; sigma-clipped SOURCE-masked annulus 4\u20137 pixels; full SIP WCS spherical pixel solid angles; original VARIANCE.",
+        "units": "microJy (in-aperture flux density)",
+        "points": [
+          {
+            "id": "2025W24_1A_0123_3D2",
+            "timestampUtc": "2025-06-09T12:55:49.868",
+            "mjd": 60835.538771617,
+            "wavelengthUm": 1.6212152504920099,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "OVERFLOW": 9,
+              "SUR_ERROR": 9,
+              "SOURCE": 9,
+              "BLOOM": 9
+            },
+            "apertureValidFraction": 0.0
+          },
+          {
+            "id": "2025W27_1A_0331_3D2",
+            "timestampUtc": "2025-07-01T16:26:59.630",
+            "mjd": 60857.685412381,
+            "wavelengthUm": 1.1348914082502193,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "OVERFLOW": 9,
+              "SUR_ERROR": 9,
+              "SOURCE": 9,
+              "BLOOM": 9
+            },
+            "apertureValidFraction": 0.0
+          },
+          {
+            "id": "2025W27_1A_0555_2D2",
+            "timestampUtc": "2025-07-02T21:45:41.813",
+            "mjd": 60858.906733944,
+            "wavelengthUm": 1.2179934021008005,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "OVERFLOW": 9,
+              "SUR_ERROR": 9,
+              "SOURCE": 9,
+              "BLOOM": 9
+            },
+            "apertureValidFraction": 0.0
+          },
+          {
+            "id": "2025W47_1A_0388_3D2",
+            "timestampUtc": "2025-11-18T17:40:23.971",
+            "mjd": 60997.73638855,
+            "wavelengthUm": 1.4784332243034402,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "OVERFLOW": 9,
+              "SUR_ERROR": 9,
+              "SOURCE": 9,
+              "BLOOM": 9
+            },
+            "apertureValidFraction": 0.0
+          },
+          {
+            "id": "2025W48_2A_0243_2D2",
+            "timestampUtc": "2025-11-28T14:01:12.180",
+            "mjd": 61007.584168747,
+            "wavelengthUm": 1.5885655057406334,
+            "qualityAccepted": false,
+            "comparisonAccepted": false,
+            "fluxMicroJy": null,
+            "formalErrorMicroJy": null,
+            "relativeFlux": null,
+            "relativeFormalError": null,
+            "relativeChangePercent": null,
+            "reason": "Invalid/flagged or nonpositive-variance source aperture; lost flux is not reconstructed.",
+            "coreFlags": {
+              "OVERFLOW": 9,
+              "SUR_ERROR": 9,
+              "SOURCE": 9,
+              "BLOOM": 9
+            },
+            "apertureValidFraction": 0.0
+          }
+        ],
+        "warnings": [
+          "R Draconis is a known Mira variable; that catalog knowledge does not validate these SPHEREx aperture measurements.",
+          "Source apertures have invalid/OVERFLOW/SUR_ERROR/BLOOM pixels. Rejected fluxes remain null; no quantitative variability curve.",
+          "The available D2 wavelengths differ; these five frames are inspection-only, not a homogeneous temporal measurement."
+        ],
+        "references": [],
+        "normalization": null
+      }
+    },
+    {
+      "id": "wise0855",
+      "name": "WISE 0855",
+      "objectType": "Cold brown dwarf \u00b7 diagnostic predictions",
+      "classification": "diagnostic",
+      "center": {
+        "raDeg": 133.76014513933,
+        "decDeg": -7.2422134599321
+      },
+      "dimensions": {
+        "width": 88,
+        "height": 88
+      },
+      "pixelScaleArcsec": 6.2,
+      "wcsHeader": {
+        "WCSAXES": 2,
+        "CRPIX1": 44.5,
+        "CRPIX2": 44.5,
+        "CDELT1": -0.0017222222222222,
+        "CDELT2": 0.0017222222222222,
+        "CUNIT1": "deg",
+        "CUNIT2": "deg",
+        "CTYPE1": "RA---TAN",
+        "CTYPE2": "DEC--TAN",
+        "CRVAL1": 133.76014513933,
+        "CRVAL2": -7.2422134599321,
+        "LONPOLE": 180.0,
+        "LATPOLE": -7.2422134599321,
+        "MJDREF": 0.0,
+        "RADESYS": "ICRS"
+      },
+      "footprint": [
+        [
+          133.83654512238803,
+          -7.317984758214263
+        ],
+        [
+          133.68374515627198,
+          -7.317984758214263
+        ],
+        [
+          133.6837708329751,
+          -7.166429425715731
+        ],
+        [
+          133.8365194456849,
+          -7.166429425715731
+        ]
+      ],
+      "angularSizeDeg": {
+        "width": 0.15155546718887639,
+        "height": 0.1515554671888566
+      },
+      "geometryValidation": {
+        "centerErrorArcsec": 1.1449996853268664e-11,
+        "cornerRoundtripErrorPixels": 1.1391433903939538e-11,
+        "northUp": true,
+        "eastLeft": true,
+        "footprintConvention": "Outer pixel edges, ordered bottom-left, bottom-right, top-right, top-left in FITS coordinates."
+      },
+      "observation": {
+        "id": "2025W19_1B_0116_1",
+        "timestampUtc": "2025-05-05T16:49:00.018",
+        "detector": "SPHEREx-D6",
+        "release": "dr1",
+        "processingVersion": "l2b-v27-2026-197",
+        "wavelengthUm": 4.967396579410585,
+        "bandwidthUm": 0.03718691299283424,
+        "wavelengthReference": "Catalog-predicted position at this epoch"
+      },
+      "assets": {
+        "fits": "wise0855/frames/2025W19_1B_0116_1D6.fits",
+        "png": "wise0855/frames/2025W19_1B_0116_1D6.png",
+        "masks": "wise0855/frames/2025W19_1B_0116_1D6.masks.json"
+      },
+      "display": {
+        "vmin": 0.3254125952646197,
+        "vmax": 0.9899684748267767,
+        "stretch": "asinh",
+        "common": true,
+        "pngAsinhParameter": 0.1
+      },
+      "warnings": [
+        "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+        "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+        "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+        "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+      ],
+      "sequence": {
+        "frames": [
+          {
+            "id": "2025W19_1B_0116_1D6",
+            "observation": {
+              "id": "2025W19_1B_0116_1",
+              "timestampUtc": "2025-05-05T16:49:00.018",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-197",
+              "wavelengthUm": 4.967396579410585,
+              "bandwidthUm": 0.03718691299283424,
+              "wavelengthReference": "Catalog-predicted position at this epoch"
+            },
+            "assets": {
+              "fits": "wise0855/frames/2025W19_1B_0116_1D6.fits",
+              "png": "wise0855/frames/2025W19_1B_0116_1D6.png",
+              "masks": "wise0855/frames/2025W19_1B_0116_1D6.masks.json"
+            },
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": {
+              "raDeg": 133.76126178105923,
+              "decDeg": -7.242305399159911,
+              "xFits": 42.85680017405865,
+              "yFits": 43.44661514207214,
+              "xImage": 42.85680017405865,
+              "yImage": 43.55338485792786
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+              "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+              "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+              "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                44,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "SOURCE": 7
+              },
+              "finite_fraction": 1.0,
+              "science_valid_fraction": 1.0,
+              "display_valid_fraction": 1.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.8565340909090909,
+              "scienceValidFraction": 0.7887396694214877
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/6/level2_2025W19_1B_0116_1D6_spx_l2b-v27-2026-197.fits?center=133.76014513933393,-7.242213459932066d&size=0.15",
+              "sourceSha256": "5414f8f89635cc667ef49c1c5bd928a82c14a7bd85037d6e145f0c85663e33d3"
+            },
+            "visitId": "visit-1"
+          },
+          {
+            "id": "2025W19_1B_0138_1D6",
+            "observation": {
+              "id": "2025W19_1B_0138_1",
+              "timestampUtc": "2025-05-05T20:02:32.989",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-197",
+              "wavelengthUm": 4.8598936061068345,
+              "bandwidthUm": 0.03793436220674171,
+              "wavelengthReference": "Catalog-predicted position at this epoch"
+            },
+            "assets": {
+              "fits": "wise0855/frames/2025W19_1B_0138_1D6.fits",
+              "png": "wise0855/frames/2025W19_1B_0138_1D6.png",
+              "masks": "wise0855/frames/2025W19_1B_0138_1D6.masks.json"
+            },
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": {
+              "raDeg": 133.7612609439832,
+              "decDeg": -7.242305330239888,
+              "xFits": 42.85728234041124,
+              "yFits": 43.446655161328316,
+              "xImage": 42.85728234041124,
+              "yImage": 43.553344838671684
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+              "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+              "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+              "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                44,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "SOURCE": 7
+              },
+              "finite_fraction": 1.0,
+              "science_valid_fraction": 1.0,
+              "display_valid_fraction": 1.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.8613119834710744,
+              "scienceValidFraction": 0.8047520661157025
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/6/level2_2025W19_1B_0138_1D6_spx_l2b-v27-2026-197.fits?center=133.76014513933393,-7.242213459932066d&size=0.15",
+              "sourceSha256": "537d1ddf263005f89537300e73e69e376224b6ad5205674b5e467d5566aa9fab"
+            },
+            "visitId": "visit-1"
+          },
+          {
+            "id": "2025W46_1A_0075_4D6",
+            "observation": {
+              "id": "2025W46_1A_0075_4",
+              "timestampUtc": "2025-11-10T07:08:21.723",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-206",
+              "wavelengthUm": 4.417804169107194,
+              "bandwidthUm": 0.03724709181710541,
+              "wavelengthReference": "Catalog-predicted position at this epoch"
+            },
+            "assets": {
+              "fits": "wise0855/frames/2025W46_1A_0075_4D6.fits",
+              "png": "wise0855/frames/2025W46_1A_0075_4D6.png",
+              "masks": "wise0855/frames/2025W46_1A_0075_4D6.masks.json"
+            },
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": {
+              "raDeg": 133.7600872364616,
+              "decDeg": -7.242208692396273,
+              "xFits": 43.533352797543934,
+              "yFits": 43.502768244458196,
+              "xImage": 43.533352797543934,
+              "yImage": 43.497231755541804
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+              "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+              "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+              "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                44,
+                44
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "SOURCE": 9
+              },
+              "finite_fraction": 1.0,
+              "science_valid_fraction": 1.0,
+              "display_valid_fraction": 1.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.8569214876033058,
+              "scienceValidFraction": 0.8073347107438017
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W46_1A/l2b-v27-2026-206/6/level2_2025W46_1A_0075_4D6_spx_l2b-v27-2026-206.fits?center=133.76014513933393,-7.242213459932066d&size=0.15",
+              "sourceSha256": "cb6c935bce80e9157466c3c5615fbc398893be0e7f268ec187ac2e65b04f5af0"
+            },
+            "visitId": "visit-2"
+          },
+          {
+            "id": "2025W50_2A_0428_1D6",
+            "observation": {
+              "id": "2025W50_2A_0428_1",
+              "timestampUtc": "2025-12-13T00:42:54.619",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-210",
+              "wavelengthUm": 4.736041825042808,
+              "bandwidthUm": 0.03660566605258707,
+              "wavelengthReference": "Catalog-predicted position at this epoch"
+            },
+            "assets": {
+              "fits": "wise0855/frames/2025W50_2A_0428_1D6.fits",
+              "png": "wise0855/frames/2025W50_2A_0428_1D6.png",
+              "masks": "wise0855/frames/2025W50_2A_0428_1D6.masks.json"
+            },
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": {
+              "raDeg": 133.75988338586427,
+              "decDeg": -7.2421919079363954,
+              "xFits": 43.65077336326868,
+              "yFits": 43.512514018574194,
+              "xImage": 43.65077336326868,
+              "yImage": 43.487485981425806
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+              "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+              "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+              "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                43,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "NONFUNC": 1,
+                "SOURCE": 7
+              },
+              "finite_fraction": 1.0,
+              "science_valid_fraction": 0.8888888888888888,
+              "display_valid_fraction": 0.8888888888888888,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.8496900826446281,
+              "scienceValidFraction": 0.7900309917355371
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W50_2A/l2b-v27-2026-210/6/level2_2025W50_2A_0428_1D6_spx_l2b-v27-2026-210.fits?center=133.76014513933393,-7.242213459932066d&size=0.15",
+              "sourceSha256": "2f53c4dca0c1564e2f0136b5589ac1e14a6034d8063c6cd1942f417ec6ae6206"
+            },
+            "visitId": "visit-3"
+          },
+          {
+            "id": "2026W20_1A_0033_1D6",
+            "observation": {
+              "id": "2026W20_1A_0033_1",
+              "timestampUtc": "2026-05-11T02:19:42.221",
+              "detector": "SPHEREx-D6",
+              "release": "dr1",
+              "processingVersion": "l2b-v27-2026-246",
+              "wavelengthUm": 4.967284283579963,
+              "bandwidthUm": 0.0371869734246723,
+              "wavelengthReference": "Catalog-predicted position at this epoch"
+            },
+            "assets": {
+              "fits": "wise0855/frames/2026W20_1A_0033_1D6.fits",
+              "png": "wise0855/frames/2026W20_1A_0033_1D6.png",
+              "masks": "wise0855/frames/2026W20_1A_0033_1D6.masks.json"
+            },
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "expectedPosition": {
+              "raDeg": 133.75895502422492,
+              "decDeg": -7.242115468200869,
+              "xFits": 44.185521717558586,
+              "yFits": 43.55689752704712,
+              "xImage": 44.185521717558586,
+              "yImage": 43.44310247295288
+            },
+            "measuredPosition": null,
+            "formalCentroidErrorArcsec": null,
+            "formalCentroidErrorOriginalPixels": null,
+            "warnings": [
+              "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+              "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+              "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+              "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+            ],
+            "quality": {
+              "pixel_center": [
+                43,
+                43
+              ],
+              "radius_pixels": 1,
+              "flag_pixel_counts": {
+                "SOURCE": 9
+              },
+              "finite_fraction": 1.0,
+              "science_valid_fraction": 1.0,
+              "display_valid_fraction": 1.0,
+              "error": null
+            },
+            "masks": {
+              "displayValidFraction": 0.8539514462809917,
+              "scienceValidFraction": 0.7931301652892562
+            },
+            "provenance": {
+              "sourceUrl": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W20_1A/l2b-v27-2026-246/6/level2_2026W20_1A_0033_1D6_spx_l2b-v27-2026-246.fits?center=133.76014513933393,-7.242213459932066d&size=0.15",
+              "sourceSha256": "f176f181bde35f53dcdbd1d8b217a2b046199051f8f807ab42e2e229cc17da0b"
+            },
+            "visitId": "visit-4"
+          }
+        ],
+        "display": {
+          "vmin": 0.3254125952646197,
+          "vmax": 0.9899684748267767,
+          "stretch": "asinh",
+          "common": true,
+          "pngAsinhParameter": 0.1
+        },
+        "motion": {
+          "measuredDisplacementArcsec": null,
+          "measuredDisplacementPixels": null,
+          "formalEndpointErrorArcsec": null,
+          "expectedDisplacementArcsec": 8.266400139060341,
+          "expectedDisplacementPixels": 1.3332903451974096,
+          "timeSeparationDays": 370.3963217939815,
+          "referenceRmsArcsec": 0.952051468608086,
+          "referenceCount": 6
+        },
+        "classification": "diagnostic",
+        "warnings": [
+          "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+          "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+          "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+          "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+        ],
+        "interpretation": "WISE 0855 diagnostic: the compatible 2025/2026 pair has predicted linear displacement only; both endpoint centroid fits are rejected. No SPHEREx motion is measured.",
+        "predictionModel": "Linear tangent proper motion from documented SIMBAD ICRS J2000. No annual parallax or perspective acceleration.",
+        "astrometricReference": {
+          "key": "wise0855",
+          "name": "WISE 0855-0714",
+          "query_name": "WISE J085510.83-071442.5",
+          "object_type": "Cold brown dwarf",
+          "expected_phenomenon": "Proper motion; likely much more favorable signal in long wavelength detectors.",
+          "main_id": "WISEA J085510.74-071442.5",
+          "identifiers": [
+            "CNS5 2194",
+            "WISE J085510.83-071442.5",
+            "WISEA J085510.74-071442.5"
+          ],
+          "ra_deg": 133.81890825,
+          "dec_deg": -7.247048000000001,
+          "reference_epoch_jyear": 2000.0,
+          "frame": "ICRS",
+          "reference_epoch_source": "https://simbad.u-strasbg.fr/Pages/guide/sim-fsam.htx",
+          "coordinate_bibcode": "2021ApJS..253....7K",
+          "pm_ra_cosdec_mas_yr": -8123.7,
+          "pm_dec_mas_yr": 673.2,
+          "proper_motion_bibcode": "2021ApJS..253....7K",
+          "pm_error_major_mas_yr": 1.2999999523162842,
+          "pm_error_minor_mas_yr": 1.2999999523162842,
+          "parallax_mas": 439.0,
+          "parallax_bibcode": "2021ApJS..253....7K",
+          "simbad_type": "BD*",
+          "source": "SIMBAD Harvard mirror via astroquery",
+          "resolved_at_utc": "2026-11-14T09:22:59.258",
+          "epoch_note": "SIMBAD basic positions are propagated to ICRS epoch J2000, distinct from the source catalog epoch (Gaia EDR3 J2016)."
+        },
+        "groups": [
+          {
+            "id": "compatible",
+            "label": "Preliminary spectral group \u00b7 exploratory only",
+            "frameIds": [
+              "2025W19_1B_0116_1D6",
+              "2026W20_1A_0033_1D6"
+            ],
+            "comparison": true,
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "warnings": [
+              "Diagnostic WISE 0855 field: no accepted centroid pair at compatible wavelengths; no measured displacement.",
+              "The historical challenge coordinate is not its position at every epoch; cyan marks use the documented linear catalog prediction.",
+              "Annual parallax (~0.439 arcsec), observer position and other systematics are omitted. Predictions are not measurements.",
+              "Isolated fits at incompatible wavelengths are retained privately as diagnostics and not promoted to a validated WISE measurement."
+            ]
+          },
+          {
+            "id": "inspection",
+            "label": "All available observations \u00b7 inspection only",
+            "frameIds": [
+              "2025W19_1B_0116_1D6",
+              "2025W19_1B_0138_1D6",
+              "2025W46_1A_0075_4D6",
+              "2025W50_2A_0428_1D6",
+              "2026W20_1A_0033_1D6"
+            ],
+            "comparison": false,
+            "display": {
+              "vmin": 0.3254125952646197,
+              "vmax": 0.9899684748267767,
+              "stretch": "asinh",
+              "common": true,
+              "pngAsinhParameter": 0.1
+            },
+            "warnings": [
+              "Wavelengths or quality may differ; this group is not a homogeneous temporal measurement."
+            ]
+          }
+        ],
+        "defaultGroupId": "compatible",
+        "availableObservationCount": 5,
+        "independentVisitCount": 4,
+        "historicalPair": {
+          "aId": "2025W19_1B_0116_1D6",
+          "bId": "2026W20_1A_0033_1D6"
+        }
+      }
     }
   ],
   "notes": [

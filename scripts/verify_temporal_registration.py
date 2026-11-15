@@ -26,7 +26,9 @@ def main():
         metadata = json.loads(path.read_text(encoding="utf-8"))
         name = path.stem.removesuffix("_screen")
         image = np.array(Image.open(directory / f"{name}.png").convert("RGB"), dtype=float)
-        with fits.open(PROJECT / "frontend/public/data" / metadata["frame"]["assets"]["fits"]) as hdus:
+        asset=metadata['frame']['assets']['fits']
+        root=PROJECT/('outputs/spx006b/assets' if asset.startswith('dynamic/') else 'frontend/public/data')
+        with fits.open(root/asset) as hdus:
             array = hdus[0].data.copy()
         expected, observed, flipped, paired = [], [], [], []
         for sample in metadata["samples"]:

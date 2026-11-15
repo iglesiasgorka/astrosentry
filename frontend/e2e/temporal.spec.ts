@@ -1,17 +1,19 @@
-import {test,expect,type Page} from '@playwright/test';
+import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
+import {test,expect,type Page} from './fixtures';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {LonLat} from '../src/types/sky';
-const directory=fileURLToPath(new URL('../../outputs/spx005/regression/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx007a/regression/',import.meta.url));
 await mkdir(directory,{recursive:true});
-const samples=JSON.parse(await readFile(new URL('../../outputs/spx005/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
+const samples=JSON.parse(await readFile(new URL('../../outputs/spx007a/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function arrived(page:Page,id:string){await page.waitForFunction(id=>window.__analysis?.targetId===id&&window.__analysis.prepared&&window.__sky!.engine.getCutoutStatus().loaded,id,{timeout:30000});}
 async function frameReady(page:Page,index:number){await page.waitForFunction(index=>{const sky=window.__sky!,analysis=window.__analysis!;const target=sky.targets.find(t=>t.id===analysis.targetId)!;return sky.engine.getCutoutStatus().loaded&&sky.engine.getCutoutStatus().frameId===analysis.frameIds[index];},index);await page.waitForTimeout(250);}
 async function capture(page:Page,id:string,index:number,suffix=''){
+ await closeMore(page);
   const logicalIndex=index; index=await page.evaluate(({id,index})=>{const sky=window.__sky!;return sky.targets.find(t=>t.id===id)!.sequence!.frames.findIndex(f=>f.id===window.__analysis!.frameIds[index]);},{id,index});
   const data=await page.evaluate(({id,index,points})=>{const sky=window.__sky!,target=sky.targets.find(t=>t.id===id)!,frame=target.sequence!.frames[index];
-    return {id,index,frame,camera:sky.engine.snapshot(),cutout:sky.engine.getCutoutStatus(),corners:target.footprint.map(p=>sky.engine.project(p)),samples:points.map(point=>({...point,screen:sky.engine.project(point.sky)}))};
+    return {id,index,frame,camera:sky.engine.snapshot(),cutout:sky.engine.getCutoutStatus(),corners:target.footprint.map(p=>sky.engine.project(p)),samples:points.map(point=>({...point,screen:(()=>{const p=sky.engine.project(point.sky),r=document.querySelector('.sky-canvas')!.getBoundingClientRect();return p?[p[0]+r.left,p[1]+r.top]:null})()}))};
   },{id,index,points:samples[id][index]});
   const target=await page.evaluate(id=>window.__sky!.targets.find(t=>t.id===id)!,id);
   expect(data.cutout.frameId).toBe(data.frame.id);expect(data.cutout.cuts).toEqual([target.sequence!.display.vmin,target.sequence!.display.vmax]);
@@ -39,11 +41,13 @@ test('six actual epochs play and blink on one fixed WCS map with scientific insp
     const localStart=requests.length;
     await page.getByRole('button',{name:'Next observation',exact:true}).click();await frameReady(page,1);await capture(page,id,1);
     await page.getByRole('button',{name:'Previous observation',exact:true}).click();await frameReady(page,0);
+  await more(page);
     await page.getByLabel('Playback speed',{exact:true}).selectOption('400');
     await page.getByRole('button',{name:'Play observations',exact:true}).click();
     await expect.poll(()=>page.evaluate(()=>window.__analysis!.index===window.__analysis!.b)).toBe(true);
     await page.getByRole('button',{name:'Pause playback',exact:true}).click();
     const paused=await page.evaluate(()=>window.__analysis!.index);await page.waitForTimeout(600);expect(await page.evaluate(()=>window.__analysis!.index)).toBe(paused);
+  await more(page);
     await page.getByLabel('Observation A',{exact:true}).selectOption(String(await page.evaluate(()=>window.__analysis!.b)));await page.getByLabel('Observation B',{exact:true}).selectOption('0');
     await page.getByRole('button',{name:'Blink A/B',exact:true}).click();await expect.poll(()=>page.evaluate(()=>window.__analysis!.index)).toBe(0);
     await page.getByRole('button',{name:'Stop blink',exact:true}).click();
@@ -52,13 +56,13 @@ test('six actual epochs play and blink on one fixed WCS map with scientific insp
     expect(diagnostics).toHaveLength(2);expect(diagnostics.every(l=>l.ready&&l.stretch==='asinh')).toBe(true);expect(diagnostics[0].cuts).toEqual(diagnostics[1].cuts);
     expect(requests.slice(localStart).filter(url=>url.includes('/data/')&&url.endsWith('.fits')&&!url.includes('/hips/'))).toEqual([]);
     if(id!=='m101'){
-      await page.getByRole('button',{name:id==='barnard'?'Predicted positions':'Motion Inspector',exact:true}).click();await page.waitForTimeout(100);await verifyMarks(page);
+      await openInspector(page,'Motion');await page.waitForTimeout(100);await verifyMarks(page);
       if(id==='epsilon_indi_b'){await expect(page.getByRole('region',{name:'Motion Inspector'})).toContainText('1.91982');await expect(page.getByRole('region',{name:'Motion Inspector'})).toContainText('0.16395');}
       else{expect(await page.locator('[data-mark^="measured-"]').count()).toBe(0);await expect(page.getByRole('region',{name:'Motion Inspector'})).toContainText('invalid and saturated');}
       await page.screenshot({path:directory+id+'_inspector.png'});
       await page.mouse.move(700,420);await page.mouse.down();await page.mouse.move(740,445,{steps:8});await page.mouse.up();await page.waitForTimeout(150);await verifyMarks(page);
       await page.setViewportSize({width:1200,height:900});await page.waitForTimeout(200);await verifyMarks(page);
-      await page.getByRole('button',{name:'Close Motion Inspector'}).click();
+      await openInspector(page,'Overview');
     }else{await expect(page.getByRole('button',{name:'Motion Inspector',exact:true})).toHaveCount(0);await page.mouse.move(700,420);await page.mouse.down();await page.mouse.move(740,445,{steps:8});await page.mouse.up();}
     await page.getByRole('button',{name:/^Select observation 2:/}).click();await frameReady(page,1);await capture(page,id,1,'_panned');
     await page.setViewportSize({width:1150,height:850});await page.waitForTimeout(200);await capture(page,id,1,'_resized');
@@ -74,14 +78,14 @@ test('playback cancels on navigation and failures never pretend to show another 
   await page.route('https://**/*',route=>route.abort());await ready(page);await page.emulateMedia({reducedMotion:'reduce'});
   await page.getByRole('button',{name:'Fly to Epsilon Indi B',exact:true}).click();await arrived(page,'epsilon_indi_b');
   await page.getByRole('button',{name:'Play observations',exact:true}).click();
-  await page.getByRole('button',{name:'4 prepared fields'}).click();await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/M101/}).click();await arrived(page,'m101');
+  await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/M101/}).click();await arrived(page,'m101');
   expect(await page.evaluate(()=>window.__analysis!.mode)).toBe('paused');expect(await page.evaluate(()=>window.__analysis!.index)).toBe(0);
   await page.getByRole('button',{name:'Play observations',exact:true}).click();await page.getByRole('button',{name:'Minimize analysis',exact:true}).click();expect(await page.evaluate(()=>window.__analysis!.mode)).toBe('paused');
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:directory+'mobile_minimized.png'});
   await page.getByRole('button',{name:'Expand analysis',exact:true}).click();await page.screenshot({path:directory+'mobile_analysis.png'});
   await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForFunction(()=>window.__sky!.engine.getCamera().fov>359.99);
   await page.route('**/data/barnard/frames/*0501*.fits',route=>route.fulfill({status:404,body:'Deliberate missing second epoch'}));
-  await page.getByRole('button',{name:"Fly to Barnard's Star",exact:true}).click();
+  await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/^Barnard/}).click();
   await page.waitForFunction(()=>window.__sky!.engine.getCutoutStatus().loaded);
   await page.getByRole('button',{name:'Next observation',exact:true}).click();
   await expect(page.locator('.honest-fallback')).toContainText('Local inspection only.');expect(await page.evaluate(()=>window.__sky!.engine.getCutoutStatus().loaded)).toBe(false);

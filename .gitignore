@@ -34,5 +34,8 @@ data/**
 outputs/**
 !outputs/.gitkeep
 .env
+.env.local
+frontend/.env.local
+/SPX006_PROGRESS.md
 .ipynb_checkpoints/
 

@@ -1,4 +1,5 @@
 import type { Position, SkyCatalog, SkyTarget, TemporalSequence } from '../types/sky';
+import {API_BASE} from './apiConfig';
 
 export const DATA_ROOT = `${import.meta.env.BASE_URL}data/`;
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -75,5 +76,6 @@ export async function loadCatalog(signal?: AbortSignal): Promise<SkyCatalog> {
 
 export function assetUrl(path: string): string {
   if (!relative(path)) throw new Error('Expected a relative local asset.');
+  if(path.startsWith('dynamic/')){if(!API_BASE)throw new Error('This prepared region requires its processing service.');return API_BASE+'/assets/'+path;}
   return new URL(DATA_ROOT + path, window.location.href).href;
 }

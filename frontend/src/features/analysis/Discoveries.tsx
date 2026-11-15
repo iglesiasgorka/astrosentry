@@ -1,0 +1,21 @@
+import {useEffect,useRef,useState} from 'react';
+import {downloadEvidence,readEvidence,removeEvidence,storeEvidence,type CandidateEvidence} from './candidateModel';
+import {API_BASE} from '../../data/apiConfig';
+import '../../styles/candidates.css';
+export function Discoveries({onOpen}:{onOpen:(record:CandidateEvidence)=>void}){
+  const [open,setOpen]=useState(false),[records,setRecords]=useState<CandidateEvidence[]>([]),[error,setError]=useState(''),[drafts,setDrafts]=useState<Record<string,string>>({});
+  const dialog=useRef<HTMLElement>(null);
+  const reload=()=>{const result=readEvidence(localStorage);setRecords(result.records);setError(result.error??'');};
+  useEffect(()=>{reload();window.addEventListener('spx-candidates-changed',reload);window.addEventListener('storage',reload);return()=>{window.removeEventListener('spx-candidates-changed',reload);window.removeEventListener('storage',reload);};},[]);
+  useEffect(()=>{if(!open)return;const previous=document.activeElement as HTMLElement|null;dialog.current?.querySelector<HTMLButtonElement>('button')?.focus();const keys=(e:KeyboardEvent)=>{if(e.key==='Escape')setOpen(false);if(e.key==='Tab'){const nodes=[...dialog.current!.querySelectorAll<HTMLElement>('button:not(:disabled), textarea, a[href]')],first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};window.addEventListener('keydown',keys);return()=>{window.removeEventListener('keydown',keys);previous?.focus();};},[open]);
+  const edit=(record:CandidateEvidence)=>{try{storeEvidence(localStorage,{...record,notes:drafts[record.id]??record.notes});reload();}catch(e){setError(String(e))}};
+  const remove=(record:CandidateEvidence)=>{if(!window.confirm('Remove this locally saved investigation? Exported files are unaffected.'))return;try{removeEvidence(localStorage,record.id);reload();}catch(e){setError(String(e))}};
+  return <><button className="discoveries-button" onClick={()=>{reload();setOpen(true)}}>My Discoveries <span>{records.length}</span></button>{open&&<div className="modal-backdrop" onClick={()=>setOpen(false)}><section ref={dialog} className="discoveries-dialog floating-panel" role="dialog" aria-modal="true" aria-label="My Discoveries" onClick={e=>e.stopPropagation()}><button className="dialog-close" aria-label="Close My Discoveries" onClick={()=>setOpen(false)}>×</button><span className="eyebrow">PRIVATE LOCAL INVESTIGATIONS</span><h2>My Discoveries</h2><p>Unverified annotations for review, not confirmed discoveries. Stored in this browser only; not sent to NASA or other users.</p>
+    {error&&<p role="alert">{error}</p>}{records.length===0&&!error&&<p>No investigations saved yet. Open a compatible temporal pair and choose Mark Candidate.</p>}
+    {records.map(record=><article key={record.id} className="saved-investigation"><h3>{record.targetName}</h3><strong>Unverified — Requires review</strong><p>A: {record.a.observation.timestampUtc} UTC<br/>B: {record.b.observation.timestampUtc} UTC<br/>Manual separation: {record.separationArcsec.toFixed(4)} arcsec · {record.elapsedDays.toFixed(3)} days</p>
+      <label>Notes<textarea aria-label={`Notes for ${record.targetName}`} maxLength={2000} rows={2} value={drafts[record.id]??record.notes} onChange={e=>setDrafts({...drafts,[record.id]:e.target.value})}/></label>
+      <div className="candidate-actions"><button onClick={()=>edit(record)}>Save notes</button><button disabled={record.targetId.startsWith('region_')&&!API_BASE} onClick={()=>{try{onOpen(record);setOpen(false)}catch(e){setError(String(e))}}}>Reopen observations</button><button onClick={()=>downloadEvidence({...record,notes:drafts[record.id]??record.notes})}>Export JSON</button><button onClick={()=>downloadEvidence({...record,notes:drafts[record.id]??record.notes},true)}>Export Markdown</button><button onClick={()=>remove(record)}>Remove</button></div>
+      {record.targetId.startsWith('region_')&&<p className="candidate-caution">This region requires the original local processing service and retained job files. Annotations remain exportable if those images are no longer available.</p>}
+    </article>)}
+    </section></div>}</>;
+}

@@ -1,21 +1,23 @@
-import { test,expect,type Page } from '@playwright/test';
+import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
+import { test,expect,type Page } from './fixtures';
 import { readFile,writeFile,mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { LonLat } from '../src/types/sky';
 
-const output=fileURLToPath(new URL('../../outputs/spx005/regression/legacy/',import.meta.url));
+const output=fileURLToPath(new URL('../../outputs/spx007a/regression/legacy/',import.meta.url));
 await mkdir(output,{recursive:true});
-const temporalSamples=JSON.parse(await readFile(new URL('../../outputs/spx005/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
+const temporalSamples=JSON.parse(await readFile(new URL('../../outputs/spx007a/registration_samples.json',import.meta.url),'utf8')) as Record<string,Array<Array<{pixel:LonLat;sky:LonLat;value:number}>>>;
 const samples=Object.fromEntries(Object.entries(temporalSamples).map(([id,frames])=>[id,frames[0]]));
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
 async function arrived(page:Page,id:string){await page.waitForFunction(key=>window.__sky?.state.mode==='inspecting'&&window.__sky.engine.getCutoutStatus().id===key&&window.__sky.engine.getCutoutStatus().loaded,id,{timeout:25000});await page.waitForTimeout(400);}
 async function capture(page:Page,id:string,suffix=''){
+ await closeMore(page);
   const data=await page.evaluate(({id,points})=>{
     const sky=window.__sky!;const target=sky.targets.find(t=>t.id===id)!;
     return {id,camera:sky.engine.snapshot(),cutout:sky.engine.getCutoutStatus(),target,
       centerScreen:sky.engine.project([target.center.raDeg,target.center.decDeg]),
       projectedCorners:target.footprint.map(point=>sky.engine.project(point)),
-      samples:points.map(point=>({...point,screen:sky.engine.project(point.sky)}))};
+      samples:points.map(point=>({...point,screen:(()=>{const p=sky.engine.project(point.sky),r=document.querySelector('.sky-canvas')!.getBoundingClientRect();return p?[p[0]+r.left,p[1]+r.top]:null})()}))};
   },{id,points:samples[id]});
   expect(data.cutout.loaded).toBe(true);expect(data.cutout.nativeCenter).not.toBeNull();
   expect(Math.abs(data.cutout.nativeCenter![0]-data.target.center.raDeg)).toBeLessThan(1e-7);
@@ -32,7 +34,7 @@ test('real HiPS sky, three marker flights, registered FITS, navigation and retur
   await ready(page);await expect.poll(()=>tiles.filter(t=>t.status===200).length,{timeout:25000}).toBeGreaterThan(6);
   await expect.poll(()=>new Set(tiles.filter(t=>t.status===200&&t.url.includes('/Norder0/')).map(t=>t.url.match(/Npix\d+_29/)?.[0])).size,{timeout:25000}).toBe(12);
   await page.waitForTimeout(1200);
-  await expect(page.locator('[data-target]')).toHaveCount(4);
+  await expect(page.locator('[data-target]')).toHaveCount(6);
   await page.screenshot({path:output+'global.png'});
   for(const [id,name] of [['epsilon_indi_b','Epsilon Indi B'],['m101','M101'],['barnard',"Barnard's Star"]]){
     await page.getByRole('button',{name:`Fly to ${name}`,exact:true}).click();
@@ -64,10 +66,10 @@ test('real HiPS sky, three marker flights, registered FITS, navigation and retur
 
 test('rapid field changes, interrupted return and reduced motion keep the latest target',async({page})=>{
   await ready(page);await page.getByRole('button',{name:'Fly to Epsilon Indi B',exact:true}).click();await page.waitForTimeout(180);
-  await page.getByRole('button',{name:'4 prepared fields'}).click();
+  await fields(page);
   await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/Barnard/}).click();
   await arrived(page,'barnard');await page.getByRole('button',{name:'Back to Sky',exact:true}).last().click();await page.waitForTimeout(100);
-  await page.getByRole('button',{name:'4 prepared fields'}).click();
+  await fields(page);
   await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/M101/}).click();
   await arrived(page,'m101');expect(await page.locator('.aladin-container').count()).toBe(1);
   await page.screenshot({path:output+'interrupted_flight.png'});

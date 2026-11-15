@@ -2,13 +2,13 @@ import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import type {SkyEngine,SkyTarget} from '../../types/sky';
 import catalog from '../../../public/data/catalog.json';
 import metadata from './spherex-cube.json';
-const fake=vi.hoisted(()=>({order:[] as string[],images:[] as any[],frequencies:[] as number[],camera:vi.fn(),resolveProperties:null as null|(()=>void)}));
+const fake=vi.hoisted(()=>({base:null as any,failNextBase:false,order:[] as string[],images:[] as any[],frequencies:[] as number[],camera:vi.fn(),resolveProperties:null as null|(()=>void)}));
 vi.mock('aladin-lite',()=>({default:{init:Promise.resolve(),
   aladin:()=>({addOverlay:vi.fn(),addColormap:vi.fn(),getRaDec:()=>[331,-56],getFov:()=>[1,1],getSize:()=>[1400,1000],on:vi.fn(),gotoRaDec:fake.camera,setFoV:vi.fn(),
-    setBaseImageLayer:(layer:any)=>{fake.order.push('background');queueMicrotask(()=>layer.options.successCallback(layer));},
+    setBaseImageLayer:(layer:any)=>{fake.base=layer;fake.order.push('background');if(fake.failNextBase){fake.failNextBase=false;return Promise.reject(new Error('Controlled native base failure'));}queueMicrotask(()=>layer.options.successCallback(layer));return Promise.resolve();},getBaseImageLayer:()=>fake.base,
     setOverlayImageLayer:(image:any)=>{fake.order.push('fits');queueMicrotask(()=>image.options.successCallback(331,-56));},removeImageLayer:vi.fn()}),
   graphicOverlay:()=>({addFootprints:vi.fn(),hide:vi.fn(),show:vi.fn()}),polygon:()=>({}),
-  imageHiPS:(_url:string,options:any)=>({options,query:Promise.resolve(),setFrequency:vi.fn(({value}:{value:number})=>fake.frequencies.push(value))}),
+  imageHiPS:(_url:string,options:any)=>({id:_url,options,query:Promise.resolve(),setFrequency:vi.fn(({value}:{value:number})=>fake.frequencies.push(value))}),
   image:(_url:string,options:any)=>{let cuts=[options.minCut||-999,options.maxCut||999],opacity=options.opacity||1,stretch=options.stretch;
     const image={options,getCuts:()=>cuts,setCuts:(a:number,b:number)=>{cuts=[a,b]},setColormap:vi.fn((_name:string,options:any)=>{stretch=options.stretch}),getColorCfg:()=>({stretch}),getOpacity:()=>opacity,setOpacity:(value:number)=>{opacity=value}};
     fake.images.push(image);return image;},
@@ -16,7 +16,7 @@ vi.mock('aladin-lite',()=>({default:{init:Promise.resolve(),
 import {createSkyEngine} from './SkyEngine';
 const properties='hips_cube_depth=102\ndata_cube_bunit3=um\nem_min='+metadata.emMinMeters+'\nem_max='+metadata.emMaxMeters+'\ndata_cube_crval3_arr='+Array.from({length:102},(_,i)=>metadata.channels.find(c=>c.frameIndex===i)?.wavelengthUm??0).join(' ');
 let engine:SkyEngine;
-beforeEach(()=>{fake.order.length=0;fake.images.length=0;fake.frequencies.length=0;fake.camera.mockReset();
+beforeEach(()=>{fake.base=null;fake.failNextBase=false;fake.order.length=0;fake.images.length=0;fake.frequencies.length=0;fake.camera.mockReset();
   vi.stubGlobal('window',{location:{href:'http://localhost/'},setTimeout});
   vi.stubGlobal('requestAnimationFrame',()=>1);vi.stubGlobal('cancelAnimationFrame',vi.fn());
   vi.stubGlobal('ResizeObserver',class{observe(){}disconnect(){}});
@@ -89,4 +89,17 @@ describe('native layer lifecycle regression checks',()=>{
     vi.stubGlobal('fetch',vi.fn(async()=>({ok:false,status:503})));await engine.setSurvey('2mass');
     expect(engine.getSpectralStatus()).toMatchObject({available:true,appliedFrame:29});
   });
+  it('keeps the committed background and usable spectral controls while another survey is pending',async()=>{
+    const changed=vi.fn();engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[target()],changed);await engine.setSurvey('spherex');
+    let release!:(value:unknown)=>void;vi.stubGlobal('fetch',vi.fn(()=>new Promise(resolve=>{release=resolve})));
+    const pending=engine.setSurvey('2mass');expect(changed.mock.lastCall![0]).toMatchObject({id:'spherex',state:'loading'});
+    expect(engine.getSpectralStatus().available).toBe(true);release({ok:false,status:503});await pending;
+    expect(engine.getDiagnostics().activeSurveyId).toBe('spherex');
+  });
+  it('restores the actual committed base when native application of a replacement rejects',async()=>{
+    engine=await createSkyEngine({replaceChildren(){}} as unknown as HTMLDivElement,[target()],vi.fn());await engine.setSurvey('spherex');const previous=fake.base;
+    vi.stubGlobal('fetch',vi.fn(async(url:string)=>url.endsWith('/properties')?{ok:true,text:async()=>'hips_tile_format=jpeg\nhips_order_min=0'}:{ok:true,arrayBuffer:async()=>new Uint8Array([255,216,255]).buffer}));
+    fake.failNextBase=true;await engine.setSurvey('2mass');expect(fake.base).toBe(previous);expect(engine.getDiagnostics().activeSurveyId).toBe('spherex');expect(engine.getSpectralStatus().available).toBe(true);
+  });
+
 });

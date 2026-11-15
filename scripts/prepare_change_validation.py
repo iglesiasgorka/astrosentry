@@ -1,5 +1,6 @@
 """Independent epoch and signed-residual samples for SPX-004B browser QA."""
 from pathlib import Path
+import argparse
 import json
 import numpy as np
 from astropy.io import fits
@@ -23,7 +24,10 @@ if __name__=='__main__':
         samples[target['id']]=[points(frame['assets']['fits']) for frame in target['sequence']['frames']]
         for difference in target['sequence'].get('differences',[]):
             residuals[f"{target['id']}:{difference['id']}"]=points(difference['assets']['fits'],3,True,difference['display']['vmax'])
-    output=project/'outputs/spx004b'
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--directory',type=Path,default=project/'outputs/spx004b')
+    args=parser.parse_args()
+    output = args.directory
     (output/'registration_samples.json').write_text(json.dumps(samples,indent=2),encoding='utf-8')
     (output/'residual_samples.json').write_text(json.dumps(residuals,indent=2),encoding='utf-8')
     print('Epoch samples:',{key:[len(frame) for frame in frames] for key,frames in samples.items()})

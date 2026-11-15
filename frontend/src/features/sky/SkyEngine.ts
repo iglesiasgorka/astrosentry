@@ -8,6 +8,7 @@ export const HOME_CAMERA: Camera = { center:[270,0], fov:360 };
 /** The untyped library boundary is confined to this Aladin Lite 3.8.2 adapter. */
 export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[],
                                       surveyChanged: (status: SurveyStatus)=>void): Promise<SkyEngine> {
+  targets=[...targets];
   const began=performance.now();
   const { default:A } = await import('aladin-lite');
   await A.init;
@@ -29,6 +30,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   let releaseInitialBackground!:()=>void,backgroundSlotReserved=false;
   const initialBackground=new Promise<void>(resolve=>{releaseInitialBackground=resolve;});
   let activeSurvey:SurveyStatus|null=null;
+  let committedBase:any=null;
   let cubeLayer:any=null,cubeProperties:Record<string,string>|null=null;
   const spectralListeners=new Set<()=>void>();
   const spectral=createSpectralSwitch(async(index,signal)=>{
@@ -78,6 +80,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
       const available=await fetch(url,{method:'HEAD',signal:AbortSignal.timeout(10000)});
       if(!available.ok)throw new Error(`Local observation ${index+1} returned HTTP ${available.status}.`);
       if(disposed)throw new Error('Sky engine was disposed.');
+      let baseApplied:Promise<unknown>=Promise.resolve();
       await new Promise<void>((resolve,reject)=>{
         let settled=false;
         const timeout=window.setTimeout(()=>done(new Error('Local FITS layer timed out.')),15000);
@@ -120,16 +123,26 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
   };
   const setSurvey=async(id:string)=>{
     const token=++surveyToken;
-    spectral.disable();
+    spectral.cancel();
     const attempt=async(surveyId:string)=>{
       const cube=surveyId==='spherex';
       const url=cube?SPHEREX_URL:TWO_MASS_URL;
-      surveyChanged({id:surveyId,name:cube?'SPHEREx DR1 all-sky':'2MASS K',state:'loading'});
+      surveyChanged(activeSurvey?{...activeSurvey,state:'loading',message:`Checking ${cube?'SPHEREx':'2MASS K'}; ${activeSurvey.name} remains active.`}:{id:'none',name:'Initializing sky background',state:'loading'});
       const response=await fetch(`${url}/properties`,{signal:AbortSignal.timeout(12000)});
       if(!response.ok)throw new Error(`HiPS metadata returned HTTP ${response.status}`);
       const properties=parseProperties(await response.text());
       if(disposed||token!==surveyToken)return;
       if(cube)verifyCubeMetadata(properties);
+      if(!cube){
+        // Standard HiPS JPEG tile addressing; verify one real coarse image before commit.
+        // Metadata alone does not prove that the replacement contains image data.
+        const order=Number(properties.hips_order_min??0);
+        if(!Number.isInteger(order)||order<0||order>3||!properties.hips_tile_format?.split(/[ ,]+/).includes('jpeg'))throw new Error('Unsupported 2MASS HiPS image metadata.');
+        const probe=await fetch(`${url}/Norder${order}/Dir0/Npix0.jpg`,{signal:AbortSignal.timeout(12000),cache:'force-cache'});
+        if(!probe.ok)throw new Error(`2MASS coarse image returned HTTP ${probe.status}`);
+        const bytes=new Uint8Array(await probe.arrayBuffer());
+        if(bytes[0]!==255||bytes[1]!==216||bytes[2]!==255)throw new Error('2MASS did not return JPEG image data.');
+      }
       const selected=cube?cubeFrame(properties,spectral.snapshot().appliedFrame??29):null;
       // Let Aladin request its progressive tile pyramid immediately. An extra serial
       // tile preflight previously delayed first paint and duplicated the first tile.
@@ -142,6 +155,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
         if(pending.length){await Promise.allSettled(pending.map(entry=>entry.promise));restore=targets.find(target=>target.id===activeId);
           hideCutout();for(const entry of pending)aladin.removeImageLayer(entry.layerName);layers.clear();}
       }
+      let baseApplied:Promise<unknown>=Promise.resolve();
       await new Promise<void>((resolve,reject)=>{
         let settled=false;
         const timeout=window.setTimeout(()=>{if(!settled){settled=true;reject(new Error('HiPS layer did not initialize.'));}},12000);
@@ -149,33 +163,41 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
         const layer=A.imageHiPS(url,{imgFormat:cube?'png':'jpeg',name:cube?'SPHEREx DR1':'2MASS K',
           successCallback:(hips:any)=>{if(disposed||token!==surveyToken){done();return;}try{if(selected){hips.setFrequency({value:selected.frequencyHz,unit:'Hz'});cubeLayer=hips;cubeProperties=properties;}done();}catch(e){done(e);}},
           errorCallback:(e:unknown)=>done(e||new Error('HiPS layer unavailable'))});
-        aladin.setBaseImageLayer(layer);
+        baseApplied=Promise.resolve(aladin.setBaseImageLayer(layer));
+        baseApplied.catch(e=>done(e));
         backgroundSlotReserved=true;
         releaseInitialBackground();
         // Aladin exposes the asynchronous properties/layer query in this pinned release.
         if(layer.query?.catch)layer.query.catch((e:unknown)=>done(e));
       });
-      if(!disposed&&token===surveyToken){activeSurvey={id:surveyId,name:cube?'SPHEREx DR1 all-sky':'2MASS K',wavelengthUm:selected?.wavelengthUm??2.16,state:'ready'};surveyChanged(activeSurvey);}
+      await baseApplied;
+      if(token!==surveyToken&&committedBase)await aladin.setBaseImageLayer(committedBase);
+      if(!disposed&&token===surveyToken){committedBase=aladin.getBaseImageLayer();if(!cube)spectral.disable();activeSurvey={id:surveyId,name:cube?'SPHEREx DR1 all-sky':'2MASS K',wavelengthUm:selected?.wavelengthUm??2.16,state:'ready'};surveyChanged(activeSurvey);}
       if(!disposed&&token===surveyToken&&selected)spectral.initialize(selected.index);
       if(restore&&!disposed&&token===surveyToken)await showFrame(restore,restoreIndex);
     };
     try{await attempt(id);}catch(error){
       if(disposed||token!==surveyToken)return;
+      if(committedBase)await aladin.setBaseImageLayer(committedBase);
+      if(activeSurvey){surveyChanged({...activeSurvey,message:`${id==='2mass'?'2MASS':'SPHEREx'} could not load. Keeping the previous sky background.`});return;}
       if(id==='spherex'){
         try{await attempt('2mass');if(token===surveyToken)surveyChanged({id:'2mass',name:'2MASS K',wavelengthUm:2.16,state:'ready',message:'SPHEREx background unavailable. Showing 2MASS context; local cutouts remain SPHEREx.'});}
         catch{surveyChanged({id:'none',name:'Background unavailable',state:'error',message:'Remote sky tiles could not load. Local SPHEREx fields are still available.'});}
-      }else if(activeSurvey){if(activeSurvey.id==='spherex'&&cubeLayer)spectral.initialize(spectral.snapshot().appliedFrame??29);surveyChanged({...activeSurvey,message:'2MASS could not load. Keeping the previous sky background.'});}
-      else surveyChanged({id:'none',name:'Background unavailable',state:'error',message:'2MASS could not load. Local SPHEREx fields are still available.'});
+      }else surveyChanged({id:'none',name:'Background unavailable',state:'error',message:'2MASS could not load. Local SPHEREx fields are still available.'});
     }finally{releaseInitialBackground();}
   };
   const engine:SkyEngine={
     getCamera:()=>({center:Array.from(aladin.getRaDec()) as LonLat,fov:aladin.getFov()[0]}),
-    setCamera:camera=>{if(disposed)return;aladin.gotoRaDec(...camera.center);aladin.setFoV(camera.fov);emit();},
+    setCamera:camera=>{if(disposed)return;
+      // Narrow the projection before recentering: Aladin 3.8.2's synchronous
+      // position callback cannot invert the portrait all-sky viewport reliably.
+      aladin.setFoV(camera.fov);aladin.gotoRaDec(...camera.center);emit();},
     snapshot,
     project:point=>{const p=aladin.world2pix(...point);return p&&p.every(Number.isFinite)?Array.from(p) as LonLat:null;},
     unproject:point=>{const p=aladin.pix2world(...point);return p&&p.every(Number.isFinite)?Array.from(p) as LonLat:null;},
     subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener);},
     setSurvey,
+    registerTarget:target=>{if(!targets.some(t=>t.id===target.id)){targets.push(target);footprint.addFootprints([A.polygon(target.footprint)]);emit();}},
     setSpectralFrame:index=>spectral.select(index),getSpectralStatus:spectral.snapshot,
     cancelSpectralChange:spectral.cancel,
     subscribeSpectral:listener=>{spectralListeners.add(listener);return()=>spectralListeners.delete(listener);},
@@ -189,7 +211,7 @@ export async function createSkyEngine(host: HTMLDivElement, targets: SkyTarget[]
       const selected=indices??(group?group.frameIds.map(id=>target.sequence!.frames.findIndex(f=>f.id===id)):Array.from({length:target.sequence?.frames.length??1},(_,i)=>i));
       for(const index of selected)await ensureFrame(target,index).promise;
     },
-    getDiagnostics:()=>({initializationMs:performance.now()-began,layers:[...layers].map(([key,entry])=>({key,ready:entry.ready,loadMs:entry.loadMs,cuts:entry.ready?entry.image.getCuts():null,stretch:entry.ready?entry.image.getColorCfg().stretch:null,opacity:entry.ready?entry.image.getOpacity():0}))}),
+    getDiagnostics:()=>({baseLayerId:aladin.getBaseImageLayer()?.id??null,activeSurveyId:activeSurvey?.id??null,initializationMs:performance.now()-began,layers:[...layers].map(([key,entry])=>({key,ready:entry.ready,loadMs:entry.loadMs,cuts:entry.ready?entry.image.getCuts():null,stretch:entry.ready?entry.image.getColorCfg().stretch:null,opacity:entry.ready?entry.image.getOpacity():0}))}),
     testProjection:projection=>{aladin.setProjection(projection);emit();},
     hideCutout,
     setCutoutVisible:visible=>{activeImage?.setOpacity(visible?1:0);emit();},

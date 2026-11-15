@@ -9,7 +9,7 @@ const port=process.env.SPX_PORT??'5174';
 const baseURL=`http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir:'./e2e',testMatch:'**/*.spec.ts',workers:1,timeout:240000,
-  outputDir:fileURLToPath(new URL('../outputs/spx005/browser-tests/',import.meta.url)),
+  outputDir:fileURLToPath(new URL(`../outputs/spx007a/browser/${process.env.SPX_RUN_ID??new Date().toISOString().replace(/[:.]/g,'-')}/`,import.meta.url)),
   reporter:[['list']],
   use:{baseURL,viewport:{width:1440,height:1000},video:'on',trace:'retain-on-failure',
     launchOptions:{executablePath,args:['--enable-webgl','--use-angle=swiftshader','--enable-unsafe-swiftshader']}},

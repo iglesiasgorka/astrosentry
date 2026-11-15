@@ -496,7 +496,23 @@ def export_web_data(project: Path, output: Path | None = None) -> dict:
     include_brightness_target(project,output,catalog)
     from .change_explorer import include_change_targets
     include_change_targets(project,output,catalog)
+    include_challenge_targets(project,output,catalog)
     write_manifest(output / "catalog.json", catalog)
+    return catalog
+
+
+def include_challenge_targets(project,output,catalog):
+    """Append only prepared new challenge targets; never acquire data here."""
+    project,output=Path(project),Path(output)
+    path=project/'outputs/spx006c/extension.json'
+    if not path.exists():return catalog
+    extension=load_json(path)
+    for target in extension['targets']:
+        if target['id'] not in {'wise0855','r_dra'}:raise ValueError('Unexpected challenge extension target.')
+        for asset in {a for f in target['sequence']['frames'] for a in f['assets'].values()}:
+            relative=portable_asset(asset);destination=output/relative;destination.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(project/'outputs/spx006c/web_data'/relative,destination)
+        catalog['targets']=[t for t in catalog['targets'] if t['id']!=target['id']]+[target]
     return catalog
 
 

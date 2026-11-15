@@ -6,6 +6,7 @@ spectral calibration, source photometry or an individual-pixel HiPS WCS test.
 import hashlib
 import json
 from pathlib import Path
+import argparse
 
 import numpy as np
 
@@ -13,7 +14,10 @@ PROJECT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    directory = PROJECT/'outputs/spx005'
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--directory',type=Path,default=PROJECT/'outputs/spx005')
+    args=parser.parse_args()
+    directory = args.directory
     table = json.loads((directory/'channels.json').read_text())
     raw = (directory/'hips_properties.txt').read_bytes()
     properties = dict(line.split('=', 1) for line in raw.decode().splitlines()

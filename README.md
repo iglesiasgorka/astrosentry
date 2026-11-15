@@ -9,7 +9,12 @@ SPHEREx Explorer enables users to discover regions of the sky, navigate through 
 - Interactive all-sky map using real SPHEREx DR1 HiPS imagery.
 - Spectral Explorer on the home map: 100 official infrared channels, with real
   wavelength labels, keyboard access and bounded progressive channel changes.
-- Smooth FlyTo navigation to selected astronomical targets.
+- Coordinate Search in decimal or sexagesimal ICRS, selectable requested field width
+  and reproducible URL locations.
+- Smooth FlyTo navigation to the five Challenge Targets and the additional M101 field.
+- Five-step Guided Discovery using a real exploratory Epsilon Indi B pair.
+- Guarded manual A/B annotations, browser-local My Discoveries and portable
+  JSON/Markdown evidence export; no automatic discovery or NASA submission.
 - Native WCS-registered FITS image layers.
 - Temporal exploration with Play/Pause, epoch selection, and Blink A/B.
 - Six Epsilon Indi B observations, with a compatible historical pair separated
@@ -18,7 +23,7 @@ SPHEREx Explorer enables users to discover regions of the sky, navigate through 
   with a common science mask, physical units and a zero-centered color scale.
 - Motion Inspector with expected and measured source positions.
 - Scientific metadata, data-quality indicators, and uncertainty warnings.
-- Four prepared fields: Epsilon Indi B, M101, Barnard's Star, and RW Aurigae.
+- Six prepared fields: the five Challenge Targets plus M101 as an additional example.
 - Diagnostic Brightness Inspector with real observation dates and explicit photometry rejection reasons.
 
 ## Technology Stack
@@ -76,6 +81,31 @@ Spectral mosaic changes are visualization, not a time sequence, quantitative
 source photometry or a calibrated extracted spectrum. They do not change the
 wavelengths or intensity limits of individual temporal FITS observations.
 
+## Coordinates and new regions
+
+Enter RA/Dec in decimal degrees or complete sexagesimal form, for example
+`08h55m10.831s`, `-07d14m42.53s` (WISE 0855). RA must be in `[0, 360)` and Dec
+in `[-90, +90]`. Requested field widths are 0.05–0.20 degrees. **Locate in Sky**
+only navigates; `?ra=133.795129&dec=-7.245147&fov=0.15` locates without acquiring
+observations. **Find Observations** requests real archive metadata and distinguishes
+service failure from an empty result. Archive access depends on IRSA and browser
+access; new live TAP queries timed out during this milestone's integration run.
+
+Preparing a new 2–4-frame fixed-grid timeline requires the optional local Python
+API and `VITE_API_BASE_URL`. It reuses the scientific pipeline with bounded
+acquisition, masks, provenance and shared visual limits. A real new smaller field
+has been prepared from verified cached FITS coverage. A fresh unrelated
+archive-wide sequence remains unverified while TAP is unavailable. The cache
+search is explicitly an incomplete local subset. A new requested width changes
+the processed region, whereas opening an existing prepared field retains its grid.
+
+The frontend remains usable without Python. Its prepared 23 observations, guide,
+manual annotations, spectral map and temporal controls are static assets. No new
+processing backend has been deployed; a local worker is not advertised as a
+public arbitrary-region generation service. Internet and WebGL2 are required for
+the global map. See the optional service's entry point
+`python -m spherex_explorer.local_api --help` for local configuration.
+
 ## Project Structure
 
 ```text
@@ -94,6 +124,28 @@ frontend/
 └── package.json
 ```
 
+## Explore and Investigate
+
+**Explore** opens directly on the real sky. Use **Enter coordinates** in the header
+(or `/` on the keyboard) for decimal/sexagesimal RA and Dec; closing the form
+retains its values. A collapsible field rail separates the five Challenge Targets
+from additional fields. **Start your first investigation** opens a short real-data
+guide. The compact bottom bar explores the global mosaic's 100 infrared channels.
+
+**Investigate** keeps the same map and opens one scientific inspector. Overview,
+Motion, Brightness, Difference, Metadata and Candidate tabs appear only where
+relevant. The main timeline keeps Play, dates, Blink, Difference and manual marking
+within reach; **More controls** contains speed, spectral group and the A/B pair.
+The inspector can close without moving the camera. On mobile it becomes a sheet,
+with compact marking instructions so the real source can still be clicked.
+
+My Discoveries retains browser-local versioned records and JSON/Markdown export.
+Keyboard focus, Escape dismissal and arrow-key inspector tabs are supported.
+A requested survey is not labeled active until it is validated; on 2MASS failure,
+the last valid SPHEREx background and its spectral controls remain available.
+Remote 2MASS availability is not guaranteed. No scientific arrays, wavelengths,
+quality rejections or stored evidence format changed in this redesign.
+
 ## Scientific Examples
 
 | Target | Purpose |
@@ -102,11 +154,14 @@ frontend/
 | M101 | Fixed-sky registration and temporal comparison |
 | Barnard's Star | Diagnostic example of instrumental saturation |
 | RW Aurigae | Three-epoch brightness diagnostic; no accepted variability measurements |
+| R Draconis | Five real inspection epochs; rejected aperture photometry |
+| WISE 0855 | Five real D6 epochs and catalog predictions; no accepted centroid pair |
 
 The Epsilon Indi B example shows an apparent displacement of approximately 1.920 arcseconds over 152.9 days. This result is exploratory and does not constitute a statistically significant motion detection.
 
-The prepared catalog contains 13 observations: six for Epsilon Indi B, two for
-M101, two for Barnard's Star and three for RW Aurigae. Epsilon's six observations
+The prepared catalog contains 23 observations: six for Epsilon Indi B, two for
+M101, two for Barnard's Star, three for RW Aurigae, five for R Draconis and five
+for WISE 0855. Epsilon's six observations
 span four visit groups and different local wavelengths; they are not six
 homogeneous independent temporal epochs. Select the historical compatible group
 for Blink and Difference. The broader group supports visual inspection and
@@ -124,7 +179,14 @@ Barnard's Star has no reliable measured displacement in the prepared observation
 The RW Aurigae example reports rejected original-pixel aperture measurements. Its
 Brightness Inspector shows real observation dates, flags and limitations without
 inventing flux points or a variability curve. A bounded R Draconis/RW Aurigae
-experiment did not obtain a reliable comparable photometric sequence.
+experiment did not obtain a reliable comparable photometric sequence. R Draconis
+is available for inspection; its differing wavelengths and invalid source pixels
+do not support a homogeneous temporal or quantitative brightness comparison.
+
+WISE 0855 has a preliminary two-epoch D6/DR1 spectral group separated by about
+370.4 days. Cyan positions are linear catalog predictions, omitting annual
+parallax and other systematics. The matched endpoints have no accepted centroid;
+there is no measured displacement, validated detection or prepared Difference.
 
 ## Development
 
@@ -169,7 +231,8 @@ SPHEREx Explorer is an independent hackathon project using real astronomical dat
 ## Current Status
 
 Space, time and wavelength exploration share one astronomical map. The
-four-field temporal explorer includes an extended observation browser,
+six-field temporal explorer includes coordinate navigation, a short guide,
+manual evidence and an extended observation browser,
 exploratory motion, a prepared signed difference and diagnostic brightness
 inspection. No validated variability detection is claimed. Additional
 scientific tools remain subject to data-quality and uncertainty review.

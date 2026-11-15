@@ -1,17 +1,18 @@
-import {test,expect,type Page} from '@playwright/test';
+import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
+import {test,expect,type Page} from './fixtures';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {SpectralChannel} from '../src/features/sky/surveys';
 const SPECTRAL_CHANNELS=JSON.parse(await readFile(new URL('../src/features/sky/spherex-cube.json',import.meta.url),'utf8')).channels as SpectralChannel[];
-const directory=fileURLToPath(new URL('../../outputs/spx005/',import.meta.url));
+const directory=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url));
 await mkdir(directory,{recursive:true});
 const tilePattern=/\/Norder(\d+)\/Dir\d+\/Npix(\d+)_(\d+)\.png/;
 async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>window.__sky?.engine.getSpectralStatus().available);await expect(page.getByRole('slider',{name:'SPHEREx wavelength'})).toBeEnabled();}
 async function applied(page:Page,index:number){await page.waitForFunction(index=>window.__sky?.engine.getSpectralStatus().appliedFrame===index&&window.__sky.engine.getSpectralStatus().phase==='progressive',index);}
 async function slider(page:Page,index:number){const position=SPECTRAL_CHANNELS.findIndex(c=>c.frameIndex===index);await page.getByRole('slider',{name:'SPHEREx wavelength'}).fill(String(position));await applied(page,index);}
 async function layout(page:Page,name:string){
-  const result=await page.evaluate(()=>{const panel=document.querySelector('.spectral-explorer')!.getBoundingClientRect(),sky=window.__sky!;return {viewport:sky.engine.snapshot().size,panel:panel.toJSON(),markers:sky.targets.map(t=>({id:t.id,point:sky.engine.project([t.center.raDeg,t.center.decDeg])}))};});
-  for(const marker of result.markers){const p=marker.point!;expect(p[0]>result.panel.left&&p[0]<result.panel.right&&p[1]>result.panel.top&&p[1]<result.panel.bottom,marker.id+' anchor must remain outside the spectral panel').toBe(false);}
+  const result=await page.evaluate(()=>{const panel=document.querySelector('.spectral-explorer')!.getBoundingClientRect(),sky=window.__sky!;return {viewport:sky.engine.snapshot().size,panel:panel.toJSON(),markers:sky.targets.map(t=>({id:t.id,point:sky.engine.project([t.center.raDeg,t.center.decDeg]),hidden:document.querySelector<HTMLButtonElement>(`[data-target="${t.id}"]`)?.hidden}))};});
+  for(const marker of result.markers){const p=marker.point!;if(p[0]>result.panel.left&&p[0]<result.panel.right&&p[1]>result.panel.top&&p[1]<result.panel.bottom)expect(marker.hidden,marker.id+' occluded anchor must be contextually hidden; field index remains equivalent').toBe(true);}
   await writeFile(directory+name+'_layout.json',JSON.stringify(result,null,2));
 }
 
@@ -32,8 +33,9 @@ test('official channels across all six bands really change the same sky and pres
     signatures.push({frame:index,pixels});
   };
   for(const index of [8,29,42,59,76,93]){
+  await band(page);
     await page.getByRole('button',{name:new RegExp(`^Show band ${Math.floor(index/17)+1}:`)}).click();await applied(page,index);await fullSky(index);await capture(index);
-    expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(camera);expect(await page.locator('.aladin-container').count()).toBe(1);expect(await page.locator('[data-target]')).toHaveCount(4);
+    expect(await page.evaluate(()=>window.__sky!.engine.getCamera())).toEqual(camera);expect(await page.locator('.aladin-container').count()).toBe(1);expect(await page.locator('[data-target]')).toHaveCount(6);
   }
   for(let i=1;i<signatures.length;i++){const a=signatures[i-1].pixels,b=signatures[i].pixels;expect(a.filter((v,j)=>j%4!==3&&Math.abs(v-b[j])>2).length).toBeGreaterThan(50);}
   // The first channel after the two blanks keeps index 52, not index 50.
@@ -47,7 +49,7 @@ test('official channels across all six bands really change the same sky and pres
   expect(requests.slice(start).filter(url=>tilePattern.test(url)&&!url.endsWith('_101.png'))).toEqual([]);
   await page.mouse.move(box.x+box.width*.65,box.y+box.height/2,{steps:15});const finalIndex=await control.inputValue();await page.mouse.up();await applied(page,SPECTRAL_CHANNELS[Number(finalIndex)].frameIndex);
   await slider(page,93);await applied(page,93);
-  await page.getByRole('button',{name:'4 prepared fields'}).click();await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/Epsilon/}).click();
+  await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/Epsilon/}).click();
   await page.waitForFunction(()=>window.__analysis?.prepared&&window.__analysis.targetId==='epsilon_indi_b');await expect(page.getByLabel('Spectral Explorer')).toBeHidden();
   const scientificCamera=await page.evaluate(()=>window.__sky!.engine.getCamera());
   await page.getByRole('button',{name:'Blink A/B',exact:true}).click();await page.waitForTimeout(1000);await page.getByRole('button',{name:'Stop blink',exact:true}).click();
@@ -66,13 +68,16 @@ test('rapid changes, failed availability and an incompatible survey keep the las
   // A late result is ignored after a newer request even if the server completes it.
   await page.route('**/Norder0/Dir0/Npix0_8.png',async route=>{await new Promise(r=>setTimeout(r,650));await route.continue().catch(()=>{});});
   await page.evaluate(()=>{void window.__sky!.engine.setSpectralFrame(8)});await page.waitForTimeout(40);await page.evaluate(()=>window.__sky!.engine.setSpectralFrame(76));await applied(page,76);await page.waitForTimeout(750);expect(await page.evaluate(()=>window.__sky!.engine.getSpectralStatus().appliedFrame)).toBe(76);
+  await band(page);
   await page.route('**/Norder0/Dir0/Npix0_59.png',r=>r.fulfill({status:503,body:'Deliberate channel failure'}));await page.getByRole('button',{name:/^Show band 4:/}).click();
   await expect(page.locator('.spectral-status')).toContainText('previous map channel is retained');expect(await page.evaluate(()=>window.__sky!.engine.getSpectralStatus().appliedFrame)).toBe(76);
   await page.screenshot({path:directory+'spectral_error.png'});await page.getByRole('button',{name:'Return to last channel',exact:true}).click();await applied(page,76);
+  await band(page);
   await page.unroute('**/Norder0/Dir0/Npix0_59.png');await page.getByRole('button',{name:/^Show band 4:/}).click();await applied(page,59);
-  // Only 2MASS is stubbed here to exercise survey compatibility without a mirror dependency.
+  // Explicit metadata and image failures exercise honest rollback, not successful live 2MASS availability.
   await page.route('**/2MASS/K/properties',async route=>{await route.fulfill({status:200,body:'hips_service_url=https://alaskybis.cds.unistra.fr/2MASS/K\nhips_frame=equatorial\nhips_order=3\nhips_tile_width=512\nhips_tile_format=jpeg\ndataproduct_type=image\nhips_version=1.4\nobs_title=2MASS K\ncreator_did=ivo://CDS/P/2MASS/K'});});
-  await page.getByLabel('Background survey').selectOption('2mass');await expect(page.getByRole('slider',{name:'SPHEREx wavelength'})).toBeHidden();
-  const state=await page.evaluate(()=>window.__sky!.engine.getSpectralStatus());expect(state.available).toBe(false);
+  await page.route('**/2MASS/K/Norder0/Dir0/Npix0.jpg',r=>r.fulfill({status:503,body:'Controlled unavailable 2MASS image'}));
+  await page.getByLabel('Background survey').selectOption('2mass');await expect(page.locator('.survey-notice')).toContainText('Keeping the previous sky background.');
+  const state=await page.evaluate(()=>window.__sky!.engine.getSpectralStatus());expect(state.available).toBe(true);await expect(page.getByLabel('Background survey')).toHaveValue('spherex');
   await page.getByLabel('Background survey').selectOption('spherex');await page.waitForFunction(()=>window.__sky!.engine.getSpectralStatus().available);await applied(page,59);await expect(page.getByRole('slider',{name:'SPHEREx wavelength'})).toBeVisible();
 });

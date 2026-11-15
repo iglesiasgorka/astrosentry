@@ -176,9 +176,9 @@ def run_target(project: Path, output: Path, availability: dict, target: dict,
         raise ValueError("Requested field size differs from cached cutout URLs; no query or download was performed.")
     project, output = Path(project).resolve(), Path(output).resolve()
     if not legacy:
-        allowed = [project / "outputs/spx002b", project / "outputs/spx004a"]
+        allowed = [project / "outputs/spx002b", project / "outputs/spx004a", project / "outputs/spx006c"]
         if not any(root in output.parents for root in allowed):
-            raise ValueError("Generic target outputs must be below outputs/spx002b/ or outputs/spx004a/.")
+            raise ValueError("Generic target outputs must be below an authorized outputs/spx002b/, spx004a/ or spx006c/ directory.")
     output.mkdir(parents=True, exist_ok=True)
     center = SkyCoord(entry["field_center_ra_deg"]*u.deg, entry["field_center_dec_deg"]*u.deg)
     grid, shape = common_grid(center.ra.deg, center.dec.deg, size_deg, pixel_scale_arcsec)

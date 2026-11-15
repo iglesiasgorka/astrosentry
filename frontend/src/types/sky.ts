@@ -5,6 +5,8 @@ export interface Display {vmin:number;vmax:number;stretch:string;common?:boolean
 export interface ComparisonGroup {id:string;label:string;frameIds:string[];comparison:boolean;display:Display;warnings:string[]}
 export interface PreparedDifference {id:string;aId:string;bId:string;assets:{fits:string;png:string;mask:string};display:Display;units:string;classification:string;validFraction:number;warnings:string[];method:unknown}
 export interface SequenceFrame {
+  provenance?:{sourceUrl?:string;sourceSha256?:string};
+  quality?:unknown;
   id:string;observation:Observation;assets:{fits:string;png:string;masks:string};
   expectedPosition:Position|null;measuredPosition:Position|null;
   formalCentroidErrorArcsec:number|null;formalCentroidErrorOriginalPixels:number|null;
@@ -52,6 +54,7 @@ export interface SkyEngine {
   unproject(point: LonLat): LonLat | null;
   subscribe(listener: () => void): () => void;
   setSurvey(id: string): Promise<void>;
+  registerTarget(target:SkyTarget):void;
   setSpectralFrame(index:number):Promise<void>;
   getSpectralStatus():SpectralStatus;
   subscribeSpectral(listener:()=>void):()=>void;
@@ -60,7 +63,7 @@ export interface SkyEngine {
   prepareSequence(target:SkyTarget,indices?:number[]):Promise<void>;
   showFrame(target:SkyTarget,index:number,display?:Display):Promise<void>;
   showDifference(target:SkyTarget,difference:PreparedDifference):Promise<void>;
-  getDiagnostics():{initializationMs:number;layers:{key:string;ready:boolean;loadMs:number|null;cuts:number[]|null;stretch:string|null;opacity:number}[]};
+  getDiagnostics():{baseLayerId?:string|null;activeSurveyId?:string|null;initializationMs:number;layers:{key:string;ready:boolean;loadMs:number|null;cuts:number[]|null;stretch:string|null;opacity:number}[]};
   testProjection?(projection:'AIT'|'SIN'|'TAN'):void;
   hideCutout(): void;
   setCutoutVisible(visible: boolean): void;

@@ -1,0 +1,31 @@
+import {fields,coordinates,more,closeMore,openInspector,band} from './fixtures';
+import {test,expect,type Page} from './fixtures';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const output=fileURLToPath(new URL('../../outputs/spx007a/',import.meta.url));await mkdir(output,{recursive:true});
+async function verifyMarks(page:Page){const delta=await page.evaluate(()=>{const record=JSON.parse(localStorage.getItem('spherex-explorer-candidates-v1')!).records[0];return ['a','b'].map(slot=>{const point=record[slot].position,expected=window.__sky!.engine.project([point.raDeg,point.decDeg])!,node=document.querySelector<SVGGElement>(`[data-candidate-mark="${slot}"]`)!;const matrix=node.transform.baseVal.consolidate()!.matrix;return Math.hypot(expected[0]-matrix.e,expected[1]-matrix.f);})});expect(Math.max(...delta)).toBeLessThan(.05)}
+test('real A/B manual marks retain source identity and export unverified local evidence',async({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/^Epsilon/}).click();
+  await page.waitForFunction(()=>window.__analysis?.prepared&&window.__sky!.engine.getCutoutStatus().loaded);
+  await page.getByRole('button',{name:'Mark Candidate',exact:true}).click();const inspector=page.getByRole('region',{name:'Candidate Inspector'});
+  await inspector.getByRole('button',{name:'Start with epoch A',exact:true}).click();await expect(inspector.getByRole('status')).toContainText('Click a valid observed source in epoch A');
+  await page.mouse.click(150,300);await expect(inspector.getByRole('alert')).toContainText(/footprint|invalid/);
+  const clickCurrent=async()=>{const point=await page.evaluate(()=>{const sky=window.__sky!,target=sky.targets.find(t=>t.id==='epsilon_indi_b')!,frame=target.sequence!.frames[window.__analysis!.index],p=frame.measuredPosition!;const q=sky.engine.project([p.raDeg,p.decDeg])!,r=document.querySelector('.sky-canvas')!.getBoundingClientRect();return [q[0]+r.left,q[1]+r.top];});await page.mouse.click(point[0],point[1]);};
+  await clickCurrent();await expect(inspector.getByRole('status')).toContainText('Click a valid observed source in epoch B');await clickCurrent();await expect(inspector.getByRole('status')).toContainText('Both epochs marked');
+  await page.getByLabel('Candidate notes',{exact:true}).fill('Automated UI validation annotation on real images; not a scientific discovery.');await inspector.getByRole('button',{name:'Save investigation',exact:true}).click();await expect(inspector).toContainText('Saved locally');
+  const downloadPromise=page.waitForEvent('download');await inspector.getByRole('button',{name:'Export JSON',exact:true}).click();const download=await downloadPromise;await download.saveAs(output+'candidate-example.json');
+  const record=JSON.parse(await readFile(output+'candidate-example.json','utf8'));expect(record.classification).toBe('Unverified — Requires review');expect(record.a.frameId).not.toBe(record.b.frameId);expect(record).not.toHaveProperty('targetSnapshot');expect(record.elapsedDays).toBeCloseTo(152.899298,5);expect(record.measurementKind).toContain('Manual');expect(JSON.stringify(record)).not.toMatch(/C:\\Users|127\.0\.0\.1/);
+  await verifyMarks(page);await page.screenshot({path:output+'candidate_marked.png'});
+  await page.mouse.move(950,450);await page.mouse.down();await page.mouse.move(975,470,{steps:8});await page.mouse.up();await page.waitForTimeout(200);await verifyMarks(page);
+  await page.getByRole('button',{name:'Zoom in',exact:true}).click();await page.waitForTimeout(200);await verifyMarks(page);
+  await page.setViewportSize({width:1366,height:768});await page.waitForFunction(()=>window.__sky!.engine.snapshot().size[0]===1366);await page.waitForTimeout(250);await verifyMarks(page);
+  await page.getByRole('button',{name:/^My Discoveries/}).click();let dialog=page.getByRole('dialog',{name:'My Discoveries'});await expect(dialog).toContainText('not confirmed discoveries');
+  await dialog.getByLabel('Notes for Epsilon Indi B').fill('Edited validation note; annotation only.');await dialog.getByRole('button',{name:'Save notes',exact:true}).click();await page.screenshot({path:output+'my_discoveries.png'});
+  await dialog.getByRole('button',{name:'Reopen observations',exact:true}).click();await page.waitForFunction(()=>window.__analysis?.prepared&&window.__sky!.engine.getCutoutStatus().loaded);await expect(page.getByLabel('Candidate notes',{exact:true})).toHaveValue('Edited validation note; annotation only.');await verifyMarks(page);
+  expect(await page.locator('.aladin-container').count()).toBe(1);
+  await page.getByRole('button',{name:/^My Discoveries/}).click();dialog=page.getByRole('dialog',{name:'My Discoveries'});page.once('dialog',d=>d.accept());await dialog.getByRole('button',{name:'Remove',exact:true}).click();await expect(dialog).toContainText('No investigations saved');await dialog.getByRole('button',{name:'Close My Discoveries'}).click();
+  await page.getByRole('button',{name:'Close Candidate Inspector'}).click();expect(await page.locator('[data-candidate-mark]').count()).toBe(0);
+  await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/^M101/}).click();await page.waitForFunction(()=>window.__analysis?.targetId==='m101'&&window.__analysis.prepared);expect(await page.locator('[data-candidate-mark]').count()).toBe(0);
+  await writeFile(output+'candidate_browser.json',JSON.stringify({realEpochA:record.a,realEpochB:record.b,manualSeparationArcsec:record.separationArcsec,classification:record.classification,overlayChecks:'Native projection checked after pan/zoom/resize and reopen, <0.05 CSS pixels.',savedEditedReopenedExportedRemoved:true,passed:true},null,2));
+});

@@ -11,7 +11,7 @@ async function capture(page:Page,id:string,index:number,suffix=''){
  const name=id+'_frame'+index+suffix;await page.screenshot({path:output+name+'.png'});await writeFile(output+name+'_screen.json',JSON.stringify(value,null,2));
 }
 test('all ten new prepared epochs and four generated frames render their actual registered FITS content',async({page})=>{
- const requests:string[]=[];page.on('request',r=>requests.push(r.url()));await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+ const requests:string[]=[];page.on('request',r=>requests.push(r.url()));await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
  for(const [id,name] of [['wise0855','WISE 0855'],['r_dra','R Draconis']]){
   await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:new RegExp('^'+name)}).click();
   await more(page);

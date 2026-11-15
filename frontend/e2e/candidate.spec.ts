@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 const output=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(output,{recursive:true});
 async function verifyMarks(page:Page){const delta=await page.evaluate(()=>{const record=JSON.parse(localStorage.getItem('spherex-explorer-candidates-v1')!).records[0];return ['a','b'].map(slot=>{const point=record[slot].position,expected=window.__sky!.engine.project([point.raDeg,point.decDeg])!,node=document.querySelector<SVGGElement>(`[data-candidate-mark="${slot}"]`)!;const matrix=node.transform.baseVal.consolidate()!.matrix;return Math.hypot(expected[0]-matrix.e,expected[1]-matrix.f);})});expect(Math.max(...delta)).toBeLessThan(.05)}
 test('real A/B manual marks retain source identity and export unverified local evidence',async({page})=>{
-  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:/^Epsilon/}).click();
   await page.waitForFunction(()=>window.__analysis?.prepared&&window.__sky!.engine.getCutoutStatus().loaded);
   await page.getByRole('button',{name:'Mark Candidate',exact:true}).click();const inspector=page.getByRole('region',{name:'Candidate Inspector'});

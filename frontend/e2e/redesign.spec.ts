@@ -2,7 +2,7 @@ import {test,expect,fields,coordinates,more,closeMore,openInspector,type Page} f
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 const out=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url));await mkdir(out,{recursive:true});
-async function ready(page:Page){await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);}
+async function ready(page:Page){await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);}
 async function choose(page:Page,name:string){await fields(page);await page.getByRole('navigation',{name:'Prepared fields navigation'}).getByRole('button',{name:new RegExp('^'+name)}).click();await page.waitForFunction(()=>!!window.__analysis?.prepared&&window.__sky!.engine.getCutoutStatus().loaded);await page.waitForTimeout(300);}
 async function primaryBounds(page:Page){
   for(const name of ['Previous observation','Play observations','Next observation','Blink A/B','Difference B minus A','Mark Candidate']){

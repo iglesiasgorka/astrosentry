@@ -8,7 +8,7 @@ test('public cached demo requires no code and preserves scoped jobs, playback an
   page.on('request',r=>{if(r.url().startsWith(api)){paths.push(new URL(r.url()).pathname);const auth=r.headers()['authorization'];if(auth?.startsWith('Demo '))browserSession=auth.slice(5);}});
   page.on('pageerror',e=>failures.push(e.message));
   expect((await request.post(api+'/api/search',{data:{ra:10,dec:20}})).status()).toBe(401);
-  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   await page.getByRole('button',{name:'Open Coordinate Search'}).click();
   await expect(page.getByText('Public demo · existing real FITS only',{exact:false})).toBeVisible();
   await expect(page.getByLabel('Demo access code')).toBeHidden();
@@ -44,7 +44,7 @@ test('public cached demo requires no code and preserves scoped jobs, playback an
 });
 
 test('operator code remains a functional alternative in anonymous mode',async({page})=>{
-  await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   await page.getByRole('button',{name:'Open Coordinate Search'}).click();
   await page.getByRole('button',{name:'Operator access',exact:true}).click();
   await page.getByLabel('Demo access code').fill('local-public-validation-code-not-for-deployment');

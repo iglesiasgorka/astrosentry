@@ -13,7 +13,7 @@ test('protected preparation, signed assets and fixed-camera temporal playback',a
   await page.route('**/TAP/**',route=>route.abort());await page.route('**/SIA/**',route=>route.abort());
   expect((await request.post(api+'/api/prepare',{data:{searchId:'f369d59a4aca8645a101',count:4}})).status()).toBe(401);
   expect((await request.get(api+'/api/health',{headers:{Origin:'https://evil.example'}})).status()).toBe(403);
-  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForFunction(()=>!!window.__sky);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);
   await page.getByRole('button',{name:'Open Coordinate Search'}).click();
   await expect(page.getByLabel('Demo access code')).toBeVisible();
   await page.getByLabel('Demo access code').fill('local-offline-validation-code-not-for-production');

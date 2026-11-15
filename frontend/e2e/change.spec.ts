@@ -6,7 +6,7 @@ const directory=fileURLToPath(new URL('../../outputs/spx007b/',import.meta.url))
 await mkdir(directory,{recursive:true});
 const samples=JSON.parse(await readFile(directory+'registration_samples.json','utf8'));
 const residualSamples=JSON.parse(await readFile(directory+'residual_samples.json','utf8'));
-async function ready(page:Page){await page.goto('/');await page.waitForFunction(()=>!!window.__sky);await page.getByRole('button',{name:'Fly to Epsilon Indi B',exact:true}).click();await page.waitForFunction(()=>window.__analysis?.prepared&&window.__analysis.targetId==='epsilon_indi_b'&&window.__sky!.engine.getCutoutStatus().loaded);}
+async function ready(page:Page){await page.goto('/explorer');await page.waitForFunction(()=>!!window.__sky);await page.getByRole('button',{name:'Fly to Epsilon Indi B',exact:true}).click();await page.waitForFunction(()=>window.__analysis?.prepared&&window.__analysis.targetId==='epsilon_indi_b'&&window.__sky!.engine.getCutoutStatus().loaded);}
 async function epochReady(page:Page,index:number){await page.waitForFunction(index=>{const status=window.__sky!.engine.getCutoutStatus();return status.loaded&&status.kind==='epoch'&&status.frameIndex===index;},index);await page.waitForTimeout(180);}
 async function captureEpoch(page:Page,index:number){
  await closeMore(page);

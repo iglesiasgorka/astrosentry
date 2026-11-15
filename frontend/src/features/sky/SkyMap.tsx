@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import type { MouseEventHandler } from 'react';
 import type { SkyCatalog, SkyEngine, SkyTarget, SurveyStatus } from '../../types/sky';
 import { createSkyEngine, HOME_CAMERA } from './SkyEngine';
 import { flyTo } from './flyTo';
@@ -19,7 +20,7 @@ import {refreshTargetAccess} from './regionApi';
 
 declare global { interface Window { __sky?:{engine:SkyEngine;targets:SkyTarget[];state:typeof initialMapState;select:(id:string)=>void;back:()=>void} } }
 
-export function SkyMap({catalog}:{catalog:SkyCatalog}){
+export function SkyMap({catalog,onHome}:{catalog:SkyCatalog;onHome?:MouseEventHandler<HTMLAnchorElement>}){
   const host=useRef<HTMLDivElement>(null),flight=useRef<AbortController|null>(null),version=useRef(0);
   const [engine,setEngine]=useState<SkyEngine|null>(null),[error,setError]=useState<string|null>(null);
   const [survey,setSurvey]=useState<SurveyStatus>({id:'spherex',name:'SPHEREx DR1 all-sky',state:'loading'});
@@ -97,7 +98,7 @@ export function SkyMap({catalog}:{catalog:SkyCatalog}){
   return <main className={`sky-experience product-experience mode-${state.mode} ${fields?'sidebar-open':''}`} data-mode={state.mode}>
     <div className="sky-canvas" ref={host} aria-label="Interactive astronomical sky map" onPointerDown={interrupt} onWheel={interrupt}/>
     <div className="map-overlays">{engine&&<TargetMarkers engine={engine} targets={allTargets} selected={state.mode==='inspecting'?state.targetId:null} onSelect={t=>void select(t)}/>}</div>
-    <header className="app-header"><a className="brand" href="#" onClick={event=>{event.preventDefault();void back();}} aria-label="AstroSentry, return to sky"><span className="brand-orbit" aria-hidden="true">✦</span><span>Astro<strong>Sentry</strong><span className="brand-slogan">Beyond what the eye can see.</span></span></a>
+    <header className="app-header"><nav className="brand-navigation" aria-label="Primary navigation"><a className="brand" href="#" onClick={event=>{event.preventDefault();void back();}} aria-label="AstroSentry, return to sky"><span className="brand-orbit" aria-hidden="true">✦</span><span>Astro<strong>Sentry</strong><span className="brand-slogan">Beyond what the eye can see.</span></span></a><a className="explorer-home-link" href="/" onClick={onHome}>Home</a></nav>
       {!investigate&&<div className="header-explore-actions"><button className="fields-toggle" aria-label={`${allTargets.length} prepared fields`} aria-expanded={fields} onClick={toggleFields}><span aria-hidden="true">☷</span> Fields</button><button className="search-trigger" aria-label="Open Coordinate Search" aria-expanded={searchOpen} onClick={()=>setSearchOpen(!searchOpen)}><span aria-hidden="true">⌕</span><span>Enter coordinates<small>RA / Dec · search the real sky</small></span><kbd>/</kbd></button></div>}
       <div className="header-utilities"><div className="survey-selector"><span className={`status-dot ${survey.state}`}/><select aria-label="Background survey" value={survey.id==='2mass'?'2mass':'spherex'} onChange={event=>void engine?.setSurvey(event.target.value)} disabled={!engine}><option value="spherex">Sky background · SPHEREx DR1 · {survey.id==='spherex'&&survey.wavelengthUm?survey.wavelengthUm.toFixed(3)+' μm':'all-sky cube'}</option><option value="2mass">Sky background · 2MASS K · 2.16 μm</option></select></div><button className="about-button" onClick={()=>setAbout(true)}>About / Data sources <span aria-hidden="true">↗</span></button></div></header>
     {investigate&&target&&<header className="investigation-header"><button className="back-to-explore" aria-label="Back to Sky" onClick={()=>void back()}>← <span>Back to sky</span></button><div><span className="eyebrow">INVESTIGATE</span><h1>{target.name}</h1></div><button className="change-field" aria-label={`${allTargets.length} prepared fields`} aria-expanded={fields} onClick={toggleFields}>Change field⌄</button><span className="investigation-count">{target.sequence?.frames.length??1} observations</span><span className="science-status">{scienceStatus(target)}</span></header>}
